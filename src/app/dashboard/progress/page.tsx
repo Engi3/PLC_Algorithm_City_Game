@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
@@ -5,13 +6,18 @@ import { isLevelSpec } from "@/lib/ladder/level-spec";
 import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
 import SkillRadarChart from "@/components/analytics/SkillRadarChart";
 
+type LevelRow = { id: string; levelNumber: number; title: string };
+
 export default async function ProgressPage() {
   const profile = await getCurrentProfile();
   if (profile?.role !== "student") redirect("/dashboard");
 
   let logs: PlayLogLite[] = [];
   let levelSkills: LevelSkillMap = {};
-  let levelTitles: Record<string, string> = {};
+  // Ordered by level_number to match the "Play Levels" list exactly -
+  // without an explicit ORDER BY, Postgres row order is unspecified, so
+  // this table could silently drift out of sync with /dashboard/play.
+  let levelRows: LevelRow[] = [];
   let gameLogicScore = 0;
   let onsitePracticalScore: number | null = null;
 
@@ -20,12 +26,13 @@ export default async function ProgressPage() {
 
     const { data: levels, error: levelsError } = await supabase
       .from("levels")
-      .select("id, title, level_number, map_layout_json");
+      .select("id, title, level_number, map_layout_json")
+      .order("level_number", { ascending: true });
     if (levelsError) {
       console.error("ProgressPage: failed to load levels", levelsError);
     } else {
       for (const l of levels ?? []) {
-        levelTitles[l.id] = l.title ?? `Level ${l.level_number}`;
+        levelRows.push({ id: l.id, levelNumber: l.level_number, title: l.title ?? `Level ${l.level_number}` });
         if (isLevelSpec(l.map_layout_json)) levelSkills[l.id] = l.map_layout_json.skill;
       }
     }
@@ -76,19 +83,36 @@ export default async function ProgressPage() {
             <tr>
               <th className="px-3 py-2">Level</th>
               <th className="px-3 py-2">Attempts</th>
-              <th className="px-3 py-2">Best score</th>
+              <th className="px-3 py-2">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-            {Object.entries(levelTitles).map(([levelId, title]) => {
+            {levelRows.map(({ id: levelId, levelNumber, title }) => {
               const levelLogs = logs.filter((l) => l.level_id === levelId);
               const bestScore = Math.max(0, ...levelLogs.filter((l) => l.is_success).map((l) => l.score ?? 0));
+              const passed = passedLevelIds.has(levelId);
               return (
                 <tr key={levelId}>
-                  <td className="px-3 py-2 text-zinc-900 dark:text-zinc-50">{title}</td>
+                  <td className="px-3 py-2">
+                    <Link
+                      href={`/dashboard/play/${levelId}`}
+                      className="text-zinc-900 hover:text-blue-600 hover:underline dark:text-zinc-50 dark:hover:text-blue-400"
+                    >
+                      <span className="mr-1 text-xs font-semibold text-zinc-400">Level {levelNumber}</span>
+                      {title}
+                    </Link>
+                  </td>
                   <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">{levelLogs.length}</td>
-                  <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">
-                    {passedLevelIds.has(levelId) ? bestScore : "-"}
+                  <td className="px-3 py-2">
+                    {passed ? (
+                      <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-950 dark:text-green-400">
+                        Best: {bestScore}
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+                        Not passed
+                      </span>
+                    )}
                   </td>
                 </tr>
               );

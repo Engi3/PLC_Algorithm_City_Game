@@ -13,10 +13,12 @@ function navItemsForRole(profile: Profile): NavItem[] {
     case "teacher":
       return [
         { href: "/dashboard", label: "Overview" },
+        { href: "/dashboard/play", label: "Test Play Levels" },
         { href: "/dashboard/play/sandbox", label: "Ladder Sandbox" },
         { href: "/dashboard/levels", label: "Levels" },
         { href: "/dashboard/students", label: "Manage Users" },
         { href: "/dashboard/analytics", label: "Analytics & Export" },
+        { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
       ];
     case "student":
       if (profile.approval_status !== "approved") {
@@ -28,6 +30,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard/play/sandbox", label: "Sandbox" },
         { href: "/dashboard/progress", label: "My Progress" },
         { href: "/dashboard/shop", label: "Shop" },
+        { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
       ];
     case "guest":
     default:
@@ -36,6 +39,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard/play", label: "Play (Trial)" },
         { href: "/dashboard/play/sandbox", label: "Sandbox" },
         { href: "/dashboard/shop", label: "Shop" },
+        { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
       ];
   }
 }

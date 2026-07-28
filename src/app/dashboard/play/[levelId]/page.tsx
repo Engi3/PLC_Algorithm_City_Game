@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isLevelSpec, SKILL_LABELS } from "@/lib/ladder/level-spec";
 import LadderPlayground from "@/components/ladder/LadderPlayground";
+import { getCurrentProfile } from "@/lib/auth/get-profile";
 
 export default async function LevelPlayPage({
   params,
@@ -9,6 +10,8 @@ export default async function LevelPlayPage({
   params: Promise<{ levelId: string }>;
 }) {
   const { levelId } = await params;
+  const profile = await getCurrentProfile();
+  const isTeacher = profile?.role === "teacher";
 
   let title = "Level";
   let description = "";
@@ -41,7 +44,14 @@ export default async function LevelPlayPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{title}</h1>
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{title}</h1>
+        {isTeacher && (
+          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-400">
+            โหมดทดสอบอาจารย์ - คะแนนจะไม่ถูกบันทึกในระบบจัดอันดับนักเรียน
+          </span>
+        )}
+      </div>
       <LadderPlayground level={{ id: levelId, description, skillLabel, hints }} />
     </div>
   );

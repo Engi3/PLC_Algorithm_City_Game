@@ -54,10 +54,9 @@ export default async function LevelListPage() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Levels</h1>
+          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">ด่านทดสอบ (Levels)</h1>
           <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-            Solve each mission with the ladder logic builder. Fewer blocks
-            used earns a higher score.
+            ทำภารกิจแต่ละด่านให้สำเร็จด้วยการต่อวงจรแลดเดอร์ ยิ่งใช้บล็อกคำสั่งน้อย ยิ่งได้คะแนนสูง
           </p>
         </div>
         <Link

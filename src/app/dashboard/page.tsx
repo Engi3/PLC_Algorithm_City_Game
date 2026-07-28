@@ -11,14 +11,14 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Welcome, {name}
+          ยินดีต้อนรับ, {name}
         </h1>
         <p className="mt-1 text-zinc-600 dark:text-zinc-400">
           {profile?.role === "teacher"
             ? "Teacher dashboard - level and student management arrive in later phases."
             : profile?.is_guest
               ? "You're in guest trial mode - progress isn't saved to a permanent profile."
-              : "Ready to practice PLC ladder logic."}
+              : "พร้อมสำหรับการฝึกเขียนโปรแกรม PLC Ladder Logic หรือยัง?"}
         </p>
       </div>
 

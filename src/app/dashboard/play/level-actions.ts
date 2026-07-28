@@ -103,7 +103,10 @@ export async function submitLevelAction(
     }
 
     let coinsEarned = 0;
-    if (evalResult.passed && score > priorBestScore) {
+    // Teachers test-play levels to sanity-check them; their attempts must
+    // never land in student_scores, since that table feeds the main
+    // student ranking/analytics view.
+    if (isEconomySubject && evalResult.passed && score > priorBestScore) {
       coinsEarned = computeCoinsForScore(score);
       try {
         const admin = createAdminClient();
@@ -172,6 +175,9 @@ export async function skipLevelAction(levelId: string): Promise<SkipLevelResult>
   try {
     const profile = await getCurrentProfile();
     if (!profile) return { error: "Not signed in." };
+    if (profile.role === "teacher") {
+      return { error: "อาจารย์ไม่จำเป็นต้องใช้ Skip Token ในโหมดทดสอบด่าน" };
+    }
     if (profile.skip_tokens <= 0) {
       return { error: "คุณไม่มี Skip Token กรุณาซื้อจากร้านค้า" };
     }

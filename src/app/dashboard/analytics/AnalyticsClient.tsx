@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import SkillRadarChart from "@/components/analytics/SkillRadarChart";
+import MarkdownContent from "@/components/markdown/MarkdownContent";
 import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
 import { toCsv, downloadCsv } from "@/lib/analytics/csv";
-import { updatePracticalScoreAction, type ActionState } from "./actions";
+import { updatePracticalScoreAction, grantBonusCoinsAction, type ActionState } from "./actions";
+import { generateClassInsightsAction } from "./ai-actions";
 
 export type StudentRow = {
   id: string;
@@ -55,6 +57,85 @@ function SaveButton() {
   );
 }
 
+function BonusCoinsForm({ studentId }: { studentId: string }) {
+  const [state, formAction] = useActionState(grantBonusCoinsAction, initialState);
+  return (
+    <form action={formAction} className="flex items-center gap-1">
+      <input type="hidden" name="userId" value={studentId} />
+      <input
+        type="number"
+        name="amount"
+        min={1}
+        max={1000}
+        placeholder="10"
+        className="w-16 rounded border border-zinc-300 px-1.5 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+      />
+      <GrantCoinsButton />
+      {state.error && <span className="text-xs text-red-600 dark:text-red-400">{state.error}</span>}
+      {state.success && <span className="text-xs text-green-600 dark:text-green-400">{state.success}</span>}
+    </form>
+  );
+}
+
+function GrantCoinsButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="rounded bg-amber-500 px-2 py-1 text-xs font-medium text-white hover:bg-amber-600 disabled:opacity-60"
+    >
+      {pending ? "..." : "มอบเหรียญ"}
+    </button>
+  );
+}
+
+function AiInsightsPanel() {
+  const [insights, setInsights] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function generate() {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await generateClassInsightsAction();
+      if ("error" in result && result.error) {
+        setError(result.error);
+      } else if ("insights" in result && result.insights) {
+        setInsights(result.insights);
+      }
+    } catch (err) {
+      console.error("generateClassInsightsAction failed:", err);
+      setError("Something went wrong generating insights.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-purple-900 dark:text-purple-200">AI Insights (Gemini)</h2>
+        <button
+          type="button"
+          onClick={generate}
+          disabled={loading}
+          className="rounded-md bg-purple-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-60"
+        >
+          {loading ? "กำลังวิเคราะห์..." : "วิเคราะห์ภาพรวมชั้นเรียนด้วย AI"}
+        </button>
+      </div>
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {insights && (
+        <div className="rounded-md bg-white p-3 dark:bg-zinc-950">
+          <MarkdownContent content={insights} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AnalyticsClient({
   students,
   levelSkills,
@@ -89,6 +170,8 @@ export default function AnalyticsClient({
 
   return (
     <div className="flex flex-col gap-6">
+      <AiInsightsPanel />
+
       <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mb-3 flex items-center justify-between gap-2">
           <select
@@ -127,7 +210,7 @@ export default function AnalyticsClient({
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[860px] text-left text-sm">
           <thead className="bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
             <tr>
               <th className="px-3 py-2">Name</th>
@@ -136,6 +219,7 @@ export default function AnalyticsClient({
               <th className="px-3 py-2">Levels passed</th>
               <th className="px-3 py-2">Game score</th>
               <th className="px-3 py-2">Practical score</th>
+              <th className="px-3 py-2">Bonus Coins</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -153,11 +237,14 @@ export default function AnalyticsClient({
                 <td className="px-3 py-2">
                   <PracticalScoreForm studentId={s.id} current={s.onsitePracticalScore} />
                 </td>
+                <td className="px-3 py-2">
+                  <BonusCoinsForm studentId={s.id} />
+                </td>
               </tr>
             ))}
             {students.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-zinc-400">
+                <td colSpan={7} className="px-3 py-6 text-center text-zinc-400">
                   No approved students yet.
                 </td>
               </tr>
