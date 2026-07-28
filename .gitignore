@@ -34,3 +34,6 @@ next-env.d.ts
 
 # project secrets doc - contains live DB password + Gemini API key, never commit
 Other data.md
+
+# local Claude Code tool config/state
+.claude/
