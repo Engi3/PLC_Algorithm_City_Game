@@ -1,11 +1,11 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import type { ContactType, OutputType } from "@/lib/ladder/types";
+import type { ContactType, OutputKind } from "@/lib/ladder/types";
 
 export type PaletteDragData =
   | { kind: "contact"; contactType: ContactType }
-  | { kind: "output"; outputType: OutputType };
+  | { kind: "output"; outputKind: OutputKind };
 
 const PALETTE_ITEMS: { id: string; label: string; sub: string; data: PaletteDragData }[] = [
   {
@@ -24,13 +24,31 @@ const PALETTE_ITEMS: { id: string; label: string; sub: string; data: PaletteDrag
     id: "palette-COIL",
     label: "( )",
     sub: "Coil",
-    data: { kind: "output", outputType: "COIL" },
+    data: { kind: "output", outputKind: "COIL" },
+  },
+  {
+    id: "palette-SET",
+    label: "(S)",
+    sub: "Set / latch coil",
+    data: { kind: "output", outputKind: "SET" },
+  },
+  {
+    id: "palette-RESET",
+    label: "(R)",
+    sub: "Reset coil/timer/counter",
+    data: { kind: "output", outputKind: "RESET" },
   },
   {
     id: "palette-TIMER",
-    label: "TON",
-    sub: "On-delay timer",
-    data: { kind: "output", outputType: "TIMER" },
+    label: "TMR",
+    sub: "Timer (TON/TOF/RTO)",
+    data: { kind: "output", outputKind: "TIMER" },
+  },
+  {
+    id: "palette-COUNTER",
+    label: "CTR",
+    sub: "Counter (CTU/CTD)",
+    data: { kind: "output", outputKind: "COUNTER" },
   },
 ];
 

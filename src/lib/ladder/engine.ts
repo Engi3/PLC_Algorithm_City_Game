@@ -3,8 +3,8 @@ import type { Branch, Contact, Inputs, LadderProgram, SimMemory } from "./types"
 function readBit(address: string | null, inputs: Inputs, memory: SimMemory): boolean {
   if (!address) return false;
   if (address.endsWith(".DN")) {
-    const timerAddress = address.slice(0, -".DN".length);
-    return memory.timers[timerAddress]?.done ?? false;
+    const base = address.slice(0, -".DN".length);
+    return memory.timers[base]?.done ?? memory.counters[base]?.done ?? false;
   }
   if (address.startsWith("Q")) return memory.coils[address] ?? false;
   return inputs[address] ?? false;
@@ -32,13 +32,15 @@ export function evalRungEnergized(
 
 /**
  * Runs one PLC scan over every rung, top to bottom, threading updated
- * memory through so later rungs can read coils/timers written earlier
- * in the same scan (mirrors real in-scan image-table updates).
+ * memory through so later rungs can read coils/timers/counters written
+ * earlier in the same scan (mirrors real in-scan image-table updates).
  *
- * `tick` gates timer accumulation: combinational logic (contacts, coils)
- * is always recomputed instantly, but a timer's accumulator only advances
- * on an explicit tick (Step/Run), while de-energizing still resets it
- * immediately - this separates "time passing" from "an input changed".
+ * `tick` gates timer accumulation only: combinational logic (contacts,
+ * coils) and counters are always recomputed instantly on any input or
+ * program change, but a timer's accumulator only advances on an explicit
+ * tick (Step/Run) - this separates "time passing" from "an input changed".
+ * Counters are edge-triggered off rung-energized transitions, not time, so
+ * they are unaffected by `tick`.
  */
 export function runScan(
   program: LadderProgram,
@@ -49,6 +51,7 @@ export function runScan(
   const memory: SimMemory = {
     coils: { ...prevMemory.coils },
     timers: { ...prevMemory.timers },
+    counters: { ...prevMemory.counters },
   };
   const rungEnergized: Record<string, boolean> = {};
 
@@ -56,24 +59,87 @@ export function runScan(
     const energized = evalRungEnergized(rung.branches, inputs, memory);
     rungEnergized[rung.id] = energized;
 
-    if (!rung.output || !rung.output.address) continue;
+    const output = rung.output;
+    if (!output || !output.address) continue;
+    const addr = output.address;
 
-    if (rung.output.type === "COIL") {
-      memory.coils[rung.output.address] = energized;
-    } else {
-      const prev = memory.timers[rung.output.address];
-      const preset = rung.output.preset;
-      let acc = prev?.acc ?? 0;
-      if (!energized) {
-        acc = 0;
-      } else if (options.tick) {
-        acc = Math.min(preset, acc + 1);
+    switch (output.kind) {
+      case "COIL": {
+        memory.coils[addr] = energized;
+        break;
       }
-      memory.timers[rung.output.address] = {
-        acc,
-        preset,
-        done: acc >= preset && preset > 0,
-      };
+      case "SET": {
+        if (energized) memory.coils[addr] = true;
+        break;
+      }
+      case "RESET": {
+        if (!energized) break;
+        if (addr.startsWith("Q")) {
+          memory.coils[addr] = false;
+        } else if (addr.startsWith("T")) {
+          const prev = memory.timers[addr];
+          memory.timers[addr] = { acc: 0, preset: prev?.preset ?? 0, done: false };
+        } else if (addr.startsWith("C")) {
+          const prev = memory.counters[addr];
+          const preset = prev?.preset ?? 0;
+          const variant = prev?.variant ?? "CTU";
+          // CTD reloads to its preset (counts back down from there); CTU
+          // clears to 0 (counts back up from there).
+          const cv = variant === "CTD" ? preset : 0;
+          memory.counters[addr] = {
+            cv,
+            preset,
+            done: variant === "CTD" ? cv <= 0 : preset > 0 && cv >= preset,
+            variant,
+            prevEnergized: prev?.prevEnergized ?? false,
+          };
+        }
+        break;
+      }
+      case "TIMER": {
+        const prev = memory.timers[addr];
+        const preset = output.preset;
+        let acc = prev?.acc ?? 0;
+        let done: boolean;
+
+        if (output.variant === "TON") {
+          if (!energized) acc = 0;
+          else if (options.tick) acc = Math.min(preset, acc + 1);
+          done = preset > 0 && acc >= preset;
+        } else if (output.variant === "TOF") {
+          if (energized) {
+            acc = 0;
+            done = true;
+          } else {
+            if (options.tick) acc = Math.min(preset, acc + 1);
+            done = preset > 0 && acc < preset;
+          }
+        } else {
+          // RTO: accumulates while energized, never auto-resets - only a
+          // RESET instruction targeting this address clears it.
+          if (energized && options.tick) acc = Math.min(preset, acc + 1);
+          done = preset > 0 && acc >= preset;
+        }
+
+        memory.timers[addr] = { acc, preset, done };
+        break;
+      }
+      case "COUNTER": {
+        const prev = memory.counters[addr];
+        const preset = output.preset;
+        // CTD starts pre-loaded at the preset and counts down; CTU starts at 0.
+        let cv = prev?.cv ?? (output.variant === "CTD" ? preset : 0);
+        const prevEnergized = prev?.prevEnergized ?? false;
+        const risingEdge = energized && !prevEnergized;
+
+        if (risingEdge) {
+          cv = output.variant === "CTU" ? cv + 1 : Math.max(0, cv - 1);
+        }
+
+        const done = output.variant === "CTU" ? preset > 0 && cv >= preset : cv <= 0;
+        memory.counters[addr] = { cv, preset, done, variant: output.variant, prevEnergized: energized };
+        break;
+      }
     }
   }
 

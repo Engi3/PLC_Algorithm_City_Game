@@ -1,6 +1,6 @@
 "use client";
 
-import { COIL_ADDRESSES, INPUT_ADDRESSES, TIMER_ADDRESSES, type Inputs, type SimMemory } from "@/lib/ladder/types";
+import { COIL_ADDRESSES, COUNTER_ADDRESSES, INPUT_ADDRESSES, TIMER_ADDRESSES, type Inputs, type SimMemory } from "@/lib/ladder/types";
 
 export default function IoPanel({
   inputs,
@@ -79,6 +79,30 @@ export default function IoPanel({
               >
                 <span className="font-mono">{addr}</span>
                 <span>{t ? `${t.acc}/${t.preset}` : "-"}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          Counters
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {COUNTER_ADDRESSES.map((addr) => {
+            const c = memory.counters[addr];
+            return (
+              <div
+                key={addr}
+                className={`flex h-10 w-16 flex-col items-center justify-center rounded-md border text-[10px] font-semibold ${
+                  c?.done
+                    ? "border-yellow-500 bg-yellow-300 text-yellow-900"
+                    : "border-zinc-300 bg-white text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900"
+                }`}
+              >
+                <span className="font-mono">{addr}</span>
+                <span>{c ? `${c.cv}/${c.preset}` : "-"}</span>
               </div>
             );
           })}
