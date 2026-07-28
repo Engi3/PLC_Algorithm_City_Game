@@ -1,4 +1,4 @@
-import type { Inputs } from "./types";
+import type { Inputs, LadderProgram } from "./types";
 
 /** Skill category a level is tagged with, used for the teacher's radar chart. */
 export type SkillCategory = "basic_logic" | "latching" | "timers" | "counters" | "efficiency";
@@ -22,6 +22,12 @@ export type LevelSpec = {
   allowedInputs: string[];
   allowedOutputs: string[];
   testCases: LevelTestCase[];
+  /**
+   * The teacher's model solution, kept only so re-opening the level in the
+   * authoring editor restores their work. Never read by grading - students
+   * never see this, and evaluateLevel only ever runs the student's program.
+   */
+  referenceProgram?: LadderProgram;
 };
 
 export function isLevelSpec(value: unknown): value is LevelSpec {
