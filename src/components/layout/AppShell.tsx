@@ -13,17 +13,22 @@ function navItemsForRole(role: Profile["role"]): NavItem[] {
     case "teacher":
       return [
         { href: "/dashboard", label: "Overview" },
+        { href: "/dashboard/play", label: "Ladder Sandbox" },
         { href: "/dashboard/levels", label: "Levels" },
         { href: "/dashboard/analytics", label: "Analytics & Export" },
       ];
     case "student":
       return [
-        { href: "/dashboard", label: "Play" },
+        { href: "/dashboard", label: "Home" },
+        { href: "/dashboard/play", label: "Play" },
         { href: "/dashboard/progress", label: "My Progress" },
       ];
     case "guest":
     default:
-      return [{ href: "/dashboard", label: "Play (Trial)" }];
+      return [
+        { href: "/dashboard", label: "Home" },
+        { href: "/dashboard/play", label: "Play (Trial)" },
+      ];
   }
 }
 

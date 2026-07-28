@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 
 export default async function DashboardPage() {
@@ -15,15 +16,23 @@ export default async function DashboardPage() {
             ? "Teacher dashboard - level and student management arrive in later phases."
             : profile?.is_guest
               ? "You're in guest trial mode - progress isn't saved to a permanent profile."
-              : "Ready to practice PLC ladder logic. The game engine arrives in Phase 3."}
+              : "Ready to practice PLC ladder logic."}
         </p>
       </div>
 
       {profile && profile.role !== "teacher" && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <StatCard label="Coins" value={profile.coins} />
-          <StatCard label="Energy" value={profile.energy} />
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatCard label="Coins" value={profile.coins} />
+            <StatCard label="Energy" value={profile.energy} />
+          </div>
+          <Link
+            href="/dashboard/play"
+            className="w-fit rounded-full bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+          >
+            Open the ladder logic sandbox
+          </Link>
+        </>
       )}
     </div>
   );
