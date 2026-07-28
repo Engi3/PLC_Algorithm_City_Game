@@ -21,12 +21,13 @@ import {
 
 type ViewMode = "LD" | "FBD" | "ST";
 
-export type LevelInfo = { id: string; description: string; skillLabel: string };
+export type LevelInfo = { id: string; description: string; skillLabel: string; hints?: string[] };
 
 export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) {
   const ladder = useLadderProgram();
   const { activeDrag, handleDragStart, handleDragEnd } = useLadderDnd(ladder);
   const [view, setView] = useState<ViewMode>("LD");
+  const [hintsRevealed, setHintsRevealed] = useState(0);
   const [hint, setHint] = useState<string | null>(null);
   const [hintError, setHintError] = useState<string | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
@@ -94,11 +95,30 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
     <DndContext id="ladder-dnd" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex flex-col gap-4">
         {level && (
-          <div className="flex flex-col gap-1 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
+          <div className="flex flex-col gap-2 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
             <span className="w-fit rounded bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
               {level.skillLabel}
             </span>
             <p className="text-sm text-blue-900 dark:text-blue-100">{level.description}</p>
+
+            {level.hints && level.hints.length > 0 && (
+              <div className="flex flex-col gap-1">
+                {level.hints.slice(0, hintsRevealed).map((h, i) => (
+                  <p key={i} className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    คำใบ้ {i + 1}: {h}
+                  </p>
+                ))}
+                {hintsRevealed < level.hints.length && (
+                  <button
+                    type="button"
+                    onClick={() => setHintsRevealed((n) => n + 1)}
+                    className="w-fit text-xs font-medium text-blue-700 hover:underline dark:text-blue-300"
+                  >
+                    ดูคำใบ้ {hintsRevealed + 1}/{level.hints.length}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
 

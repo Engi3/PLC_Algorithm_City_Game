@@ -22,6 +22,8 @@ export type LevelSpec = {
   allowedInputs: string[];
   allowedOutputs: string[];
   testCases: LevelTestCase[];
+  /** Progressive hints (index 0 = revealed first), shown to students on request. Optional for backward compatibility. */
+  hints?: string[];
   /**
    * The teacher's model solution, kept only so re-opening the level in the
    * authoring editor restores their work. Never read by grading - students

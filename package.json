@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "generate:levels": "tsx scripts/level-gen/generate.ts",
+    "seed:levels": "tsx scripts/seed-levels.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

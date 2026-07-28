@@ -13,6 +13,7 @@ export default async function LevelPlayPage({
   let title = "Level";
   let description = "";
   let skillLabel = "";
+  let hints: string[] = [];
 
   try {
     const supabase = await createClient();
@@ -31,6 +32,7 @@ export default async function LevelPlayPage({
     if (isLevelSpec(level.map_layout_json)) {
       description = level.map_layout_json.description;
       skillLabel = SKILL_LABELS[level.map_layout_json.skill];
+      hints = level.map_layout_json.hints ?? [];
     }
   } catch (err) {
     console.error("LevelPlayPage crashed:", err);
@@ -40,7 +42,7 @@ export default async function LevelPlayPage({
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{title}</h1>
-      <LadderPlayground level={{ id: levelId, description, skillLabel }} />
+      <LadderPlayground level={{ id: levelId, description, skillLabel, hints }} />
     </div>
   );
 }

@@ -55,6 +55,7 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
   );
   const [allowedInputs, setAllowedInputs] = useState<string[]>(initialLevel?.spec.allowedInputs ?? []);
   const [allowedOutputs, setAllowedOutputs] = useState<string[]>(initialLevel?.spec.allowedOutputs ?? []);
+  const [hintsText, setHintsText] = useState((initialLevel?.spec.hints ?? []).join("\n"));
 
   const [testCases, setTestCases] = useState<LevelTestCase[]>(initialLevel?.spec.testCases ?? []);
   const [currentFrames, setCurrentFrames] = useState<{ inputs: Inputs; ticks: number }[]>([]);
@@ -137,12 +138,17 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
     setSaving(true);
     setSaveError(null);
     try {
+      const hints = hintsText
+        .split("\n")
+        .map((h) => h.trim())
+        .filter((h) => h.length > 0);
       const spec: LevelSpec = {
         description,
         skill,
         allowedInputs,
         allowedOutputs,
         testCases,
+        hints,
         referenceProgram: program,
       };
       const result = await saveLevelAction({
@@ -220,6 +226,18 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
             min={1}
             value={optimalBlocksCount}
             onChange={(e) => setOptimalBlocksCount(e.target.value === "" ? "" : Number(e.target.value))}
+            className="rounded border border-zinc-300 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+          <span className="font-medium text-zinc-700 dark:text-zinc-300">
+            Hints (one per line, revealed progressively to a stuck student)
+          </span>
+          <textarea
+            value={hintsText}
+            onChange={(e) => setHintsText(e.target.value)}
+            rows={3}
             className="rounded border border-zinc-300 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
           />
         </label>
