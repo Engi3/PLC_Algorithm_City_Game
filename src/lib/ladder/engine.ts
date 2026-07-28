@@ -1,6 +1,6 @@
 import type { Branch, Contact, Inputs, LadderProgram, SimMemory } from "./types";
 
-function readBit(address: string | null, inputs: Inputs, memory: SimMemory): boolean {
+export function readBit(address: string | null, inputs: Inputs, memory: SimMemory): boolean {
   if (!address) return false;
   if (address.endsWith(".DN")) {
     const base = address.slice(0, -".DN".length);
@@ -128,8 +128,12 @@ export function runScan(
         const prev = memory.counters[addr];
         const preset = output.preset;
         // CTD starts pre-loaded at the preset and counts down; CTU starts at 0.
-        let cv = prev?.cv ?? (output.variant === "CTD" ? preset : 0);
-        const prevEnergized = prev?.prevEnergized ?? false;
+        // Re-seed (not just on first use) whenever the variant differs from
+        // what's stored, so switching CTU<->CTD in the editor reloads
+        // correctly instead of keeping a stale accumulator.
+        const sameVariant = prev?.variant === output.variant;
+        let cv = sameVariant ? prev!.cv : output.variant === "CTD" ? preset : 0;
+        const prevEnergized = sameVariant ? prev!.prevEnergized : false;
         const risingEdge = energized && !prevEnergized;
 
         if (risingEdge) {

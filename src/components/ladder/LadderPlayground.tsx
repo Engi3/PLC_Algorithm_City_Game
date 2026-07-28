@@ -27,11 +27,14 @@ import IoPanel from "./IoPanel";
 import FbdView from "./FbdView";
 import StView from "./StView";
 import { getHintAction } from "@/app/dashboard/play/actions";
+import { submitLevelAction, type SubmitLevelResult } from "@/app/dashboard/play/level-actions";
 
 const TICK_MS = 600;
 type ViewMode = "LD" | "FBD" | "ST";
 
-export default function LadderPlayground() {
+export type LevelInfo = { id: string; description: string; skillLabel: string };
+
+export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) {
   const [program, setProgram] = useState<LadderProgram>(() => createEmptyProgram());
   const [inputs, setInputs] = useState<Inputs>({});
   const [memory, setMemory] = useState<SimMemory>(() => createEmptyMemory());
@@ -41,6 +44,8 @@ export default function LadderPlayground() {
   const [hint, setHint] = useState<string | null>(null);
   const [hintError, setHintError] = useState<string | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
+  const [submitResult, setSubmitResult] = useState<SubmitLevelResult | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!running) return;
@@ -238,11 +243,35 @@ export default function LadderPlayground() {
     }
   }
 
+  async function submitLevel() {
+    if (!level) return;
+    setSubmitting(true);
+    setSubmitResult(null);
+    try {
+      const result = await submitLevelAction(level.id, program);
+      setSubmitResult(result);
+    } catch (err) {
+      console.error("submitLevel failed:", err);
+      setSubmitResult({ error: "Something went wrong. Please try again." });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   const addressOptions = contactAddressOptions(program);
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext id="ladder-dnd" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex flex-col gap-4">
+        {level && (
+          <div className="flex flex-col gap-1 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
+            <span className="w-fit rounded bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+              {level.skillLabel}
+            </span>
+            <p className="text-sm text-blue-900 dark:text-blue-100">{level.description}</p>
+          </div>
+        )}
+
         <div className="flex gap-1 border-b border-zinc-200 dark:border-zinc-800">
           {(["LD", "FBD", "ST"] as ViewMode[]).map((v) => (
             <button
@@ -329,7 +358,35 @@ export default function LadderPlayground() {
           >
             Reset
           </button>
+          {level && (
+            <button
+              type="button"
+              onClick={submitLevel}
+              disabled={submitting}
+              className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-60"
+            >
+              {submitting ? "Checking..." : "Submit"}
+            </button>
+          )}
         </div>
+
+        {level && submitResult && (
+          <div
+            className={`rounded-md px-3 py-2 text-sm ${
+              "error" in submitResult
+                ? "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400"
+                : submitResult.passed
+                  ? "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-400"
+                  : "bg-yellow-50 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-400"
+            }`}
+          >
+            {"error" in submitResult
+              ? submitResult.error
+              : submitResult.passed
+                ? `Passed! Score: ${submitResult.score} (best: ${submitResult.bestScore})`
+                : `Not quite - failed test case(s) ${submitResult.failedCases.map((i) => i + 1).join(", ")}. Try again.`}
+          </div>
+        )}
 
         <IoPanel inputs={inputs} memory={memory} onToggleInput={toggleInput} />
 

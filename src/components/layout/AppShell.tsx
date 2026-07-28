@@ -13,7 +13,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
     case "teacher":
       return [
         { href: "/dashboard", label: "Overview" },
-        { href: "/dashboard/play", label: "Ladder Sandbox" },
+        { href: "/dashboard/play/sandbox", label: "Ladder Sandbox" },
         { href: "/dashboard/levels", label: "Levels" },
         { href: "/dashboard/students", label: "Manage Users" },
         { href: "/dashboard/analytics", label: "Analytics & Export" },
@@ -25,6 +25,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
       return [
         { href: "/dashboard", label: "Home" },
         { href: "/dashboard/play", label: "Play" },
+        { href: "/dashboard/play/sandbox", label: "Sandbox" },
         { href: "/dashboard/progress", label: "My Progress" },
       ];
     case "guest":
@@ -32,6 +33,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
       return [
         { href: "/dashboard", label: "Home" },
         { href: "/dashboard/play", label: "Play (Trial)" },
+        { href: "/dashboard/play/sandbox", label: "Sandbox" },
       ];
   }
 }

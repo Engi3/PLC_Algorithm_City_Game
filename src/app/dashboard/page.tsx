@@ -30,7 +30,7 @@ export default async function DashboardPage() {
             href="/dashboard/play"
             className="w-fit rounded-full bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
           >
-            Open the ladder logic sandbox
+            Browse levels
           </Link>
         </>
       )}
