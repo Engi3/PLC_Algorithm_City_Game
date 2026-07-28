@@ -27,6 +27,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard/play", label: "Play" },
         { href: "/dashboard/play/sandbox", label: "Sandbox" },
         { href: "/dashboard/progress", label: "My Progress" },
+        { href: "/dashboard/shop", label: "Shop" },
       ];
     case "guest":
     default:
@@ -34,6 +35,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard", label: "Home" },
         { href: "/dashboard/play", label: "Play (Trial)" },
         { href: "/dashboard/play/sandbox", label: "Sandbox" },
+        { href: "/dashboard/shop", label: "Shop" },
       ];
   }
 }

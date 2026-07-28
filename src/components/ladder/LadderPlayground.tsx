@@ -12,7 +12,12 @@ import IoPanel from "./IoPanel";
 import FbdView from "./FbdView";
 import StView from "./StView";
 import { getHintAction } from "@/app/dashboard/play/actions";
-import { submitLevelAction, type SubmitLevelResult } from "@/app/dashboard/play/level-actions";
+import {
+  submitLevelAction,
+  skipLevelAction,
+  type SubmitLevelResult,
+  type SkipLevelResult,
+} from "@/app/dashboard/play/level-actions";
 
 type ViewMode = "LD" | "FBD" | "ST";
 
@@ -27,6 +32,9 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
   const [hintLoading, setHintLoading] = useState(false);
   const [submitResult, setSubmitResult] = useState<SubmitLevelResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [skipResult, setSkipResult] = useState<SkipLevelResult | null>(null);
+  const [skipping, setSkipping] = useState(false);
+  const [hintCreditsRemaining, setHintCreditsRemaining] = useState<number | null>(null);
 
   const { program, inputs, memory, running, setRunning } = ladder;
 
@@ -40,6 +48,7 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
         setHintError(result.error);
       } else if ("hint" in result && result.hint) {
         setHint(result.hint);
+        setHintCreditsRemaining(result.hintCreditsRemaining);
       }
     } catch (err) {
       console.error("askForHint failed:", err);
@@ -61,6 +70,21 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
       setSubmitResult({ error: "Something went wrong. Please try again." });
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function useSkipToken() {
+    if (!level) return;
+    setSkipping(true);
+    setSkipResult(null);
+    try {
+      const result = await skipLevelAction(level.id);
+      setSkipResult(result);
+    } catch (err) {
+      console.error("useSkipToken failed:", err);
+      setSkipResult({ error: "Something went wrong. Please try again." });
+    } finally {
+      setSkipping(false);
     }
   }
 
@@ -165,14 +189,24 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
             Reset
           </button>
           {level && (
-            <button
-              type="button"
-              onClick={submitLevel}
-              disabled={submitting}
-              className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-60"
-            >
-              {submitting ? "Checking..." : "Submit"}
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={submitLevel}
+                disabled={submitting}
+                className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-60"
+              >
+                {submitting ? "Checking..." : "Submit"}
+              </button>
+              <button
+                type="button"
+                onClick={useSkipToken}
+                disabled={skipping}
+                className="rounded-md border border-amber-400 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-60 dark:text-amber-400 dark:hover:bg-amber-950"
+              >
+                {skipping ? "..." : "Use Skip Token"}
+              </button>
+            </>
           )}
         </div>
 
@@ -189,8 +223,22 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
             {"error" in submitResult
               ? submitResult.error
               : submitResult.passed
-                ? `Passed! Score: ${submitResult.score} (best: ${submitResult.bestScore})`
-                : `Not quite - failed test case(s) ${submitResult.failedCases.map((i) => i + 1).join(", ")}. Try again.`}
+                ? `Passed! Score: ${submitResult.score} (best: ${submitResult.bestScore})${submitResult.coinsEarned > 0 ? ` - earned ${submitResult.coinsEarned} coins!` : ""}${submitResult.energyRemaining !== null ? ` Energy left: ${submitResult.energyRemaining}.` : ""}`
+                : `Not quite - failed test case(s) ${submitResult.failedCases.map((i) => i + 1).join(", ")}. Try again.${submitResult.energyRemaining !== null ? ` Energy left: ${submitResult.energyRemaining}.` : ""}`}
+          </div>
+        )}
+
+        {level && skipResult && (
+          <div
+            className={`rounded-md px-3 py-2 text-sm ${
+              "error" in skipResult
+                ? "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400"
+                : "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-400"
+            }`}
+          >
+            {"error" in skipResult
+              ? skipResult.error
+              : `Level skipped! Score: ${skipResult.score}. Skip Tokens left: ${skipResult.skipTokensRemaining}.`}
           </div>
         )}
 
@@ -208,6 +256,11 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
           {hint && (
             <p className="rounded-md bg-purple-50 px-3 py-2 text-sm text-purple-900 dark:bg-purple-950 dark:text-purple-200">
               {hint}
+              {hintCreditsRemaining !== null && (
+                <span className="mt-1 block text-xs opacity-75">
+                  Hint credits left: {hintCreditsRemaining}
+                </span>
+              )}
             </p>
           )}
           {hintError && (

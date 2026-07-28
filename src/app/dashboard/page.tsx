@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
+import { computeLiveEnergy } from "@/lib/economy/energy";
 
 export default async function DashboardPage() {
   const profile = await getCurrentProfile();
   const name = profile?.first_name || profile?.username;
+  const liveEnergy = profile ? computeLiveEnergy(profile.energy, profile.energy_updated_at) : 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -24,14 +26,24 @@ export default async function DashboardPage() {
         <>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard label="Coins" value={profile.coins} />
-            <StatCard label="Energy" value={profile.energy} />
+            <StatCard label="Energy" value={liveEnergy} />
+            <StatCard label="Hints" value={profile.hint_credits} />
+            <StatCard label="Skip Tokens" value={profile.skip_tokens} />
           </div>
-          <Link
-            href="/dashboard/play"
-            className="w-fit rounded-full bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
-          >
-            Browse levels
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/dashboard/play"
+              className="w-fit rounded-full bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+            >
+              Browse levels
+            </Link>
+            <Link
+              href="/dashboard/shop"
+              className="w-fit rounded-full border border-zinc-300 px-6 py-3 font-medium text-zinc-900 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-50 dark:hover:bg-zinc-900"
+            >
+              Visit shop
+            </Link>
+          </div>
         </>
       )}
     </div>

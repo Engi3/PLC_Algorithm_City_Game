@@ -41,7 +41,7 @@ export function countBlocks(program: LadderProgram): number {
   return count;
 }
 
-const MIN_SCORE = 20;
+export const MIN_SCORE = 20;
 const MAX_SCORE = 100;
 const PENALTY_PER_EXTRA_BLOCK = 10;
 

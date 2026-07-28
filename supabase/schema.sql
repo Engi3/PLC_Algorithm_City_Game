@@ -24,6 +24,10 @@ create table public.users (
   is_guest boolean not null default false,
   coins integer not null default 0,
   energy integer not null default 100,
+  -- Energy regenerates lazily from this timestamp (see src/lib/economy/energy.ts).
+  energy_updated_at timestamptz not null default now(),
+  hint_credits integer not null default 3,
+  skip_tokens integer not null default 0,
   -- Self-registered students start 'pending' and can't reach the dashboard
   -- content until a teacher approves them. Guests, teachers, and any
   -- admin-created account default to 'approved'.
@@ -108,6 +112,42 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- ============================================================
+-- PROTECT SYSTEM-MANAGED COLUMNS FROM SELF-UPDATE
+-- The update policy below only checks row ownership, not which columns
+-- changed, so without this trigger a student's own client could PATCH
+-- their own role/approval_status/coins/energy directly. Self-updates
+-- always keep these columns at their old value; only a teacher (via the
+-- RLS-checked authenticated client) or the service-role admin client may
+-- change them.
+-- ============================================================
+create function public.protect_system_managed_columns()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.role() = 'service_role' or public.is_teacher(auth.uid()) then
+    return new;
+  end if;
+
+  new.role := old.role;
+  new.is_guest := old.is_guest;
+  new.approval_status := old.approval_status;
+  new.coins := old.coins;
+  new.energy := old.energy;
+  new.energy_updated_at := old.energy_updated_at;
+  new.hint_credits := old.hint_credits;
+  new.skip_tokens := old.skip_tokens;
+  return new;
+end;
+$$;
+
+create trigger protect_system_managed_columns_trigger
+  before update on public.users
+  for each row execute function public.protect_system_managed_columns();
 
 -- ============================================================
 -- ROW LEVEL SECURITY

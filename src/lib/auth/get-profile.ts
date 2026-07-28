@@ -13,6 +13,9 @@ export type Profile = {
   is_guest: boolean;
   coins: number;
   energy: number;
+  energy_updated_at: string;
+  hint_credits: number;
+  skip_tokens: number;
   approval_status: ApprovalStatus;
 };
 
@@ -29,7 +32,7 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     const { data, error } = await supabase
       .from("users")
       .select(
-        "id, username, role, student_id, first_name, last_name, is_guest, coins, energy, approval_status"
+        "id, username, role, student_id, first_name, last_name, is_guest, coins, energy, energy_updated_at, hint_credits, skip_tokens, approval_status"
       )
       .eq("id", user.id)
       .single();
