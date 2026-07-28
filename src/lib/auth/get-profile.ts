@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export type UserRole = "student" | "teacher" | "guest";
+export type ApprovalStatus = "pending" | "approved" | "rejected";
 
 export type Profile = {
   id: string;
@@ -12,6 +13,7 @@ export type Profile = {
   is_guest: boolean;
   coins: number;
   energy: number;
+  approval_status: ApprovalStatus;
 };
 
 export async function getCurrentProfile(): Promise<Profile | null> {
@@ -27,7 +29,7 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     const { data, error } = await supabase
       .from("users")
       .select(
-        "id, username, role, student_id, first_name, last_name, is_guest, coins, energy"
+        "id, username, role, student_id, first_name, last_name, is_guest, coins, energy, approval_status"
       )
       .eq("id", user.id)
       .single();

@@ -49,6 +49,7 @@ export async function registerAction(
         first_name: firstName,
         last_name: lastName,
         student_id: studentId,
+        approval_status: "pending",
       },
     });
 

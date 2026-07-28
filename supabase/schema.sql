@@ -5,6 +5,7 @@
 -- ENUM
 -- ============================================================
 create type public.user_role as enum ('student', 'teacher', 'guest');
+create type public.approval_status as enum ('pending', 'approved', 'rejected');
 
 -- ============================================================
 -- TABLES
@@ -23,6 +24,10 @@ create table public.users (
   is_guest boolean not null default false,
   coins integer not null default 0,
   energy integer not null default 100,
+  -- Self-registered students start 'pending' and can't reach the dashboard
+  -- content until a teacher approves them. Guests, teachers, and any
+  -- admin-created account default to 'approved'.
+  approval_status public.approval_status not null default 'approved',
   created_at timestamptz not null default now()
 );
 
@@ -85,7 +90,7 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.users (id, username, role, is_guest, first_name, last_name, student_id)
+  insert into public.users (id, username, role, is_guest, first_name, last_name, student_id, approval_status)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'username', split_part(new.email, '@', 1)),
@@ -93,7 +98,8 @@ begin
     coalesce((new.raw_user_meta_data ->> 'is_guest')::boolean, false),
     new.raw_user_meta_data ->> 'first_name',
     new.raw_user_meta_data ->> 'last_name',
-    new.raw_user_meta_data ->> 'student_id'
+    new.raw_user_meta_data ->> 'student_id',
+    coalesce((new.raw_user_meta_data ->> 'approval_status')::public.approval_status, 'approved')
   );
   return new;
 end;

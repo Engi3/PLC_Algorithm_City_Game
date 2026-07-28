@@ -8,16 +8,20 @@ import { signOutAction } from "@/lib/auth/actions";
 
 type NavItem = { href: string; label: string };
 
-function navItemsForRole(role: Profile["role"]): NavItem[] {
-  switch (role) {
+function navItemsForRole(profile: Profile): NavItem[] {
+  switch (profile.role) {
     case "teacher":
       return [
         { href: "/dashboard", label: "Overview" },
         { href: "/dashboard/play", label: "Ladder Sandbox" },
         { href: "/dashboard/levels", label: "Levels" },
+        { href: "/dashboard/students", label: "Manage Users" },
         { href: "/dashboard/analytics", label: "Analytics & Export" },
       ];
     case "student":
+      if (profile.approval_status !== "approved") {
+        return [{ href: "/dashboard", label: "Home" }];
+      }
       return [
         { href: "/dashboard", label: "Home" },
         { href: "/dashboard/play", label: "Play" },
@@ -41,7 +45,7 @@ export default function AppShell({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const navItems = navItemsForRole(profile.role);
+  const navItems = navItemsForRole(profile);
   const displayName =
     profile.first_name || profile.username;
 
