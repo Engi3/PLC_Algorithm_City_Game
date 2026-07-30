@@ -2,7 +2,7 @@
 
 import { generateGeminiText, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
 import { programToStructuredText } from "@/lib/ladder/render-st";
-import type { Inputs, LadderProgram, SimMemory } from "@/lib/ladder/types";
+import { isComparisonBlock, type Inputs, type LadderProgram, type SimMemory } from "@/lib/ladder/types";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -13,8 +13,9 @@ export type HintResult =
 function hasUnassignedAddress(program: LadderProgram): boolean {
   return program.rungs.some(
     (r) =>
-      r.branches.some((b) => b.cells.some((c) => c && !c.address)) ||
-      (r.output !== null && !r.output.address)
+      r.branches.some((b) =>
+        b.cells.some((c) => c && (isComparisonBlock(c) ? !c.sourceA : !c.address))
+      ) || (r.output !== null && !r.output.address)
   );
 }
 

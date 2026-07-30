@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-import { contactAddressOptions, isOutputAddressTaken, MAX_RUNGS } from "@/lib/ladder/types";
+import { contactAddressOptions, isOutputAddressTaken, MAX_RUNGS, numericAddressOptions } from "@/lib/ladder/types";
 import { evalRungEnergized } from "@/lib/ladder/engine";
 import { useLadderProgram } from "@/lib/ladder/use-ladder-program";
 import { useLadderDnd } from "@/lib/ladder/use-ladder-dnd";
 import { useVariablePool } from "@/lib/ladder/use-variable-pool";
+import { buildTemperatureThresholdPreset } from "@/lib/ladder/presets";
 import LadderPalette from "./LadderPalette";
 import RungRow from "./Rung";
 import IoPanel from "./IoPanel";
+import AnalogInputPanel from "./AnalogInputPanel";
 import FbdView from "./FbdView";
 import StView from "./StView";
 import VariablePoolDrawer from "./VariablePoolDrawer";
@@ -44,7 +46,8 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
   const [skipping, setSkipping] = useState(false);
   const [hintCreditsRemaining, setHintCreditsRemaining] = useState<number | null>(null);
 
-  const { program, inputs, memory, running, setRunning } = ladder;
+  const { program, inputs, analogInputs, memory, running, setRunning } = ladder;
+  const analogAddresses = customVariables.filter((v) => v.kind === "analog_input").map((v) => v.address);
 
   async function askForHint() {
     setHintLoading(true);
@@ -97,6 +100,18 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
   }
 
   const addressOptions = contactAddressOptions(program, customVariables);
+  const numericOptions = numericAddressOptions(program, customVariables);
+
+  function loadTemperaturePreset() {
+    const preset = buildTemperatureThresholdPreset();
+    for (const v of preset.variables) {
+      if (!pool.customVariables.some((existing) => existing.address === v.address)) {
+        const num = Number(v.address.replace(/^\D+/, ""));
+        pool.addVariable(v.kind, num);
+      }
+    }
+    ladder.loadProgram(preset.program, preset.analogInputs);
+  }
 
   return (
     <DndContext id="ladder-dnd" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -149,7 +164,18 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
         {view === "LD" && (
           <>
             <LadderPalette />
-            {!level && <VariablePoolDrawer pool={pool} />}
+            {!level && (
+              <div className="flex flex-wrap items-center gap-2">
+                <VariablePoolDrawer pool={pool} />
+                <button
+                  type="button"
+                  onClick={loadTemperaturePreset}
+                  className="w-fit rounded-md border border-dashed border-amber-400 px-3 py-1.5 text-sm font-medium text-amber-700 hover:border-amber-500 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950"
+                >
+                  Load Example: Temperature Threshold
+                </button>
+              </div>
+            )}
 
             <div className="flex flex-col gap-3">
               {program.rungs.map((rung, index) => (
@@ -159,14 +185,17 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
                   index={index}
                   inputs={inputs}
                   memory={memory}
-                  rungEnergized={evalRungEnergized(rung.branches, inputs, memory)}
+                  rungEnergized={evalRungEnergized(rung.branches, inputs, memory, analogInputs)}
                   addressOptions={addressOptions}
+                  numericOptions={numericOptions}
+                  analogInputs={analogInputs}
                   customVariables={customVariables}
                   addressTaken={(addr) =>
                     rung.output ? isOutputAddressTaken(program, rung.output.kind, addr, rung.id) : false
                   }
                   onSetContactAddress={(r, c, addr) => ladder.setContactAddress(rung.id, r, c, addr)}
                   onRemoveContact={(r, c) => ladder.removeContact(rung.id, r, c)}
+                  onUpdateComparison={(r, c, patch) => ladder.updateComparison(rung.id, r, c, patch)}
                   onSetOutputAddress={(addr) => ladder.setOutputAddress(rung.id, addr)}
                   onSetOutputVariant={(variant) => ladder.setOutputVariant(rung.id, variant)}
                   onSetOutputPreset={(preset) => ladder.setOutputPreset(rung.id, preset)}
@@ -190,7 +219,9 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
           </>
         )}
 
-        {view === "FBD" && <FbdView program={program} inputs={inputs} memory={memory} />}
+        {view === "FBD" && (
+          <FbdView program={program} inputs={inputs} memory={memory} analogInputs={analogInputs} />
+        )}
         {view === "ST" && <StView program={program} />}
 
         <div className="flex flex-wrap items-center gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
@@ -280,6 +311,8 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
           getSwitchType={pool.getSwitchType}
         />
 
+        <AnalogInputPanel addresses={analogAddresses} values={analogInputs} onChange={ladder.setAnalogInput} />
+
         <div className="flex flex-col gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-800">
           <button
             type="button"
@@ -308,7 +341,11 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
       <DragOverlay>
         {activeDrag && (
           <div className="rounded-md border border-blue-500 bg-white px-3 py-2 text-center font-mono text-sm shadow-lg dark:bg-zinc-900">
-            {activeDrag.kind === "contact" ? activeDrag.contactType : activeDrag.outputKind}
+            {activeDrag.kind === "contact"
+              ? activeDrag.contactType
+              : activeDrag.kind === "comparison"
+                ? "CMP"
+                : activeDrag.outputKind}
           </div>
         )}
       </DragOverlay>

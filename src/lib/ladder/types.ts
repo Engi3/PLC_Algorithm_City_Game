@@ -27,7 +27,7 @@ export const COUNTER_ADDRESSES = Array.from({ length: 100 }, (_, i) => `C${i}`);
  * internal auxiliary relay (behaves exactly like a coil, but isn't meant
  * to represent a physical output).
  */
-export type VariableKind = "input" | "output" | "relay";
+export type VariableKind = "input" | "output" | "relay" | "analog_input";
 export type SwitchType = "momentary" | "toggle";
 
 export type DeclaredVariable = {
@@ -36,19 +36,29 @@ export type DeclaredVariable = {
 };
 
 export const MAX_VARIABLE_NUMBER = 99;
+/** Phase 11: AI0-AI15 per spec - a narrower range than the 0-99 digital pool. */
+export const MAX_ANALOG_VARIABLE_NUMBER = 15;
 
 const VARIABLE_PREFIX: Record<VariableKind, string> = {
   input: "X",
   output: "Y",
   relay: "M",
+  analog_input: "AI",
+};
+
+const MAX_NUMBER_BY_KIND: Record<VariableKind, number> = {
+  input: MAX_VARIABLE_NUMBER,
+  output: MAX_VARIABLE_NUMBER,
+  relay: MAX_VARIABLE_NUMBER,
+  analog_input: MAX_ANALOG_VARIABLE_NUMBER,
 };
 
 export function buildVariableAddress(kind: VariableKind, num: number): string {
   return `${VARIABLE_PREFIX[kind]}${num}`;
 }
 
-export function isValidVariableNumber(num: number): boolean {
-  return Number.isInteger(num) && num >= 0 && num <= MAX_VARIABLE_NUMBER;
+export function isValidVariableNumber(kind: VariableKind, num: number): boolean {
+  return Number.isInteger(num) && num >= 0 && num <= MAX_NUMBER_BY_KIND[kind];
 }
 
 function customAddressesByKind(variables: DeclaredVariable[], kind: VariableKind): string[] {
@@ -84,9 +94,33 @@ export type Contact = {
   address: string | null;
 };
 
+/**
+ * Phase 11: a comparison instruction occupying a branch cell, same as a
+ * Contact - passes power (continuity = true) when the comparison holds.
+ * `sourceA` and `sourceB` (when a register) read numeric values via
+ * readNumeric(): AI0-AI15 analog inputs, or a timer/counter's .ACC/.PRE.
+ * Distinguished from Contact purely by the `kind` discriminant (Contact has
+ * no `kind` field), so existing serialized `{type, address}` contacts remain
+ * valid members of the widened Branch.cells union without any migration.
+ */
+export type ComparisonOperator = ">" | "<" | "==" | ">=" | "<=";
+export type ComparisonOperand = { kind: "constant"; value: number } | { kind: "register"; address: string };
+export type ComparisonBlock = {
+  kind: "COMPARE";
+  operator: ComparisonOperator;
+  sourceA: string | null;
+  sourceB: ComparisonOperand;
+};
+
+export function isComparisonBlock(cell: Contact | ComparisonBlock | null): cell is ComparisonBlock {
+  return cell !== null && "kind" in cell && cell.kind === "COMPARE";
+}
+
+export type BranchCell = Contact | ComparisonBlock;
+
 export type Branch = {
-  /** Fixed-length row of contact slots; null = empty slot. */
-  cells: (Contact | null)[];
+  /** Fixed-length row of contact/comparison slots; null = empty slot. */
+  cells: (BranchCell | null)[];
 };
 
 export type Output =
@@ -128,6 +162,16 @@ export type SimMemory = {
 };
 
 export type Inputs = Record<string, boolean>;
+
+/** Phase 11: AI0-AI15 analog input values, 0-32767 (raw ADC-style range). Separate store from the boolean Inputs. */
+export type AnalogInputs = Record<string, number>;
+export const ANALOG_INPUT_ADDRESSES = Array.from({ length: MAX_ANALOG_VARIABLE_NUMBER + 1 }, (_, i) => `AI${i}`);
+export const MIN_ANALOG_VALUE = 0;
+export const MAX_ANALOG_VALUE = 32767;
+
+export function clampAnalogValue(value: number): number {
+  return Math.max(MIN_ANALOG_VALUE, Math.min(MAX_ANALOG_VALUE, Math.round(value)));
+}
 
 export function createEmptyBranch(): Branch {
   return { cells: Array.from({ length: COLS_PER_BRANCH }, () => null) };
@@ -202,6 +246,19 @@ export function contactAddressOptions(program: LadderProgram, customVariables: D
     ...customRelays,
     ...statusBits,
   ];
+}
+
+/** Numeric sources usable in a comparison block: declared analog inputs, plus any placed timer/counter .ACC/.PRE registers. */
+export function numericAddressOptions(program: LadderProgram, customVariables: DeclaredVariable[] = []): string[] {
+  const registers = program.rungs
+    .map((r) => r.output)
+    .filter(
+      (o): o is Extract<Output, { kind: "TIMER" | "COUNTER" }> =>
+        !!o && (o.kind === "TIMER" || o.kind === "COUNTER") && !!o.address
+    )
+    .flatMap((o) => [`${o.address}.ACC`, `${o.address}.PRE`]);
+
+  return [...customAddressesByKind(customVariables, "analog_input"), ...registers];
 }
 
 /**

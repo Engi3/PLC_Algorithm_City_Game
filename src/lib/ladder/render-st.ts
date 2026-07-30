@@ -1,9 +1,17 @@
-import type { Branch, LadderProgram, Output } from "./types";
+import { isComparisonBlock, type Branch, type BranchCell, type LadderProgram, type Output } from "./types";
+
+const OPERATOR_ST: Record<string, string> = { ">": ">", "<": "<", "==": "=", ">=": ">=", "<=": "<=" };
+
+function cellExpr(cell: BranchCell): string {
+  if (isComparisonBlock(cell)) {
+    const b = cell.sourceB.kind === "constant" ? String(cell.sourceB.value) : cell.sourceB.address;
+    return `${cell.sourceA ?? "???"} ${OPERATOR_ST[cell.operator]} ${b}`;
+  }
+  return cell.type === "NC" ? `NOT ${cell.address ?? "???"}` : (cell.address ?? "???");
+}
 
 function branchExpr(branch: Branch): string | null {
-  const terms = branch.cells
-    .filter((c) => c !== null)
-    .map((c) => (c.type === "NC" ? `NOT ${c.address ?? "???"}` : c.address ?? "???"));
+  const terms = branch.cells.filter((c): c is BranchCell => c !== null).map(cellExpr);
   if (terms.length === 0) return null;
   return terms.length === 1 ? terms[0] : terms.join(" AND ");
 }

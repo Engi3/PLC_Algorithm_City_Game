@@ -5,7 +5,8 @@ import type { ContactType, OutputKind } from "@/lib/ladder/types";
 
 export type PaletteDragData =
   | { kind: "contact"; contactType: ContactType }
-  | { kind: "output"; outputKind: OutputKind };
+  | { kind: "output"; outputKind: OutputKind }
+  | { kind: "comparison" };
 
 const PALETTE_ITEMS: { id: string; label: string; sub: string; data: PaletteDragData }[] = [
   {
@@ -19,6 +20,12 @@ const PALETTE_ITEMS: { id: string; label: string; sub: string; data: PaletteDrag
     label: "NC",
     sub: "Normally closed contact",
     data: { kind: "contact", contactType: "NC" },
+  },
+  {
+    id: "palette-COMPARE",
+    label: "CMP",
+    sub: "Comparison (>, <, =, ≥, ≤)",
+    data: { kind: "comparison" },
   },
   {
     id: "palette-COIL",

@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from "react";
 import {
+  clampAnalogValue,
   createEmptyBranch,
   createEmptyMemory,
   createEmptyProgram,
   createEmptyRung,
   defaultOutputForKind,
+  isComparisonBlock,
   MAX_BRANCHES_PER_RUNG,
   MAX_RUNGS,
+  type AnalogInputs,
+  type ComparisonBlock,
   type ContactType,
   type CounterVariant,
   type Inputs,
@@ -29,33 +33,37 @@ const TICK_MS = 600;
 export function useLadderProgram(initial?: LadderProgram) {
   const [program, setProgram] = useState<LadderProgram>(() => initial ?? createEmptyProgram());
   const [inputs, setInputs] = useState<Inputs>({});
+  const [analogInputs, setAnalogInputs] = useState<AnalogInputs>({});
   const [memory, setMemory] = useState<SimMemory>(() => createEmptyMemory());
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
     if (!running) return;
     const interval = setInterval(() => {
-      setMemory((prevMemory) => runScan(program, inputs, prevMemory, { tick: true }).memory);
+      setMemory((prevMemory) => runScan(program, inputs, prevMemory, { tick: true }, analogInputs).memory);
     }, TICK_MS);
     return () => clearInterval(interval);
-  }, [running, program, inputs]);
+  }, [running, program, inputs, analogInputs]);
 
   function updateProgram(updater: (prev: LadderProgram) => LadderProgram) {
     const next = updater(program);
-    const { memory: newMemory } = runScan(next, inputs, memory, { tick: false });
+    const { memory: newMemory } = runScan(next, inputs, memory, { tick: false }, analogInputs);
     setProgram(next);
     setMemory(newMemory);
   }
 
-  function loadProgram(next: LadderProgram) {
-    const { memory: newMemory } = runScan(next, inputs, createEmptyMemory(), { tick: false });
+  /** `initialAnalogInputs` lets a loaded preset (e.g. a temperature-sensor example) start its sliders at a meaningful value. */
+  function loadProgram(next: LadderProgram, initialAnalogInputs?: AnalogInputs) {
+    const nextAnalogInputs = initialAnalogInputs ?? analogInputs;
+    const { memory: newMemory } = runScan(next, inputs, createEmptyMemory(), { tick: false }, nextAnalogInputs);
     setProgram(next);
     setMemory(newMemory);
+    if (initialAnalogInputs) setAnalogInputs(initialAnalogInputs);
   }
 
   function toggleInput(address: string) {
     const nextInputs = { ...inputs, [address]: !inputs[address] };
-    const { memory: newMemory } = runScan(program, nextInputs, memory, { tick: false });
+    const { memory: newMemory } = runScan(program, nextInputs, memory, { tick: false }, analogInputs);
     setInputs(nextInputs);
     setMemory(newMemory);
   }
@@ -63,17 +71,26 @@ export function useLadderProgram(initial?: LadderProgram) {
   /** Sets an input to an explicit value, e.g. press/release for a momentary button (vs toggleInput's click-to-flip). */
   function setInputValue(address: string, value: boolean) {
     const nextInputs = { ...inputs, [address]: value };
-    const { memory: newMemory } = runScan(program, nextInputs, memory, { tick: false });
+    const { memory: newMemory } = runScan(program, nextInputs, memory, { tick: false }, analogInputs);
     setInputs(nextInputs);
     setMemory(newMemory);
   }
 
+  /** Sets an AI0-AI15 analog value (clamped 0-32767) and re-evaluates immediately, so a comparison block reacts live as the slider moves. */
+  function setAnalogInput(address: string, value: number) {
+    const nextAnalogInputs = { ...analogInputs, [address]: clampAnalogValue(value) };
+    const { memory: newMemory } = runScan(program, inputs, memory, { tick: false }, nextAnalogInputs);
+    setAnalogInputs(nextAnalogInputs);
+    setMemory(newMemory);
+  }
+
   function step() {
-    setMemory((prev) => runScan(program, inputs, prev, { tick: true }).memory);
+    setMemory((prev) => runScan(program, inputs, prev, { tick: true }, analogInputs).memory);
   }
 
   function reset() {
     setInputs({});
+    setAnalogInputs({});
     setMemory(createEmptyMemory());
     setRunning(false);
   }
@@ -128,7 +145,41 @@ export function useLadderProgram(initial?: LadderProgram) {
         const branches = r.branches.map((b, ri) => {
           if (ri !== rowIndex) return b;
           const cells = b.cells.map((c, ci) =>
-            ci === colIndex && c ? { ...c, address: address || null } : c
+            ci === colIndex && c && !isComparisonBlock(c) ? { ...c, address: address || null } : c
+          );
+          return { cells };
+        });
+        return { ...r, branches };
+      }),
+    }));
+  }
+
+  function placeComparison(rungId: string, rowIndex: number, colIndex: number) {
+    updateProgram((p) => ({
+      rungs: p.rungs.map((r) => {
+        if (r.id !== rungId) return r;
+        const branches = r.branches.map((b, ri) => {
+          if (ri !== rowIndex) return b;
+          const cells = b.cells.map((c, ci) =>
+            ci === colIndex
+              ? ({ kind: "COMPARE", operator: ">", sourceA: null, sourceB: { kind: "constant", value: 0 } } as const)
+              : c
+          );
+          return { cells };
+        });
+        return { ...r, branches };
+      }),
+    }));
+  }
+
+  function updateComparison(rungId: string, rowIndex: number, colIndex: number, patch: Partial<ComparisonBlock>) {
+    updateProgram((p) => ({
+      rungs: p.rungs.map((r) => {
+        if (r.id !== rungId) return r;
+        const branches = r.branches.map((b, ri) => {
+          if (ri !== rowIndex) return b;
+          const cells = b.cells.map((c, ci) =>
+            ci === colIndex && c && isComparisonBlock(c) ? { ...c, ...patch } : c
           );
           return { cells };
         });
@@ -199,12 +250,14 @@ export function useLadderProgram(initial?: LadderProgram) {
   return {
     program,
     inputs,
+    analogInputs,
     memory,
     running,
     setRunning,
     loadProgram,
     toggleInput,
     setInputValue,
+    setAnalogInput,
     step,
     reset,
     addRung,
@@ -213,6 +266,8 @@ export function useLadderProgram(initial?: LadderProgram) {
     removeBranch,
     placeContact,
     setContactAddress,
+    placeComparison,
+    updateComparison,
     removeContact,
     placeOutput,
     setOutputAddress,

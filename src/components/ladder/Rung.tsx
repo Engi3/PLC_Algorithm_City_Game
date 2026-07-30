@@ -1,9 +1,19 @@
 "use client";
 
-import type { CounterVariant, DeclaredVariable, Inputs, Rung as RungModel, SimMemory, TimerVariant } from "@/lib/ladder/types";
-import { MAX_BRANCHES_PER_RUNG } from "@/lib/ladder/types";
-import { evalContact } from "@/lib/ladder/engine";
+import type {
+  AnalogInputs,
+  ComparisonBlock,
+  CounterVariant,
+  DeclaredVariable,
+  Inputs,
+  Rung as RungModel,
+  SimMemory,
+  TimerVariant,
+} from "@/lib/ladder/types";
+import { isComparisonBlock, MAX_BRANCHES_PER_RUNG } from "@/lib/ladder/types";
+import { evalCell } from "@/lib/ladder/engine";
 import LadderCell from "./LadderCell";
+import ComparisonCell from "./ComparisonCell";
 import OutputSlot from "./OutputSlot";
 
 export default function Rung({
@@ -11,12 +21,15 @@ export default function Rung({
   index,
   inputs,
   memory,
+  analogInputs = {},
   rungEnergized,
   addressOptions,
+  numericOptions = [],
   addressTaken,
   customVariables,
   onSetContactAddress,
   onRemoveContact,
+  onUpdateComparison,
   onSetOutputAddress,
   onSetOutputVariant,
   onSetOutputPreset,
@@ -29,12 +42,15 @@ export default function Rung({
   index: number;
   inputs: Inputs;
   memory: SimMemory;
+  analogInputs?: AnalogInputs;
   rungEnergized: boolean;
   addressOptions: string[];
+  numericOptions?: string[];
   addressTaken: (address: string) => boolean;
   customVariables?: DeclaredVariable[];
   onSetContactAddress: (rowIndex: number, colIndex: number, address: string) => void;
   onRemoveContact: (rowIndex: number, colIndex: number) => void;
+  onUpdateComparison?: (rowIndex: number, colIndex: number, patch: Partial<ComparisonBlock>) => void;
   onSetOutputAddress: (address: string) => void;
   onSetOutputVariant: (variant: TimerVariant | CounterVariant) => void;
   onSetOutputPreset: (preset: number) => void;
@@ -58,19 +74,33 @@ export default function Rung({
               } ${rungEnergized ? "border-green-500" : "border-zinc-400 dark:border-zinc-600"}`}
             />
             <div className="flex">
-              {branch.cells.map((contact, colIndex) => (
-                <LadderCell
-                  key={colIndex}
-                  rungId={rung.id}
-                  rowIndex={rowIndex}
-                  colIndex={colIndex}
-                  contact={contact}
-                  energized={evalContact(contact, inputs, memory)}
-                  addressOptions={addressOptions}
-                  onSetAddress={(addr) => onSetContactAddress(rowIndex, colIndex, addr)}
-                  onRemove={() => onRemoveContact(rowIndex, colIndex)}
-                />
-              ))}
+              {branch.cells.map((cell, colIndex) =>
+                cell && isComparisonBlock(cell) ? (
+                  <ComparisonCell
+                    key={colIndex}
+                    rungId={rung.id}
+                    rowIndex={rowIndex}
+                    colIndex={colIndex}
+                    block={cell}
+                    energized={evalCell(cell, inputs, memory, analogInputs)}
+                    numericOptions={numericOptions}
+                    onUpdate={(patch) => onUpdateComparison?.(rowIndex, colIndex, patch)}
+                    onRemove={() => onRemoveContact(rowIndex, colIndex)}
+                  />
+                ) : (
+                  <LadderCell
+                    key={colIndex}
+                    rungId={rung.id}
+                    rowIndex={rowIndex}
+                    colIndex={colIndex}
+                    contact={cell}
+                    energized={evalCell(cell, inputs, memory, analogInputs)}
+                    addressOptions={addressOptions}
+                    onSetAddress={(addr) => onSetContactAddress(rowIndex, colIndex, addr)}
+                    onRemove={() => onRemoveContact(rowIndex, colIndex)}
+                  />
+                )
+              )}
             </div>
             {rung.branches.length > 1 && (
               <button

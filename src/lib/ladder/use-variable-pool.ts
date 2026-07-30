@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   buildVariableAddress,
   isValidVariableNumber,
+  MAX_ANALOG_VARIABLE_NUMBER,
   MAX_VARIABLE_NUMBER,
   type DeclaredVariable,
   type SwitchType,
@@ -23,8 +24,9 @@ export function useVariablePool() {
   const [switchTypes, setSwitchTypes] = useState<Record<string, SwitchType>>({});
 
   function addVariable(kind: VariableKind, num: number): AddVariableResult {
-    if (!isValidVariableNumber(num)) {
-      return { error: `Number must be a whole number between 0 and ${MAX_VARIABLE_NUMBER}.` };
+    if (!isValidVariableNumber(kind, num)) {
+      const max = kind === "analog_input" ? MAX_ANALOG_VARIABLE_NUMBER : MAX_VARIABLE_NUMBER;
+      return { error: `Number must be a whole number between 0 and ${max}.` };
     }
     const address = buildVariableAddress(kind, num);
     if (customVariables.some((v) => v.address === address)) {

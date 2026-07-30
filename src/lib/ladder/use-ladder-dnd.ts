@@ -6,7 +6,9 @@ import type { PaletteDragData } from "@/components/ladder/LadderPalette";
 import type { LadderProgramApi } from "./use-ladder-program";
 
 /** Wires dnd-kit drag events to a useLadderProgram instance's placement handlers. */
-export function useLadderDnd(programApi: Pick<LadderProgramApi, "placeContact" | "placeOutput">) {
+export function useLadderDnd(
+  programApi: Pick<LadderProgramApi, "placeContact" | "placeOutput" | "placeComparison">
+) {
   const [activeDrag, setActiveDrag] = useState<PaletteDragData | null>(null);
 
   function handleDragStart(event: DragStartEvent) {
@@ -31,6 +33,13 @@ export function useLadderDnd(programApi: Pick<LadderProgramApi, "placeContact" |
       dropData.colIndex !== undefined
     ) {
       programApi.placeContact(dropData.rungId, dropData.rowIndex, dropData.colIndex, dragData.contactType);
+    } else if (
+      dragData.kind === "comparison" &&
+      dropData.accepts === "contact" &&
+      dropData.rowIndex !== undefined &&
+      dropData.colIndex !== undefined
+    ) {
+      programApi.placeComparison(dropData.rungId, dropData.rowIndex, dropData.colIndex);
     } else if (dragData.kind === "output" && dropData.accepts === "output") {
       programApi.placeOutput(dropData.rungId, dragData.outputKind);
     }

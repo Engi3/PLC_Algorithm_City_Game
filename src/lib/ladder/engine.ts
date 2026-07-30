@@ -1,4 +1,16 @@
-import { isInputAddress, isOutputFamilyAddress, type Branch, type Contact, type Inputs, type LadderProgram, type SimMemory } from "./types";
+import {
+  isComparisonBlock,
+  isInputAddress,
+  isOutputFamilyAddress,
+  type AnalogInputs,
+  type BranchCell,
+  type Branch,
+  type ComparisonBlock,
+  type Contact,
+  type Inputs,
+  type LadderProgram,
+  type SimMemory,
+} from "./types";
 
 export function readBit(address: string | null, inputs: Inputs, memory: SimMemory): boolean {
   if (!address) return false;
@@ -43,18 +55,60 @@ export function evalContact(contact: Contact | null, inputs: Inputs, memory: Sim
   return contact.type === "NC" ? !raw : raw;
 }
 
-export function evalBranch(branch: Branch, inputs: Inputs, memory: SimMemory): boolean {
-  const placed = branch.cells.filter((c): c is Contact => c !== null);
+/** Reads a numeric source for a comparison block: AI0-AI15, or a timer/counter .ACC/.PRE register. */
+export function readNumeric(address: string | null, memory: SimMemory, analogInputs: AnalogInputs): number {
+  if (!address) return 0;
+  if (address.endsWith(".ACC") || address.endsWith(".PRE")) return readRegister(address, memory);
+  return analogInputs[address] ?? 0;
+}
+
+export function evalComparison(
+  block: ComparisonBlock,
+  memory: SimMemory,
+  analogInputs: AnalogInputs
+): boolean {
+  if (!block.sourceA) return false;
+  const a = readNumeric(block.sourceA, memory, analogInputs);
+  const b =
+    block.sourceB.kind === "constant" ? block.sourceB.value : readNumeric(block.sourceB.address, memory, analogInputs);
+  switch (block.operator) {
+    case ">":
+      return a > b;
+    case "<":
+      return a < b;
+    case "==":
+      return a === b;
+    case ">=":
+      return a >= b;
+    case "<=":
+      return a <= b;
+  }
+}
+
+/** Dispatches a branch cell to contact or comparison evaluation, whichever it is. */
+export function evalCell(
+  cell: BranchCell | null,
+  inputs: Inputs,
+  memory: SimMemory,
+  analogInputs: AnalogInputs = {}
+): boolean {
+  if (!cell) return false;
+  return isComparisonBlock(cell) ? evalComparison(cell, memory, analogInputs) : evalContact(cell, inputs, memory);
+}
+
+export function evalBranch(branch: Branch, inputs: Inputs, memory: SimMemory, analogInputs: AnalogInputs = {}): boolean {
+  const placed = branch.cells.filter((c): c is BranchCell => c !== null);
   if (placed.length === 0) return false;
-  return placed.every((c) => evalContact(c, inputs, memory));
+  return placed.every((c) => evalCell(c, inputs, memory, analogInputs));
 }
 
 export function evalRungEnergized(
   branches: Branch[],
   inputs: Inputs,
-  memory: SimMemory
+  memory: SimMemory,
+  analogInputs: AnalogInputs = {}
 ): boolean {
-  return branches.some((b) => evalBranch(b, inputs, memory));
+  return branches.some((b) => evalBranch(b, inputs, memory, analogInputs));
 }
 
 /**
@@ -73,7 +127,8 @@ export function runScan(
   program: LadderProgram,
   inputs: Inputs,
   prevMemory: SimMemory,
-  options: { tick: boolean }
+  options: { tick: boolean },
+  analogInputs: AnalogInputs = {}
 ): { memory: SimMemory; rungEnergized: Record<string, boolean> } {
   const memory: SimMemory = {
     coils: { ...prevMemory.coils },
@@ -83,7 +138,7 @@ export function runScan(
   const rungEnergized: Record<string, boolean> = {};
 
   for (const rung of program.rungs) {
-    const energized = evalRungEnergized(rung.branches, inputs, memory);
+    const energized = evalRungEnergized(rung.branches, inputs, memory, analogInputs);
     rungEnergized[rung.id] = energized;
 
     const output = rung.output;

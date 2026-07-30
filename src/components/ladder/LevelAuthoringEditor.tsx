@@ -9,6 +9,7 @@ import {
   INPUT_ADDRESSES,
   isOutputAddressTaken,
   MAX_RUNGS,
+  numericAddressOptions,
   type Inputs,
   type LadderProgram,
 } from "@/lib/ladder/types";
@@ -21,6 +22,7 @@ import { useVariablePool } from "@/lib/ladder/use-variable-pool";
 import LadderPalette from "./LadderPalette";
 import RungRow from "./Rung";
 import IoPanel from "./IoPanel";
+import AnalogInputPanel from "./AnalogInputPanel";
 import VariablePoolDrawer from "./VariablePoolDrawer";
 import { saveLevelAction } from "@/app/dashboard/levels/actions";
 
@@ -69,8 +71,10 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const { program, inputs, memory } = ladder;
+  const { program, inputs, analogInputs, memory } = ladder;
   const addressOptions = contactAddressOptions(program, pool.customVariables);
+  const numericOptions = numericAddressOptions(program, pool.customVariables);
+  const analogAddresses = pool.customVariables.filter((v) => v.kind === "analog_input").map((v) => v.address);
   const expectAddresses = useMemo(
     () => relevantExpectAddresses(program, allowedOutputs),
     [program, allowedOutputs]
@@ -90,6 +94,11 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
 
   function recordSetInputValue(addr: string, value: boolean) {
     ladder.setInputValue(addr, value);
+    setPendingTicks(0);
+  }
+
+  function recordSetAnalogInput(addr: string, value: number) {
+    ladder.setAnalogInput(addr, value);
     setPendingTicks(0);
   }
 
@@ -308,14 +317,17 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
                   index={index}
                   inputs={inputs}
                   memory={memory}
-                  rungEnergized={evalRungEnergized(rung.branches, inputs, memory)}
+                  rungEnergized={evalRungEnergized(rung.branches, inputs, memory, analogInputs)}
                   addressOptions={addressOptions}
+                  numericOptions={numericOptions}
+                  analogInputs={analogInputs}
                   customVariables={pool.customVariables}
                   addressTaken={(addr) =>
                     rung.output ? isOutputAddressTaken(program, rung.output.kind, addr, rung.id) : false
                   }
                   onSetContactAddress={(r, c, addr) => ladder.setContactAddress(rung.id, r, c, addr)}
                   onRemoveContact={(r, c) => ladder.removeContact(rung.id, r, c)}
+                  onUpdateComparison={(r, c, patch) => ladder.updateComparison(rung.id, r, c, patch)}
                   onSetOutputAddress={(addr) => ladder.setOutputAddress(rung.id, addr)}
                   onSetOutputVariant={(variant) => ladder.setOutputVariant(rung.id, variant)}
                   onSetOutputPreset={(preset) => ladder.setOutputPreset(rung.id, preset)}
@@ -340,7 +352,11 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
           <DragOverlay>
             {activeDrag && (
               <div className="rounded-md border border-blue-500 bg-white px-3 py-2 text-center font-mono text-sm shadow-lg dark:bg-zinc-900">
-                {activeDrag.kind === "contact" ? activeDrag.contactType : activeDrag.outputKind}
+                {activeDrag.kind === "contact"
+                  ? activeDrag.contactType
+                  : activeDrag.kind === "comparison"
+                    ? "CMP"
+                    : activeDrag.outputKind}
               </div>
             )}
           </DragOverlay>
@@ -387,6 +403,8 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
           customVariables={pool.customVariables}
           getSwitchType={pool.getSwitchType}
         />
+
+        <AnalogInputPanel addresses={analogAddresses} values={analogInputs} onChange={recordSetAnalogInput} />
 
         {expectAddresses.length > 0 && (
           <div className="mt-3 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">

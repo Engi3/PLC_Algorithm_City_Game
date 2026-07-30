@@ -1,14 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { MAX_VARIABLE_NUMBER, type VariableKind } from "@/lib/ladder/types";
+import { MAX_ANALOG_VARIABLE_NUMBER, MAX_VARIABLE_NUMBER, type VariableKind } from "@/lib/ladder/types";
 import type { VariablePoolApi } from "@/lib/ladder/use-variable-pool";
 
 const KIND_LABEL: Record<VariableKind, string> = {
   input: "Input (X) - button/switch",
   output: "Output (Y)",
   relay: "Internal Relay (M)",
+  analog_input: "Analog Input (AI) - sensor/slider",
 };
+
+function maxNumberForKind(kind: VariableKind): number {
+  return kind === "analog_input" ? MAX_ANALOG_VARIABLE_NUMBER : MAX_VARIABLE_NUMBER;
+}
 
 export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) {
   const [open, setOpen] = useState(false);
@@ -75,10 +80,10 @@ export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) 
                 <input
                   type="number"
                   min={0}
-                  max={MAX_VARIABLE_NUMBER}
+                  max={maxNumberForKind(kind)}
                   value={num}
                   onChange={(e) => setNum(e.target.value === "" ? "" : Number(e.target.value))}
-                  placeholder="0-99"
+                  placeholder={`0-${maxNumberForKind(kind)}`}
                   className="w-20 rounded border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                 />
                 <button
