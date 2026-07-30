@@ -4,9 +4,15 @@ import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
 import { isLevelSpec } from "@/lib/ladder/level-spec";
 import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
-import { computeCompetencyScores, type ManualCompetencyScores } from "@/lib/analytics/competency";
+import {
+  computeCompetencyScores,
+  ALL_COMPETENCY_AXES,
+  type ManualCompetencyScores,
+} from "@/lib/analytics/competency";
 import SkillRadarChart from "@/components/analytics/SkillRadarChart";
 import CompetencyRadarChart from "@/components/analytics/CompetencyRadarChart";
+import CoachBox from "@/components/progress/CoachBox";
+import CertificateCard from "@/components/progress/CertificateCard";
 
 type LevelRow = { id: string; levelNumber: number; title: string };
 
@@ -96,6 +102,8 @@ export default async function ProgressPage() {
   const skillScores = computeSkillScores(logs, levelSkills);
   const competencyScores = computeCompetencyScores(logs, levelCount, manualCompetency);
   const passedLevelIds = new Set(logs.filter((l) => l.is_success).map((l) => l.level_id));
+  const studentName =
+    profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : profile.username;
 
   return (
     <div className="flex flex-col gap-6">
@@ -106,6 +114,8 @@ export default async function ProgressPage() {
           {onsitePracticalScore !== null && ` · Practical score: ${onsitePracticalScore}`}
         </p>
       </div>
+
+      <CoachBox />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
@@ -119,6 +129,26 @@ export default async function ProgressPage() {
             สมรรถนะทางวิศวกรรม 6 ด้าน (Engineering Competency)
           </h2>
           <CompetencyRadarChart datasets={[{ label: profile.username, scores: competencyScores, color: "#7c3aed" }]} />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          ใบประกาศนียบัตรความสามารถ (Certificates)
+        </h2>
+        <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
+          ปลดล็อกใบประกาศนียบัตรแต่ละด้านเมื่อคะแนนถึง 80/100 ขึ้นไป
+        </p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+          {ALL_COMPETENCY_AXES.map((axis) => (
+            <CertificateCard
+              key={axis}
+              axis={axis}
+              score={competencyScores[axis]}
+              studentName={studentName}
+              userId={profile.id}
+            />
+          ))}
         </div>
       </div>
 
