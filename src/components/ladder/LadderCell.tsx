@@ -9,6 +9,7 @@ export default function LadderCell({
   colIndex,
   contact,
   energized,
+  wireEnergized = false,
   addressOptions,
   onSetAddress,
   onRemove,
@@ -18,6 +19,8 @@ export default function LadderCell({
   colIndex: number;
   contact: Contact | null;
   energized: boolean;
+  /** Power-flow state of the incoming wire segment (Task 2), independent of this cell's own state. */
+  wireEnergized?: boolean;
   addressOptions: string[];
   onSetAddress: (address: string) => void;
   onRemove: () => void;
@@ -36,7 +39,11 @@ export default function LadderCell({
         }`}
         aria-label="Empty contact slot"
       >
-        <div className="h-px w-full bg-zinc-400 dark:bg-zinc-600" />
+        <div
+          className={`h-px w-full transition-colors ${
+            wireEnergized ? "bg-green-500 shadow-[0_0_4px_#22c55e]" : "bg-zinc-400 dark:bg-zinc-600"
+          }`}
+        />
       </div>
     );
   }
@@ -53,8 +60,12 @@ export default function LadderCell({
       ref={setNodeRef}
       className="group relative flex h-14 w-16 shrink-0 flex-col items-center justify-center gap-0.5"
     >
-      <div className="h-px w-full bg-zinc-400 dark:bg-zinc-600" />
-      <div className={`relative flex h-8 w-10 items-center justify-center ${color}`}>
+      <div
+        className={`h-px w-full transition-colors ${
+          wireEnergized ? "bg-green-500 shadow-[0_0_4px_#22c55e]" : "bg-zinc-400 dark:bg-zinc-600"
+        }`}
+      />
+      <div className={`relative flex h-8 w-10 items-center justify-center transition-colors ${color}`}>
         <span className="absolute left-1.5 h-full w-px bg-current" />
         <span className="absolute right-1.5 h-full w-px bg-current" />
         {contact.type === "NC" && (

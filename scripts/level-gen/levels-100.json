@@ -96,10 +96,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -210,10 +212,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -282,10 +286,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -456,10 +462,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -646,10 +654,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -752,10 +762,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -858,10 +870,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -1040,10 +1054,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -1146,10 +1162,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -1260,10 +1278,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -1332,10 +1352,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -1506,10 +1528,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -1696,10 +1720,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -1802,10 +1828,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -1908,10 +1936,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -2090,10 +2120,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -2196,10 +2228,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -2310,10 +2344,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -2484,10 +2520,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -2666,10 +2704,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -2776,10 +2816,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -2796,10 +2838,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -2906,10 +2950,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -2926,10 +2972,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -3027,10 +3075,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -3058,10 +3108,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -3168,10 +3220,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -3188,10 +3242,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -3289,10 +3345,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -3309,10 +3367,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -3419,10 +3479,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -3439,10 +3501,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -3540,10 +3604,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -3571,10 +3637,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -3681,10 +3749,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -3701,10 +3771,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -3802,10 +3874,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -3822,10 +3896,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -3932,10 +4008,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -3952,10 +4030,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -4053,10 +4133,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -4084,10 +4166,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -4194,10 +4278,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -4214,10 +4300,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -4315,10 +4403,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -4335,10 +4425,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -4445,10 +4537,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -4465,10 +4559,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -4566,10 +4662,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -4597,10 +4695,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -4707,10 +4807,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -4727,10 +4829,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -4828,10 +4932,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -4848,10 +4954,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -4958,10 +5066,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -4978,10 +5088,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -5079,10 +5191,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -5110,10 +5224,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -5220,10 +5336,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "SET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "SET",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r2",
@@ -5240,10 +5358,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -5331,12 +5451,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -5353,10 +5475,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -5450,12 +5574,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TOF",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TOF",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -5472,10 +5598,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -5568,12 +5696,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "RTO",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "RTO",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -5590,10 +5720,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "T0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "T0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -5610,10 +5742,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -5702,12 +5836,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -5724,10 +5860,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -5813,12 +5951,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -5835,10 +5975,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -5855,12 +5997,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T1",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T1",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r4",
@@ -5877,10 +6021,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q1"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q1"
+              }
+            ]
           }
         ]
       }
@@ -5968,12 +6114,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -5990,10 +6138,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -6087,12 +6237,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TOF",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TOF",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -6109,10 +6261,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -6205,12 +6359,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "RTO",
-              "preset": 5
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "RTO",
+                "preset": 5
+              }
+            ]
           },
           {
             "id": "r2",
@@ -6227,10 +6383,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "T0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "T0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -6247,10 +6405,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -6339,12 +6499,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -6361,10 +6523,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -6450,12 +6614,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -6472,10 +6638,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -6492,12 +6660,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T1",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T1",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r4",
@@ -6514,10 +6684,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q1"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q1"
+              }
+            ]
           }
         ]
       }
@@ -6605,12 +6777,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -6627,10 +6801,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -6724,12 +6900,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TOF",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TOF",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -6746,10 +6924,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -6842,12 +7022,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "RTO",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "RTO",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -6864,10 +7046,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "T0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "T0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -6884,10 +7068,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -6976,12 +7162,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -6998,10 +7186,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -7087,12 +7277,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -7109,10 +7301,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -7129,12 +7323,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T1",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T1",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r4",
@@ -7151,10 +7347,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q1"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q1"
+              }
+            ]
           }
         ]
       }
@@ -7242,12 +7440,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 5
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 5
+              }
+            ]
           },
           {
             "id": "r2",
@@ -7264,10 +7464,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -7361,12 +7563,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TOF",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TOF",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -7383,10 +7587,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -7479,12 +7685,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "RTO",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "RTO",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -7501,10 +7709,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "T0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "T0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -7521,10 +7731,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -7613,12 +7825,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -7635,10 +7849,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -7724,12 +7940,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -7746,10 +7964,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -7766,12 +7986,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T1",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T1",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r4",
@@ -7788,10 +8010,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q1"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q1"
+              }
+            ]
           }
         ]
       }
@@ -7879,12 +8103,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -7901,10 +8127,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -7998,12 +8226,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TOF",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TOF",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -8020,10 +8250,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -8116,12 +8348,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "RTO",
-              "preset": 6
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "RTO",
+                "preset": 6
+              }
+            ]
           },
           {
             "id": "r2",
@@ -8138,10 +8372,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "T0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "T0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -8158,10 +8394,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -8250,12 +8488,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -8272,10 +8512,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -8361,12 +8603,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -8383,10 +8627,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -8403,12 +8649,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T1",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T1",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r4",
@@ -8425,10 +8673,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q1"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q1"
+              }
+            ]
           }
         ]
       }
@@ -8516,12 +8766,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -8538,10 +8790,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -8635,12 +8889,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TOF",
-              "preset": 5
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TOF",
+                "preset": 5
+              }
+            ]
           },
           {
             "id": "r2",
@@ -8657,10 +8913,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -8753,12 +9011,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "RTO",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "RTO",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -8775,10 +9035,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "T0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "T0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -8795,10 +9057,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -8887,12 +9151,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -8909,10 +9175,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -8998,12 +9266,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r2",
@@ -9020,10 +9290,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -9040,12 +9312,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T1",
-              "variant": "TON",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T1",
+                "variant": "TON",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r4",
@@ -9062,10 +9336,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q1"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q1"
+              }
+            ]
           }
         ]
       }
@@ -9398,12 +9674,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 12
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 12
+              }
+            ]
           },
           {
             "id": "r2",
@@ -9420,10 +9698,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -9721,12 +10001,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTD",
-              "preset": 10
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTD",
+                "preset": 10
+              }
+            ]
           },
           {
             "id": "r2",
@@ -9743,10 +10025,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -9979,12 +10263,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 6
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 6
+              }
+            ]
           },
           {
             "id": "r2",
@@ -10001,10 +10287,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "C0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "C0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -10021,10 +10309,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -10225,12 +10515,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 5
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 5
+              }
+            ]
           },
           {
             "id": "r2",
@@ -10247,10 +10539,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -10433,12 +10727,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 5
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 5
+              }
+            ]
           },
           {
             "id": "r2",
@@ -10455,12 +10751,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r3",
@@ -10477,10 +10775,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -10717,12 +11017,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 8
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 8
+              }
+            ]
           },
           {
             "id": "r2",
@@ -10739,10 +11041,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -11280,12 +11584,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTD",
-              "preset": 20
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTD",
+                "preset": 20
+              }
+            ]
           },
           {
             "id": "r2",
@@ -11302,10 +11608,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -11650,12 +11958,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 10
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 10
+              }
+            ]
           },
           {
             "id": "r2",
@@ -11672,10 +11982,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "C0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "C0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -11692,10 +12004,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -11868,12 +12182,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -11890,10 +12206,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -12028,12 +12346,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -12050,12 +12370,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r3",
@@ -12072,10 +12394,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -12264,12 +12588,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 6
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 6
+              }
+            ]
           },
           {
             "id": "r2",
@@ -12286,10 +12612,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -12707,12 +13035,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTD",
-              "preset": 15
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTD",
+                "preset": 15
+              }
+            ]
           },
           {
             "id": "r2",
@@ -12729,10 +13059,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -13133,12 +13465,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 12
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 12
+              }
+            ]
           },
           {
             "id": "r2",
@@ -13155,10 +13489,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "C0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "C0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -13175,10 +13511,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -13323,12 +13661,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r2",
@@ -13345,10 +13685,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -13507,12 +13849,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 4
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 4
+              }
+            ]
           },
           {
             "id": "r2",
@@ -13529,12 +13873,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r3",
@@ -13551,10 +13897,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -13839,12 +14187,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 10
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 10
+              }
+            ]
           },
           {
             "id": "r2",
@@ -13861,10 +14211,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -14114,12 +14466,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTD",
-              "preset": 8
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTD",
+                "preset": 8
+              }
+            ]
           },
           {
             "id": "r2",
@@ -14136,10 +14490,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -14624,12 +14980,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 15
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 15
+              }
+            ]
           },
           {
             "id": "r2",
@@ -14646,10 +15004,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "C0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "C0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -14666,10 +15026,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -14898,12 +15260,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 6
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 6
+              }
+            ]
           },
           {
             "id": "r2",
@@ -14920,10 +15284,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -15106,12 +15472,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 5
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 5
+              }
+            ]
           },
           {
             "id": "r2",
@@ -15128,12 +15496,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r3",
@@ -15150,10 +15520,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -15318,12 +15690,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 5
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 5
+              }
+            ]
           },
           {
             "id": "r2",
@@ -15340,10 +15714,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -15689,12 +16065,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTD",
-              "preset": 12
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTD",
+                "preset": 12
+              }
+            ]
           },
           {
             "id": "r2",
@@ -15711,10 +16089,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -16003,12 +16383,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 8
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 8
+              }
+            ]
           },
           {
             "id": "r2",
@@ -16025,10 +16407,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "C0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "C0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -16045,10 +16429,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -16305,12 +16691,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 7
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 7
+              }
+            ]
           },
           {
             "id": "r2",
@@ -16327,10 +16715,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -16513,12 +16903,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 5
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 5
+              }
+            ]
           },
           {
             "id": "r2",
@@ -16535,12 +16927,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 3
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 3
+              }
+            ]
           },
           {
             "id": "r3",
@@ -16557,10 +16951,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -16965,12 +17361,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 15
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 15
+              }
+            ]
           },
           {
             "id": "r2",
@@ -16987,10 +17385,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -17192,12 +17592,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTD",
-              "preset": 6
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTD",
+                "preset": 6
+              }
+            ]
           },
           {
             "id": "r2",
@@ -17214,10 +17616,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -17842,12 +18246,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 20
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 20
+              }
+            ]
           },
           {
             "id": "r2",
@@ -17864,10 +18270,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "RESET",
-              "address": "C0"
-            }
+            "outputs": [
+              {
+                "kind": "RESET",
+                "address": "C0"
+              }
+            ]
           },
           {
             "id": "r3",
@@ -17884,10 +18292,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -18172,12 +18582,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 8
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 8
+              }
+            ]
           },
           {
             "id": "r2",
@@ -18194,10 +18606,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }
@@ -18452,12 +18866,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COUNTER",
-              "address": "C0",
-              "variant": "CTU",
-              "preset": 8
-            }
+            "outputs": [
+              {
+                "kind": "COUNTER",
+                "address": "C0",
+                "variant": "CTU",
+                "preset": 8
+              }
+            ]
           },
           {
             "id": "r2",
@@ -18474,12 +18890,14 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "TIMER",
-              "address": "T0",
-              "variant": "TON",
-              "preset": 2
-            }
+            "outputs": [
+              {
+                "kind": "TIMER",
+                "address": "T0",
+                "variant": "TON",
+                "preset": 2
+              }
+            ]
           },
           {
             "id": "r3",
@@ -18496,10 +18914,12 @@
                 ]
               }
             ],
-            "output": {
-              "kind": "COIL",
-              "address": "Q0"
-            }
+            "outputs": [
+              {
+                "kind": "COIL",
+                "address": "Q0"
+              }
+            ]
           }
         ]
       }

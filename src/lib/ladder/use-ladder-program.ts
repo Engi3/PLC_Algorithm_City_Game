@@ -10,6 +10,7 @@ import {
   defaultOutputForKind,
   isComparisonBlock,
   MAX_BRANCHES_PER_RUNG,
+  MAX_OUTPUTS_PER_RUNG,
   MAX_RUNGS,
   type AnalogInputs,
   type ComparisonBlock,
@@ -23,7 +24,8 @@ import {
 } from "./types";
 import { runScan } from "./engine";
 
-const TICK_MS = 600;
+/** Task 4: RUN advances the scan loop at 10Hz - fast enough to feel automatic and continuous. */
+const TICK_MS = 100;
 
 /**
  * Shared program-editing + simulation state for the ladder editor. Used by
@@ -93,6 +95,42 @@ export function useLadderProgram(initial?: LadderProgram) {
     setAnalogInputs({});
     setMemory(createEmptyMemory());
     setRunning(false);
+  }
+
+  /**
+   * Task 4: the discrete, visible action behind clicking "Stop" - immediately
+   * drops every plain COIL output and clears each TIMER's EN flag, without
+   * touching timer/counter accumulators (frozen, not reset - that's what
+   * Reset is for) or SET-latched coils (real latches stay latched even with
+   * the scan halted). A direct memory mutation, not a re-scan, so it isn't
+   * immediately undone by the live inputs still sitting there energized.
+   */
+  function haltOutputs() {
+    setMemory((prev) => {
+      const coils = { ...prev.coils };
+      const timers = { ...prev.timers };
+      for (const rung of program.rungs) {
+        for (const output of rung.outputs) {
+          if (!output.address) continue;
+          if (output.kind === "COIL") {
+            coils[output.address] = false;
+          } else if (output.kind === "TIMER" && timers[output.address]) {
+            timers[output.address] = { ...timers[output.address], en: false };
+          }
+        }
+      }
+      return { ...prev, coils, timers };
+    });
+  }
+
+  /** RUN starts the scan loop; STOP halts it and de-energizes non-latched outputs (see haltOutputs). */
+  function toggleRunning() {
+    if (running) {
+      haltOutputs();
+      setRunning(false);
+    } else {
+      setRunning(true);
+    }
   }
 
   function addRung() {
@@ -202,48 +240,67 @@ export function useLadderProgram(initial?: LadderProgram) {
     }));
   }
 
+  /** Task 3: appends a new output to the rung's stack (up to MAX_OUTPUTS_PER_RUNG) rather than replacing a single slot. */
   function placeOutput(rungId: string, kind: OutputKind) {
     updateProgram((p) => ({
-      rungs: p.rungs.map((r) => (r.id === rungId ? { ...r, output: defaultOutputForKind(kind) } : r)),
-    }));
-  }
-
-  function setOutputAddress(rungId: string, address: string) {
-    updateProgram((p) => ({
       rungs: p.rungs.map((r) =>
-        r.id === rungId && r.output ? { ...r, output: { ...r.output, address: address || null } } : r
-      ),
-    }));
-  }
-
-  function setOutputVariant(rungId: string, variant: TimerVariant | CounterVariant) {
-    updateProgram((p) => ({
-      rungs: p.rungs.map((r) => {
-        if (r.id !== rungId || !r.output) return r;
-        if (r.output.kind === "TIMER") {
-          return { ...r, output: { ...r.output, variant: variant as TimerVariant } };
-        }
-        if (r.output.kind === "COUNTER") {
-          return { ...r, output: { ...r.output, variant: variant as CounterVariant } };
-        }
-        return r;
-      }),
-    }));
-  }
-
-  function setOutputPreset(rungId: string, preset: number) {
-    updateProgram((p) => ({
-      rungs: p.rungs.map((r) =>
-        r.id === rungId && r.output && (r.output.kind === "TIMER" || r.output.kind === "COUNTER")
-          ? { ...r, output: { ...r.output, preset } }
+        r.id === rungId && r.outputs.length < MAX_OUTPUTS_PER_RUNG
+          ? { ...r, outputs: [...r.outputs, defaultOutputForKind(kind)] }
           : r
       ),
     }));
   }
 
-  function removeOutput(rungId: string) {
+  function setOutputAddress(rungId: string, outputIndex: number, address: string) {
     updateProgram((p) => ({
-      rungs: p.rungs.map((r) => (r.id === rungId ? { ...r, output: null } : r)),
+      rungs: p.rungs.map((r) =>
+        r.id === rungId
+          ? {
+              ...r,
+              outputs: r.outputs.map((o, i) => (i === outputIndex ? { ...o, address: address || null } : o)),
+            }
+          : r
+      ),
+    }));
+  }
+
+  function setOutputVariant(rungId: string, outputIndex: number, variant: TimerVariant | CounterVariant) {
+    updateProgram((p) => ({
+      rungs: p.rungs.map((r) => {
+        if (r.id !== rungId) return r;
+        return {
+          ...r,
+          outputs: r.outputs.map((o, i) => {
+            if (i !== outputIndex) return o;
+            if (o.kind === "TIMER") return { ...o, variant: variant as TimerVariant };
+            if (o.kind === "COUNTER") return { ...o, variant: variant as CounterVariant };
+            return o;
+          }),
+        };
+      }),
+    }));
+  }
+
+  function setOutputPreset(rungId: string, outputIndex: number, preset: number) {
+    updateProgram((p) => ({
+      rungs: p.rungs.map((r) =>
+        r.id === rungId
+          ? {
+              ...r,
+              outputs: r.outputs.map((o, i) =>
+                i === outputIndex && (o.kind === "TIMER" || o.kind === "COUNTER") ? { ...o, preset } : o
+              ),
+            }
+          : r
+      ),
+    }));
+  }
+
+  function removeOutput(rungId: string, outputIndex: number) {
+    updateProgram((p) => ({
+      rungs: p.rungs.map((r) =>
+        r.id === rungId ? { ...r, outputs: r.outputs.filter((_, i) => i !== outputIndex) } : r
+      ),
     }));
   }
 
@@ -253,7 +310,7 @@ export function useLadderProgram(initial?: LadderProgram) {
     analogInputs,
     memory,
     running,
-    setRunning,
+    toggleRunning,
     loadProgram,
     toggleInput,
     setInputValue,

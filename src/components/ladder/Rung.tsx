@@ -11,7 +11,7 @@ import type {
   TimerVariant,
 } from "@/lib/ladder/types";
 import { isComparisonBlock, MAX_BRANCHES_PER_RUNG } from "@/lib/ladder/types";
-import { evalCell } from "@/lib/ladder/engine";
+import { evalBranchFlow, evalCell } from "@/lib/ladder/engine";
 import LadderCell from "./LadderCell";
 import ComparisonCell from "./ComparisonCell";
 import OutputSlot from "./OutputSlot";
@@ -46,15 +46,15 @@ export default function Rung({
   rungEnergized: boolean;
   addressOptions: string[];
   numericOptions?: string[];
-  addressTaken: (address: string) => boolean;
+  addressTaken: (address: string, outputIndex: number) => boolean;
   customVariables?: DeclaredVariable[];
   onSetContactAddress: (rowIndex: number, colIndex: number, address: string) => void;
   onRemoveContact: (rowIndex: number, colIndex: number) => void;
   onUpdateComparison?: (rowIndex: number, colIndex: number, patch: Partial<ComparisonBlock>) => void;
-  onSetOutputAddress: (address: string) => void;
-  onSetOutputVariant: (variant: TimerVariant | CounterVariant) => void;
-  onSetOutputPreset: (preset: number) => void;
-  onRemoveOutput: () => void;
+  onSetOutputAddress: (outputIndex: number, address: string) => void;
+  onSetOutputVariant: (outputIndex: number, variant: TimerVariant | CounterVariant) => void;
+  onSetOutputPreset: (outputIndex: number, preset: number) => void;
+  onRemoveOutput: (outputIndex: number) => void;
   onAddBranch: () => void;
   onRemoveBranch: (rowIndex: number) => void;
   onRemoveRung: () => void;
@@ -66,12 +66,14 @@ export default function Rung({
       </div>
 
       <div className="flex flex-1 flex-col gap-1 overflow-x-auto">
-        {rung.branches.map((branch, rowIndex) => (
+        {rung.branches.map((branch, rowIndex) => {
+          const flow = evalBranchFlow(branch, inputs, memory, analogInputs);
+          return (
           <div key={rowIndex} className="flex items-center gap-1">
             <div
-              className={`h-full w-2 shrink-0 self-stretch border-y-0 ${
+              className={`h-full w-2 shrink-0 self-stretch border-y-0 transition-colors ${
                 rowIndex === 0 ? "border-l-2" : "border-l"
-              } ${rungEnergized ? "border-green-500" : "border-zinc-400 dark:border-zinc-600"}`}
+              } ${flow[0] ? "border-green-500" : "border-zinc-400 dark:border-zinc-600"}`}
             />
             <div className="flex">
               {branch.cells.map((cell, colIndex) =>
@@ -82,7 +84,8 @@ export default function Rung({
                     rowIndex={rowIndex}
                     colIndex={colIndex}
                     block={cell}
-                    energized={evalCell(cell, inputs, memory, analogInputs)}
+                    energized={flow[colIndex] && evalCell(cell, inputs, memory, analogInputs)}
+                    wireEnergized={flow[colIndex]}
                     numericOptions={numericOptions}
                     onUpdate={(patch) => onUpdateComparison?.(rowIndex, colIndex, patch)}
                     onRemove={() => onRemoveContact(rowIndex, colIndex)}
@@ -94,7 +97,8 @@ export default function Rung({
                     rowIndex={rowIndex}
                     colIndex={colIndex}
                     contact={cell}
-                    energized={evalCell(cell, inputs, memory, analogInputs)}
+                    energized={flow[colIndex] && evalCell(cell, inputs, memory, analogInputs)}
+                    wireEnergized={flow[colIndex]}
                     addressOptions={addressOptions}
                     onSetAddress={(addr) => onSetContactAddress(rowIndex, colIndex, addr)}
                     onRemove={() => onRemoveContact(rowIndex, colIndex)}
@@ -113,7 +117,8 @@ export default function Rung({
               </button>
             )}
           </div>
-        ))}
+          );
+        })}
 
         {rung.branches.length < MAX_BRANCHES_PER_RUNG && (
           <button
@@ -128,7 +133,7 @@ export default function Rung({
 
       <OutputSlot
         rungId={rung.id}
-        output={rung.output}
+        outputs={rung.outputs}
         energized={rungEnergized}
         addressTaken={addressTaken}
         customVariables={customVariables}

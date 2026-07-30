@@ -15,7 +15,7 @@ function hasUnassignedAddress(program: LadderProgram): boolean {
     (r) =>
       r.branches.some((b) =>
         b.cells.some((c) => c && (isComparisonBlock(c) ? !c.sourceA : !c.address))
-      ) || (r.output !== null && !r.output.address)
+      ) || r.outputs.some((o) => !o.address)
   );
 }
 

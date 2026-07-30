@@ -37,9 +37,11 @@ export type InitialLevel = {
 function relevantExpectAddresses(program: LadderProgram, allowedOutputs: string[]): string[] {
   const addrs = new Set<string>(allowedOutputs);
   for (const rung of program.rungs) {
-    if (!rung.output || !rung.output.address) continue;
-    if (rung.output.kind === "TIMER" || rung.output.kind === "COUNTER") {
-      addrs.add(`${rung.output.address}.DN`);
+    for (const output of rung.outputs) {
+      if (!output.address) continue;
+      if (output.kind === "TIMER" || output.kind === "COUNTER") {
+        addrs.add(`${output.address}.DN`);
+      }
     }
   }
   return [...addrs];
@@ -322,16 +324,16 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
                   numericOptions={numericOptions}
                   analogInputs={analogInputs}
                   customVariables={pool.customVariables}
-                  addressTaken={(addr) =>
-                    rung.output ? isOutputAddressTaken(program, rung.output.kind, addr, rung.id) : false
+                  addressTaken={(addr, outputIndex) =>
+                    isOutputAddressTaken(program, rung.outputs[outputIndex].kind, addr, rung.id, outputIndex)
                   }
                   onSetContactAddress={(r, c, addr) => ladder.setContactAddress(rung.id, r, c, addr)}
                   onRemoveContact={(r, c) => ladder.removeContact(rung.id, r, c)}
                   onUpdateComparison={(r, c, patch) => ladder.updateComparison(rung.id, r, c, patch)}
-                  onSetOutputAddress={(addr) => ladder.setOutputAddress(rung.id, addr)}
-                  onSetOutputVariant={(variant) => ladder.setOutputVariant(rung.id, variant)}
-                  onSetOutputPreset={(preset) => ladder.setOutputPreset(rung.id, preset)}
-                  onRemoveOutput={() => ladder.removeOutput(rung.id)}
+                  onSetOutputAddress={(i, addr) => ladder.setOutputAddress(rung.id, i, addr)}
+                  onSetOutputVariant={(i, variant) => ladder.setOutputVariant(rung.id, i, variant)}
+                  onSetOutputPreset={(i, preset) => ladder.setOutputPreset(rung.id, i, preset)}
+                  onRemoveOutput={(i) => ladder.removeOutput(rung.id, i)}
                   onAddBranch={() => ladder.addBranch(rung.id)}
                   onRemoveBranch={(r) => ladder.removeBranch(rung.id, r)}
                   onRemoveRung={() => ladder.removeRung(rung.id)}

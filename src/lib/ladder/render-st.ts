@@ -46,7 +46,10 @@ export function programToStructuredText(program: LadderProgram): string {
 
   const lines = program.rungs.map((rung, i) => {
     const condition = rungExpr(rung.branches);
-    const stmt = rung.output ? outputStatement(rung.output, condition) : `(* rung ${i + 1}: no output *)`;
+    const stmt =
+      rung.outputs.length > 0
+        ? rung.outputs.map((o) => outputStatement(o, condition)).join("\n")
+        : `(* rung ${i + 1}: no output *)`;
     return `// Rung ${i + 1}\n${stmt}`;
   });
 

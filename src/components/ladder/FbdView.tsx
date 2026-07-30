@@ -88,17 +88,22 @@ export default function FbdView({
 
             <span className="shrink-0 text-zinc-400">&rarr;</span>
 
-            {rung.output ? (
-              <div
-                className={`shrink-0 rounded border-2 px-3 py-1.5 text-center font-mono text-[11px] ${
-                  energized
-                    ? "border-green-500 text-green-600 dark:text-green-400"
-                    : "border-zinc-400 text-zinc-500 dark:border-zinc-600 dark:text-zinc-400"
-                }`}
-              >
-                {KIND_LABEL[rung.output.kind]}
-                <br />
-                {rung.output.address ?? "?"}
+            {rung.outputs.length > 0 ? (
+              <div className="flex shrink-0 flex-wrap gap-1">
+                {rung.outputs.map((output, oi) => (
+                  <div
+                    key={oi}
+                    className={`shrink-0 rounded border-2 px-3 py-1.5 text-center font-mono text-[11px] ${
+                      energized
+                        ? "border-green-500 text-green-600 dark:text-green-400"
+                        : "border-zinc-400 text-zinc-500 dark:border-zinc-600 dark:text-zinc-400"
+                    }`}
+                  >
+                    {KIND_LABEL[output.kind]}
+                    <br />
+                    {output.address ?? "?"}
+                  </div>
+                ))}
               </div>
             ) : (
               <span className="text-[11px] text-zinc-400">(no output)</span>

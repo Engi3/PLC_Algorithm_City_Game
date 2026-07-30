@@ -134,10 +134,13 @@ export type Output =
 
 export type OutputKind = Output["kind"];
 
+/** Task 3: a rung's right rail can hold several outputs, all driven by the same rung-energized signal (real PLCs allow stacking multiple coils/SET/RESET/TIMER/COUNTER off one rung). */
+export const MAX_OUTPUTS_PER_RUNG = 3;
+
 export type Rung = {
   id: string;
   branches: Branch[];
-  output: Output | null;
+  outputs: Output[];
 };
 
 export type LadderProgram = {
@@ -178,7 +181,7 @@ export function createEmptyBranch(): Branch {
 }
 
 export function createEmptyRung(id: string): Rung {
-  return { id, branches: [createEmptyBranch()], output: null };
+  return { id, branches: [createEmptyBranch()], outputs: [] };
 }
 
 export function createEmptyProgram(): LadderProgram {
@@ -227,7 +230,7 @@ export function outputAddressOptions(kind: OutputKind, customVariables: Declared
 /** Addresses usable as a contact input: raw inputs, coils, custom X/Y/M variables, and timer/counter .DN/.EN bits. */
 export function contactAddressOptions(program: LadderProgram, customVariables: DeclaredVariable[] = []): string[] {
   const statusBits = program.rungs
-    .map((r) => r.output)
+    .flatMap((r) => r.outputs)
     .filter(
       (o): o is Extract<Output, { kind: "TIMER" | "COUNTER" }> =>
         !!o && (o.kind === "TIMER" || o.kind === "COUNTER") && !!o.address
@@ -251,7 +254,7 @@ export function contactAddressOptions(program: LadderProgram, customVariables: D
 /** Numeric sources usable in a comparison block: declared analog inputs, plus any placed timer/counter .ACC/.PRE registers. */
 export function numericAddressOptions(program: LadderProgram, customVariables: DeclaredVariable[] = []): string[] {
   const registers = program.rungs
-    .map((r) => r.output)
+    .flatMap((r) => r.outputs)
     .filter(
       (o): o is Extract<Output, { kind: "TIMER" | "COUNTER" }> =>
         !!o && (o.kind === "TIMER" || o.kind === "COUNTER") && !!o.address
@@ -262,8 +265,11 @@ export function numericAddressOptions(program: LadderProgram, customVariables: D
 }
 
 /**
- * Whether `address` is already claimed by another rung's output in a way that
- * would conflict with placing `candidateKind` there.
+ * Whether `address` is already claimed by another output in a way that
+ * would conflict with placing `candidateKind` there. Checks every output in
+ * the program - including sibling outputs stacked on the same rung (Task 3)
+ * - except the one at `excludeRungId`/`excludeOutputIndex` (the output
+ * currently being edited, which trivially "conflicts" with its own address).
  *
  * RESET never conflicts (any number of resets may target the same address).
  * SET only conflicts with a plain COIL (SET/RESET pairs are meant to share
@@ -275,7 +281,8 @@ export function isOutputAddressTaken(
   program: LadderProgram,
   candidateKind: OutputKind,
   address: string,
-  excludeRungId: string
+  excludeRungId: string,
+  excludeOutputIndex: number
 ): boolean {
   const conflictingKinds: OutputKind[] =
     candidateKind === "RESET"
@@ -286,11 +293,12 @@ export function isOutputAddressTaken(
           ? ["COIL", "SET"]
           : [candidateKind];
 
-  return program.rungs.some(
-    (r) =>
-      r.id !== excludeRungId &&
-      r.output !== null &&
-      r.output.address === address &&
-      conflictingKinds.includes(r.output.kind)
+  return program.rungs.some((r) =>
+    r.outputs.some(
+      (o, i) =>
+        !(r.id === excludeRungId && i === excludeOutputIndex) &&
+        o.address === address &&
+        conflictingKinds.includes(o.kind)
+    )
   );
 }

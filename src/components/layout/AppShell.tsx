@@ -131,7 +131,7 @@ export default function AppShell({
         </div>
       </nav>
 
-      <main className="flex-1 bg-zinc-50 p-4 dark:bg-black sm:p-6 lg:p-8">
+      <main className="min-w-0 flex-1 bg-zinc-50 p-4 dark:bg-black sm:p-6 lg:p-8">
         {children}
       </main>
     </div>

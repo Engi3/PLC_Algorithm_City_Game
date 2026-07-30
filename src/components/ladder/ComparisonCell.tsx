@@ -17,6 +17,7 @@ export default function ComparisonCell({
   colIndex,
   block,
   energized,
+  wireEnergized = false,
   numericOptions,
   onUpdate,
   onRemove,
@@ -26,6 +27,8 @@ export default function ComparisonCell({
   colIndex: number;
   block: ComparisonBlock;
   energized: boolean;
+  /** Power-flow state of the incoming wire segment (Task 2), independent of this cell's own state. */
+  wireEnergized?: boolean;
   numericOptions: string[];
   onUpdate: (patch: Partial<ComparisonBlock>) => void;
   onRemove: () => void;
@@ -47,8 +50,12 @@ export default function ComparisonCell({
       ref={setNodeRef}
       className="group relative flex h-14 w-28 shrink-0 flex-col items-center justify-center gap-0.5"
     >
-      <div className="h-px w-full bg-zinc-400 dark:bg-zinc-600" />
-      <div className={`flex items-center gap-0.5 rounded border border-current px-1 ${color}`}>
+      <div
+        className={`h-px w-full transition-colors ${
+          wireEnergized ? "bg-green-500 shadow-[0_0_4px_#22c55e]" : "bg-zinc-400 dark:bg-zinc-600"
+        }`}
+      />
+      <div className={`flex items-center gap-0.5 rounded border border-current px-1 transition-colors ${color}`}>
         <select
           aria-label="Comparison source A"
           value={block.sourceA ?? ""}

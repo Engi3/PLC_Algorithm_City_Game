@@ -102,6 +102,28 @@ export function evalBranch(branch: Branch, inputs: Inputs, memory: SimMemory, an
   return placed.every((c) => evalCell(c, inputs, memory, analogInputs));
 }
 
+/**
+ * Task 2 (power-flow visualizer): the wire state arriving at each cell
+ * position, left to right. Index i is true only if the branch has at least
+ * one placed cell (an all-empty branch never completes a circuit, same
+ * rule as evalBranch) AND every placed cell before position i evaluated
+ * true - so a closed contact sitting downstream of an open one correctly
+ * renders as dead wire, not falsely "energized" from its own state alone.
+ */
+export function evalBranchFlow(
+  branch: Branch,
+  inputs: Inputs,
+  memory: SimMemory,
+  analogInputs: AnalogInputs = {}
+): boolean[] {
+  let flowing = branch.cells.some((c) => c !== null);
+  return branch.cells.map((cell) => {
+    const incoming = flowing;
+    if (cell) flowing = flowing && evalCell(cell, inputs, memory, analogInputs);
+    return incoming;
+  });
+}
+
 export function evalRungEnergized(
   branches: Branch[],
   inputs: Inputs,
@@ -141,11 +163,11 @@ export function runScan(
     const energized = evalRungEnergized(rung.branches, inputs, memory, analogInputs);
     rungEnergized[rung.id] = energized;
 
-    const output = rung.output;
-    if (!output || !output.address) continue;
-    const addr = output.address;
+    for (const output of rung.outputs) {
+      if (!output.address) continue;
+      const addr = output.address;
 
-    switch (output.kind) {
+      switch (output.kind) {
       case "COIL": {
         memory.coils[addr] = energized;
         break;
@@ -226,6 +248,7 @@ export function runScan(
         const done = output.variant === "CTU" ? preset > 0 && cv >= preset : cv <= 0;
         memory.counters[addr] = { cv, preset, done, variant: output.variant, prevEnergized: energized, en: energized };
         break;
+      }
       }
     }
   }

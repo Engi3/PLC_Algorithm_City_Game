@@ -32,7 +32,7 @@ export function branch(...cells: (Contact | null)[]): Branch {
 
 export function rung(id: string, branches: Branch[], output: Output | null): Rung {
   if (branches.length > 3) throw new Error("rung: too many branches (max 3)");
-  return { id, branches, output };
+  return { id, branches, outputs: output ? [output] : [] };
 }
 
 export function coilOutput(address: string): Output {
@@ -103,7 +103,7 @@ export function countBlocks(prog: LadderProgram): number {
     for (const b of r.branches) {
       count += b.cells.filter((c) => c !== null).length;
     }
-    if (r.output) count += 1;
+    count += r.outputs.length;
   }
   return count;
 }

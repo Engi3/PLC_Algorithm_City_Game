@@ -1,7 +1,14 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { outputAddressOptions, type CounterVariant, type DeclaredVariable, type Output, type TimerVariant } from "@/lib/ladder/types";
+import {
+  MAX_OUTPUTS_PER_RUNG,
+  outputAddressOptions,
+  type CounterVariant,
+  type DeclaredVariable,
+  type Output,
+  type TimerVariant,
+} from "@/lib/ladder/types";
 
 const KIND_LABEL: Record<Output["kind"], string> = {
   COIL: "( )",
@@ -11,8 +18,7 @@ const KIND_LABEL: Record<Output["kind"], string> = {
   COUNTER: "CTR",
 };
 
-export default function OutputSlot({
-  rungId,
+function OutputSlotItem({
   output,
   energized,
   addressTaken,
@@ -22,8 +28,7 @@ export default function OutputSlot({
   onSetPreset,
   onRemove,
 }: {
-  rungId: string;
-  output: Output | null;
+  output: Output;
   energized: boolean;
   addressTaken: (address: string) => boolean;
   customVariables?: DeclaredVariable[];
@@ -32,24 +37,6 @@ export default function OutputSlot({
   onSetPreset: (preset: number) => void;
   onRemove: () => void;
 }) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: `output-${rungId}`,
-    data: { accepts: "output", rungId },
-  });
-
-  if (!output) {
-    return (
-      <div
-        ref={setNodeRef}
-        className={`flex h-14 w-20 shrink-0 items-center justify-center border-t border-zinc-400 text-xs text-zinc-400 dark:border-zinc-600 ${
-          isOver ? "bg-blue-100 dark:bg-blue-950" : ""
-        }`}
-      >
-        drop output
-      </div>
-    );
-  }
-
   const options = outputAddressOptions(output.kind, customVariables);
   const unassigned = !output.address;
   const color = unassigned
@@ -59,13 +46,14 @@ export default function OutputSlot({
       : "text-zinc-500 dark:text-zinc-400";
 
   return (
-    <div
-      ref={setNodeRef}
-      className="group relative flex h-auto w-28 shrink-0 flex-col items-center justify-center gap-0.5 py-1"
-    >
-      <div className="h-px w-full bg-zinc-400 dark:bg-zinc-600" />
+    <div className="group relative flex h-auto w-28 shrink-0 flex-col items-center justify-center gap-0.5 py-1">
       <div
-        className={`flex h-8 w-12 items-center justify-center rounded-full border-2 border-current font-mono text-[10px] ${color}`}
+        className={`h-px w-full transition-colors ${
+          energized ? "bg-green-500 shadow-[0_0_4px_#22c55e]" : "bg-zinc-400 dark:bg-zinc-600"
+        }`}
+      />
+      <div
+        className={`flex h-8 w-12 items-center justify-center rounded-full border-2 border-current font-mono text-[10px] transition-colors ${color}`}
       >
         {KIND_LABEL[output.kind]}
       </div>
@@ -128,6 +116,70 @@ export default function OutputSlot({
       >
         x
       </button>
+    </div>
+  );
+}
+
+/**
+ * Task 3: a rung's right rail holds a stack of outputs (all driven by the
+ * same rung-energized signal, like real PLC coils stacked off one rung),
+ * not just one. The trailing drop target stays live - not gated on emptiness
+ * - so a second/third output can be dropped on top of existing ones, up to
+ * MAX_OUTPUTS_PER_RUNG.
+ */
+export default function OutputSlot({
+  rungId,
+  outputs,
+  energized,
+  addressTaken,
+  customVariables,
+  onSetAddress,
+  onSetVariant,
+  onSetPreset,
+  onRemove,
+}: {
+  rungId: string;
+  outputs: Output[];
+  energized: boolean;
+  addressTaken: (address: string, outputIndex: number) => boolean;
+  customVariables?: DeclaredVariable[];
+  onSetAddress: (outputIndex: number, address: string) => void;
+  onSetVariant: (outputIndex: number, variant: TimerVariant | CounterVariant) => void;
+  onSetPreset: (outputIndex: number, preset: number) => void;
+  onRemove: (outputIndex: number) => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `output-${rungId}`,
+    data: { accepts: "output", rungId },
+  });
+
+  const canAddMore = outputs.length < MAX_OUTPUTS_PER_RUNG;
+
+  return (
+    <div className="flex shrink-0 flex-wrap items-center gap-2">
+      {outputs.map((output, i) => (
+        <OutputSlotItem
+          key={i}
+          output={output}
+          energized={energized}
+          addressTaken={(addr) => addressTaken(addr, i)}
+          customVariables={customVariables}
+          onSetAddress={(addr) => onSetAddress(i, addr)}
+          onSetVariant={(variant) => onSetVariant(i, variant)}
+          onSetPreset={(preset) => onSetPreset(i, preset)}
+          onRemove={() => onRemove(i)}
+        />
+      ))}
+      {canAddMore && (
+        <div
+          ref={setNodeRef}
+          className={`flex h-14 w-20 shrink-0 items-center justify-center border-t border-zinc-400 text-xs text-zinc-400 dark:border-zinc-600 ${
+            isOver ? "bg-blue-100 dark:bg-blue-950" : ""
+          }`}
+        >
+          drop output
+        </div>
+      )}
     </div>
   );
 }
