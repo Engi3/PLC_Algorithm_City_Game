@@ -41,3 +41,6 @@ Markdown/
 
 # local Claude Code tool config/state
 .claude/
+
+.vercel
+.env*

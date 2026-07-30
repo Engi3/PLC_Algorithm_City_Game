@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
-import { SKILL_LABELS, isLevelSpec } from "@/lib/ladder/level-spec";
+import { SKILL_BADGE_CLASSES, SKILL_LABELS, isLevelSpec } from "@/lib/ladder/level-spec";
 
 type LevelRow = {
   id: string;
@@ -97,7 +97,9 @@ export default async function LevelListPage() {
               {spec && (
                 <>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">{spec.description}</p>
-                  <span className="w-fit rounded bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                  <span
+                    className={`w-fit rounded px-2 py-0.5 text-[11px] font-medium ${SKILL_BADGE_CLASSES[spec.skill]}`}
+                  >
                     {SKILL_LABELS[spec.skill]}
                   </span>
                 </>

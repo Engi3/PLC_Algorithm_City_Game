@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { isLevelSpec, SKILL_LABELS } from "@/lib/ladder/level-spec";
+import { isLevelSpec, type SkillCategory } from "@/lib/ladder/level-spec";
 import LadderPlayground from "@/components/ladder/LadderPlayground";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 
@@ -15,7 +15,7 @@ export default async function LevelPlayPage({
 
   let title = "Level";
   let description = "";
-  let skillLabel = "";
+  let skill: SkillCategory | null = null;
   let hints: string[] = [];
 
   try {
@@ -34,7 +34,7 @@ export default async function LevelPlayPage({
     title = level.title ?? `Level ${level.level_number}`;
     if (isLevelSpec(level.map_layout_json)) {
       description = level.map_layout_json.description;
-      skillLabel = SKILL_LABELS[level.map_layout_json.skill];
+      skill = level.map_layout_json.skill;
       hints = level.map_layout_json.hints ?? [];
     }
   } catch (err) {
@@ -52,7 +52,7 @@ export default async function LevelPlayPage({
           </span>
         )}
       </div>
-      <LadderPlayground level={{ id: levelId, description, skillLabel, hints }} />
+      <LadderPlayground level={{ id: levelId, description, skill, hints }} />
     </div>
   );
 }

@@ -28,10 +28,11 @@ import {
   type SubmitLevelResult,
   type SkipLevelResult,
 } from "@/app/dashboard/play/level-actions";
+import { SKILL_BADGE_CLASSES, SKILL_LABELS, type SkillCategory } from "@/lib/ladder/level-spec";
 
 type ViewMode = "LD" | "FBD" | "ST";
 
-export type LevelInfo = { id: string; description: string; skillLabel: string; hints?: string[] };
+export type LevelInfo = { id: string; description: string; skill: SkillCategory | null; hints?: string[] };
 
 export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) {
   const ladder = useLadderProgram();
@@ -132,9 +133,13 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
       <div className="flex flex-col gap-4">
         {level && (
           <div className="flex flex-col gap-2 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
-            <span className="w-fit rounded bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-              {level.skillLabel}
-            </span>
+            {level.skill && (
+              <span
+                className={`w-fit rounded px-2 py-0.5 text-[11px] font-medium ${SKILL_BADGE_CLASSES[level.skill]}`}
+              >
+                {SKILL_LABELS[level.skill]}
+              </span>
+            )}
             <p className="text-sm text-blue-900 dark:text-blue-100">{level.description}</p>
 
             {level.hints && level.hints.length > 0 && (

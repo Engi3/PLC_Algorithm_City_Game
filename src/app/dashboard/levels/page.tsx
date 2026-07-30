@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
-import { isLevelSpec, SKILL_LABELS } from "@/lib/ladder/level-spec";
+import { isLevelSpec, SKILL_BADGE_CLASSES, SKILL_LABELS } from "@/lib/ladder/level-spec";
 import DeleteLevelButton from "./DeleteLevelButton";
 
 export default async function LevelsPage() {
@@ -73,8 +73,16 @@ export default async function LevelsPage() {
                 <tr key={l.id}>
                   <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">{l.level_number}</td>
                   <td className="px-3 py-2 text-zinc-900 dark:text-zinc-50">{title}</td>
-                  <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">
-                    {spec ? SKILL_LABELS[spec.skill] : "-"}
+                  <td className="px-3 py-2">
+                    {spec ? (
+                      <span
+                        className={`w-fit rounded px-2 py-0.5 text-[11px] font-medium ${SKILL_BADGE_CLASSES[spec.skill]}`}
+                      >
+                        {SKILL_LABELS[spec.skill]}
+                      </span>
+                    ) : (
+                      <span className="text-zinc-400">-</span>
+                    )}
                   </td>
                   <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">
                     {l.optimal_blocks_count ?? "-"}
