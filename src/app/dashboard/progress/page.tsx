@@ -4,7 +4,9 @@ import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
 import { isLevelSpec } from "@/lib/ladder/level-spec";
 import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
+import { computeCompetencyScores, type ManualCompetencyScores } from "@/lib/analytics/competency";
 import SkillRadarChart from "@/components/analytics/SkillRadarChart";
+import CompetencyRadarChart from "@/components/analytics/CompetencyRadarChart";
 
 type LevelRow = { id: string; levelNumber: number; title: string };
 
@@ -18,8 +20,15 @@ export default async function ProgressPage() {
   // without an explicit ORDER BY, Postgres row order is unspecified, so
   // this table could silently drift out of sync with /dashboard/play.
   let levelRows: LevelRow[] = [];
+  let levelCount = 0;
   let gameLogicScore = 0;
   let onsitePracticalScore: number | null = null;
+  let manualCompetency: ManualCompetencyScores = {
+    wiring_skills: null,
+    debugging_testing: null,
+    advanced_challenge: null,
+    system_control: null,
+  };
 
   try {
     const supabase = await createClient();
@@ -31,6 +40,7 @@ export default async function ProgressPage() {
     if (levelsError) {
       console.error("ProgressPage: failed to load levels", levelsError);
     } else {
+      levelCount = levels?.length ?? 0;
       for (const l of levels ?? []) {
         levelRows.push({ id: l.id, levelNumber: l.level_number, title: l.title ?? `Level ${l.level_number}` });
         if (isLevelSpec(l.map_layout_json)) levelSkills[l.id] = l.map_layout_json.skill;
@@ -39,7 +49,7 @@ export default async function ProgressPage() {
 
     const { data: playLogs, error: logsError } = await supabase
       .from("play_logs")
-      .select("level_id, score, is_success")
+      .select("level_id, score, is_success, created_at")
       .eq("user_id", profile.id);
     if (logsError) {
       console.error("ProgressPage: failed to load play logs", logsError);
@@ -58,11 +68,33 @@ export default async function ProgressPage() {
       gameLogicScore = scoreRow.game_logic_score ?? 0;
       onsitePracticalScore = scoreRow.onsite_practical_score;
     }
+
+    // Queried separately: a PostgREST select() is all-or-nothing, so until
+    // the Phase 12 migration runs, asking for these columns alongside
+    // game_logic_score would fail the WHOLE query and wrongly zero out a
+    // real, already-working score too. See load-class-data.ts for the same
+    // split, applied there for the teacher's class-wide view.
+    const { data: competencyRow, error: competencyError } = await supabase
+      .from("student_scores")
+      .select("wiring_skills, debugging_testing, advanced_challenge, system_control")
+      .eq("user_id", profile.id)
+      .maybeSingle();
+    if (competencyError) {
+      console.error("ProgressPage: failed to load competency scores", competencyError);
+    } else if (competencyRow) {
+      manualCompetency = {
+        wiring_skills: competencyRow.wiring_skills ?? null,
+        debugging_testing: competencyRow.debugging_testing ?? null,
+        advanced_challenge: competencyRow.advanced_challenge ?? null,
+        system_control: competencyRow.system_control ?? null,
+      };
+    }
   } catch (err) {
     console.error("ProgressPage crashed:", err);
   }
 
   const skillScores = computeSkillScores(logs, levelSkills);
+  const competencyScores = computeCompetencyScores(logs, levelCount, manualCompetency);
   const passedLevelIds = new Set(logs.filter((l) => l.is_success).map((l) => l.level_id));
 
   return (
@@ -75,7 +107,20 @@ export default async function ProgressPage() {
         </p>
       </div>
 
-      <SkillRadarChart datasets={[{ label: profile.username, scores: skillScores, color: "#2563eb" }]} />
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div>
+          <h2 className="mb-2 text-center text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+            ทักษะเกม (Skill Breakdown)
+          </h2>
+          <SkillRadarChart datasets={[{ label: profile.username, scores: skillScores, color: "#2563eb" }]} />
+        </div>
+        <div>
+          <h2 className="mb-2 text-center text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+            สมรรถนะทางวิศวกรรม 6 ด้าน (Engineering Competency)
+          </h2>
+          <CompetencyRadarChart datasets={[{ label: profile.username, scores: competencyScores, color: "#7c3aed" }]} />
+        </div>
+      </div>
 
       <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
         <table className="w-full min-w-[400px] text-left text-sm">

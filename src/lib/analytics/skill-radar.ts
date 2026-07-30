@@ -9,7 +9,7 @@ export const ALL_SKILLS: SkillCategory[] = [
 ];
 
 export type LevelSkillMap = Record<string, SkillCategory>;
-export type PlayLogLite = { level_id: string; score: number | null; is_success: boolean };
+export type PlayLogLite = { level_id: string; score: number | null; is_success: boolean; created_at: string };
 export type SkillScores = Record<SkillCategory, number>;
 
 /**

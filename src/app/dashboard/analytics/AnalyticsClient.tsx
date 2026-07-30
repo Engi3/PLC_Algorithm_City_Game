@@ -4,10 +4,17 @@ import { useMemo, useState } from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import SkillRadarChart from "@/components/analytics/SkillRadarChart";
+import CompetencyRadarChart from "@/components/analytics/CompetencyRadarChart";
 import MarkdownContent from "@/components/markdown/MarkdownContent";
 import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
+import { computeCompetencyScores, averageCompetencyScores } from "@/lib/analytics/competency";
 import { toCsv, downloadCsv } from "@/lib/analytics/csv";
-import { updatePracticalScoreAction, grantBonusCoinsAction, type ActionState } from "./actions";
+import {
+  updatePracticalScoreAction,
+  updateCompetencyScoreAction,
+  grantBonusCoinsAction,
+  type ActionState,
+} from "./actions";
 import { generateClassInsightsAction } from "./ai-actions";
 
 export type StudentRow = {
@@ -18,6 +25,10 @@ export type StudentRow = {
   studentId: string | null;
   gameLogicScore: number;
   onsitePracticalScore: number | null;
+  wiringSkills: number | null;
+  debuggingTesting: number | null;
+  advancedChallenge: number | null;
+  systemControl: number | null;
   levelsPassed: number;
   logs: PlayLogLite[];
 };
@@ -29,6 +40,35 @@ function PracticalScoreForm({ studentId, current }: { studentId: string; current
   return (
     <form action={formAction} className="flex items-center gap-1">
       <input type="hidden" name="userId" value={studentId} />
+      <input
+        type="number"
+        name="score"
+        min={0}
+        max={100}
+        defaultValue={current ?? ""}
+        placeholder="-"
+        className="w-16 rounded border border-zinc-300 px-1.5 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+      />
+      <SaveButton />
+      {state.error && <span className="text-xs text-red-600 dark:text-red-400">{state.error}</span>}
+    </form>
+  );
+}
+
+function CompetencyScoreForm({
+  studentId,
+  axis,
+  current,
+}: {
+  studentId: string;
+  axis: "wiring_skills" | "debugging_testing" | "advanced_challenge" | "system_control";
+  current: number | null;
+}) {
+  const [state, formAction] = useActionState(updateCompetencyScoreAction, initialState);
+  return (
+    <form action={formAction} className="flex items-center gap-1">
+      <input type="hidden" name="userId" value={studentId} />
+      <input type="hidden" name="axis" value={axis} />
       <input
         type="number"
         name="score"
@@ -139,9 +179,11 @@ function AiInsightsPanel() {
 export default function AnalyticsClient({
   students,
   levelSkills,
+  levelCount,
 }: {
   students: StudentRow[];
   levelSkills: LevelSkillMap;
+  levelCount: number;
 }) {
   const [selected, setSelected] = useState<string>("class-average");
 
@@ -150,10 +192,30 @@ export default function AnalyticsClient({
     [students, levelSkills]
   );
 
+  const perStudentCompetency = useMemo(
+    () =>
+      students.map((s) =>
+        computeCompetencyScores(s.logs, levelCount, {
+          wiring_skills: s.wiringSkills,
+          debugging_testing: s.debuggingTesting,
+          advanced_challenge: s.advancedChallenge,
+          system_control: s.systemControl,
+        })
+      ),
+    [students, levelCount]
+  );
+  const classAverageCompetency = useMemo(
+    () => averageCompetencyScores(perStudentCompetency),
+    [perStudentCompetency]
+  );
+
   const selectedStudent = students.find((s) => s.id === selected);
+  const selectedIndex = students.findIndex((s) => s.id === selected);
   const selectedScores = selectedStudent
     ? computeSkillScores(selectedStudent.logs, levelSkills)
     : classAverageScores;
+  const selectedCompetencyScores =
+    selectedIndex >= 0 ? perStudentCompetency[selectedIndex] : classAverageCompetency;
 
   function exportCsv() {
     const rows = students.map((s) => ({
@@ -163,6 +225,10 @@ export default function AnalyticsClient({
       "Student ID": s.studentId ?? "",
       "Game score": s.gameLogicScore,
       "Practical score": s.onsitePracticalScore ?? "",
+      "Wiring skills": s.wiringSkills ?? "",
+      "Debugging & testing": s.debuggingTesting ?? "",
+      "Advanced challenge": s.advancedChallenge ?? "",
+      "System control": s.systemControl ?? "",
       "Levels passed": s.levelsPassed,
     }));
     downloadCsv(`student-status-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows));
@@ -187,15 +253,36 @@ export default function AnalyticsClient({
             ))}
           </select>
         </div>
-        <SkillRadarChart
-          datasets={[
-            {
-              label: selectedStudent ? selectedStudent.username : "Class Average",
-              scores: selectedScores,
-              color: "#2563eb",
-            },
-          ]}
-        />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <p className="mb-1 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              Skill Breakdown
+            </p>
+            <SkillRadarChart
+              datasets={[
+                {
+                  label: selectedStudent ? selectedStudent.username : "Class Average",
+                  scores: selectedScores,
+                  color: "#2563eb",
+                },
+              ]}
+            />
+          </div>
+          <div>
+            <p className="mb-1 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              Engineering Competency (6-Axis)
+            </p>
+            <CompetencyRadarChart
+              datasets={[
+                {
+                  label: selectedStudent ? selectedStudent.username : "Class Average",
+                  scores: selectedCompetencyScores,
+                  color: "#7c3aed",
+                },
+              ]}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
@@ -210,7 +297,7 @@ export default function AnalyticsClient({
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-        <table className="w-full min-w-[860px] text-left text-sm">
+        <table className="w-full min-w-[1320px] text-left text-sm">
           <thead className="bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
             <tr>
               <th className="px-3 py-2">Name</th>
@@ -219,6 +306,10 @@ export default function AnalyticsClient({
               <th className="px-3 py-2">Levels passed</th>
               <th className="px-3 py-2">Game score</th>
               <th className="px-3 py-2">Practical score</th>
+              <th className="px-3 py-2">Wiring</th>
+              <th className="px-3 py-2">Debugging</th>
+              <th className="px-3 py-2">Advanced</th>
+              <th className="px-3 py-2">System Ctrl</th>
               <th className="px-3 py-2">Bonus Coins</th>
             </tr>
           </thead>
@@ -238,13 +329,25 @@ export default function AnalyticsClient({
                   <PracticalScoreForm studentId={s.id} current={s.onsitePracticalScore} />
                 </td>
                 <td className="px-3 py-2">
+                  <CompetencyScoreForm studentId={s.id} axis="wiring_skills" current={s.wiringSkills} />
+                </td>
+                <td className="px-3 py-2">
+                  <CompetencyScoreForm studentId={s.id} axis="debugging_testing" current={s.debuggingTesting} />
+                </td>
+                <td className="px-3 py-2">
+                  <CompetencyScoreForm studentId={s.id} axis="advanced_challenge" current={s.advancedChallenge} />
+                </td>
+                <td className="px-3 py-2">
+                  <CompetencyScoreForm studentId={s.id} axis="system_control" current={s.systemControl} />
+                </td>
+                <td className="px-3 py-2">
                   <BonusCoinsForm studentId={s.id} />
                 </td>
               </tr>
             ))}
             {students.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-6 text-center text-zinc-400">
+                <td colSpan={11} className="px-3 py-6 text-center text-zinc-400">
                   No approved students yet.
                 </td>
               </tr>

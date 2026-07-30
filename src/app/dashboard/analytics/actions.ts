@@ -43,6 +43,50 @@ export async function updatePracticalScoreAction(
   return { error: null };
 }
 
+const MANUAL_COMPETENCY_AXES = ["wiring_skills", "debugging_testing", "advanced_challenge", "system_control"] as const;
+type ManualCompetencyAxis = (typeof MANUAL_COMPETENCY_AXES)[number];
+
+/** Generalized version of updatePracticalScoreAction for the 4 Phase 12 teacher-graded competency axes. */
+export async function updateCompetencyScoreAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const userId = formData.get("userId")?.toString() ?? "";
+  const axis = formData.get("axis")?.toString() ?? "";
+  const raw = formData.get("score")?.toString() ?? "";
+  const score = raw === "" ? null : Number(raw);
+
+  if (!userId) return { error: "Missing user." };
+  if (!MANUAL_COMPETENCY_AXES.includes(axis as ManualCompetencyAxis)) return { error: "Invalid axis." };
+  if (raw !== "" && (Number.isNaN(score) || score! < 0 || score! > 100)) {
+    return { error: "Score must be between 0 and 100." };
+  }
+
+  try {
+    const profile = await getCurrentProfile();
+    if (!profile || profile.role !== "teacher") {
+      return { error: "Forbidden." };
+    }
+
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from("student_scores")
+      .upsert({ user_id: userId, [axis]: score }, { onConflict: "user_id" });
+
+    if (error) {
+      console.error("updateCompetencyScoreAction: upsert failed", error);
+      return { error: "Could not save the score." };
+    }
+  } catch (err) {
+    console.error("updateCompetencyScoreAction crashed:", err);
+    return { error: "Something went wrong." };
+  }
+
+  revalidatePath("/dashboard/analytics");
+  revalidatePath("/dashboard/progress");
+  return { error: null };
+}
+
 const MAX_BONUS_COINS = 1000;
 
 /**

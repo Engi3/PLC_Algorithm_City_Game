@@ -11,6 +11,10 @@ export type ClassStudent = {
   studentId: string | null;
   gameLogicScore: number;
   onsitePracticalScore: number | null;
+  wiringSkills: number | null;
+  debuggingTesting: number | null;
+  advancedChallenge: number | null;
+  systemControl: number | null;
   levelsPassed: number;
   logs: PlayLogLite[];
 };
@@ -62,9 +66,22 @@ export async function loadClassData(): Promise<ClassData> {
     if (scoresError) console.error("loadClassData: failed to load scores", scoresError);
     const scoreByUser = new Map((scores ?? []).map((s) => [s.user_id, s]));
 
+    // Queried separately from the block above: a PostgREST select() is
+    // all-or-nothing, so until the Phase 12 migration (0005_competency_radar.sql)
+    // runs, requesting these columns in the same query as game_logic_score
+    // would fail the WHOLE query and wrongly zero out real, existing scores
+    // too. Splitting them means only the new competency fields degrade to
+    // null pre-migration, not the scores that already work today.
+    const { data: competency, error: competencyError } = await supabase
+      .from("student_scores")
+      .select("user_id, wiring_skills, debugging_testing, advanced_challenge, system_control")
+      .in("user_id", studentIds);
+    if (competencyError) console.error("loadClassData: failed to load competency scores", competencyError);
+    const competencyByUser = new Map((competency ?? []).map((s) => [s.user_id, s]));
+
     const { data: logs, error: logsError } = await supabase
       .from("play_logs")
-      .select("user_id, level_id, score, is_success")
+      .select("user_id, level_id, score, is_success, created_at")
       .in("user_id", studentIds);
     if (logsError) console.error("loadClassData: failed to load play logs", logsError);
     const logsByUser = new Map<string, PlayLogLite[]>();
@@ -76,6 +93,7 @@ export async function loadClassData(): Promise<ClassData> {
 
     students = studentUsers.map((u) => {
       const score = scoreByUser.get(u.id);
+      const competencyScore = competencyByUser.get(u.id);
       const userLogs = logsByUser.get(u.id) ?? [];
       const levelsPassed = new Set(userLogs.filter((l) => l.is_success).map((l) => l.level_id)).size;
       return {
@@ -86,6 +104,10 @@ export async function loadClassData(): Promise<ClassData> {
         studentId: u.student_id,
         gameLogicScore: score?.game_logic_score ?? 0,
         onsitePracticalScore: score?.onsite_practical_score ?? null,
+        wiringSkills: competencyScore?.wiring_skills ?? null,
+        debuggingTesting: competencyScore?.debugging_testing ?? null,
+        advancedChallenge: competencyScore?.advanced_challenge ?? null,
+        systemControl: competencyScore?.system_control ?? null,
         levelsPassed,
         logs: userLogs,
       };

@@ -32,7 +32,7 @@ export default async function AnalyticsPage() {
           {levelCount === 1 ? "" : "s"}
         </p>
       </div>
-      <AnalyticsClient students={students} levelSkills={levelSkills} />
+      <AnalyticsClient students={students} levelSkills={levelSkills} levelCount={levelCount} />
     </div>
   );
 }
