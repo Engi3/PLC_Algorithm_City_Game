@@ -35,5 +35,9 @@ next-env.d.ts
 # project secrets doc - contains live DB password + Gemini API key, never commit
 Other data.md
 
+# personal notes/prompts folder - contains Connection string.md (live Supabase
+# credentials) plus scratch PDF exports from manual testing, never commit
+Markdown/
+
 # local Claude Code tool config/state
 .claude/

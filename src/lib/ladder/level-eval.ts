@@ -9,9 +9,10 @@ function runTestCase(program: LadderProgram, testCase: LevelTestCase) {
   let memory = createEmptyMemory();
 
   for (const frame of testCase.frames) {
-    memory = runScan(program, frame.inputs, memory, { tick: false }).memory;
+    const analogInputs = frame.analogInputs ?? {};
+    memory = runScan(program, frame.inputs, memory, { tick: false }, analogInputs).memory;
     for (let t = 0; t < frame.ticks; t++) {
-      memory = runScan(program, frame.inputs, memory, { tick: true }).memory;
+      memory = runScan(program, frame.inputs, memory, { tick: true }, analogInputs).memory;
     }
   }
 
@@ -36,7 +37,7 @@ export function countBlocks(program: LadderProgram): number {
     for (const branch of rung.branches) {
       count += branch.cells.filter((c) => c !== null).length;
     }
-    if (rung.output) count += 1;
+    count += rung.outputs.length;
   }
   return count;
 }

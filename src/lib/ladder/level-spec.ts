@@ -1,4 +1,4 @@
-import type { Inputs, LadderProgram } from "./types";
+import type { AnalogInputs, Inputs, LadderProgram } from "./types";
 
 /** Skill category a level is tagged with, used for the teacher's radar chart. */
 export type SkillCategory = "basic_logic" | "latching" | "timers" | "counters" | "efficiency";
@@ -8,6 +8,8 @@ export type LevelFrame = {
   inputs: Inputs;
   /** How many Step ticks to run after applying `inputs`, for timers/counters. */
   ticks: number;
+  /** Full analog input state for this frame (AI0-AI15), for levels whose test cases exercise a comparison block. Optional - existing digital-only test cases omit it and default to {}. */
+  analogInputs?: AnalogInputs;
 };
 
 export type LevelTestCase = {
