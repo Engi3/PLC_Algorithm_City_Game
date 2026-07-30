@@ -17,9 +17,11 @@ import { evaluateLevel, type LevelEvalResult } from "@/lib/ladder/level-eval";
 import { SKILL_LABELS, type LevelSpec, type LevelTestCase, type SkillCategory } from "@/lib/ladder/level-spec";
 import { useLadderProgram } from "@/lib/ladder/use-ladder-program";
 import { useLadderDnd } from "@/lib/ladder/use-ladder-dnd";
+import { useVariablePool } from "@/lib/ladder/use-variable-pool";
 import LadderPalette from "./LadderPalette";
 import RungRow from "./Rung";
 import IoPanel from "./IoPanel";
+import VariablePoolDrawer from "./VariablePoolDrawer";
 import { saveLevelAction } from "@/app/dashboard/levels/actions";
 
 export type InitialLevel = {
@@ -45,6 +47,7 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
   const router = useRouter();
   const ladder = useLadderProgram(initialLevel?.spec.referenceProgram);
   const { activeDrag, handleDragStart, handleDragEnd } = useLadderDnd(ladder);
+  const pool = useVariablePool();
 
   const [title, setTitle] = useState(initialLevel?.title ?? "");
   const [levelNumber, setLevelNumber] = useState(initialLevel?.levelNumber ?? 1);
@@ -67,7 +70,7 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
   const [saving, setSaving] = useState(false);
 
   const { program, inputs, memory } = ladder;
-  const addressOptions = contactAddressOptions(program);
+  const addressOptions = contactAddressOptions(program, pool.customVariables);
   const expectAddresses = useMemo(
     () => relevantExpectAddresses(program, allowedOutputs),
     [program, allowedOutputs]
@@ -82,6 +85,11 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
 
   function recordToggleInput(addr: string) {
     ladder.toggleInput(addr);
+    setPendingTicks(0);
+  }
+
+  function recordSetInputValue(addr: string, value: boolean) {
+    ladder.setInputValue(addr, value);
     setPendingTicks(0);
   }
 
@@ -245,7 +253,7 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
         <div className="flex flex-col gap-1 text-sm">
           <span className="font-medium text-zinc-700 dark:text-zinc-300">Allowed inputs (informational)</span>
           <div className="flex flex-wrap gap-2">
-            {INPUT_ADDRESSES.map((addr) => (
+            {[...INPUT_ADDRESSES, ...pool.customVariables.filter((v) => v.kind === "input").map((v) => v.address)].map((addr) => (
               <label key={addr} className="flex items-center gap-1 text-xs">
                 <input
                   type="checkbox"
@@ -260,7 +268,10 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
         <div className="flex flex-col gap-1 text-sm">
           <span className="font-medium text-zinc-700 dark:text-zinc-300">Allowed outputs (informational)</span>
           <div className="flex flex-wrap gap-2">
-            {COIL_ADDRESSES.map((addr) => (
+            {[
+              ...COIL_ADDRESSES,
+              ...pool.customVariables.filter((v) => v.kind === "output" || v.kind === "relay").map((v) => v.address),
+            ].map((addr) => (
               <label key={addr} className="flex items-center gap-1 text-xs">
                 <input
                   type="checkbox"
@@ -288,6 +299,7 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
         <DndContext id="level-authoring-dnd" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="flex flex-col gap-3">
             <LadderPalette />
+            <VariablePoolDrawer pool={pool} />
             <div className="flex flex-col gap-3">
               {program.rungs.map((rung, index) => (
                 <RungRow
@@ -298,6 +310,7 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
                   memory={memory}
                   rungEnergized={evalRungEnergized(rung.branches, inputs, memory)}
                   addressOptions={addressOptions}
+                  customVariables={pool.customVariables}
                   addressTaken={(addr) =>
                     rung.output ? isOutputAddressTaken(program, rung.output.kind, addr, rung.id) : false
                   }
@@ -366,7 +379,14 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
             ` (${currentFrames.map((f) => `ticks=${f.ticks}`).join(", ")})`}
         </div>
 
-        <IoPanel inputs={inputs} memory={memory} onToggleInput={recordToggleInput} />
+        <IoPanel
+          inputs={inputs}
+          memory={memory}
+          onToggleInput={recordToggleInput}
+          onSetInputValue={recordSetInputValue}
+          customVariables={pool.customVariables}
+          getSwitchType={pool.getSwitchType}
+        />
 
         {expectAddresses.length > 0 && (
           <div className="mt-3 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">

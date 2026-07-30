@@ -1,7 +1,7 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { outputAddressOptions, type CounterVariant, type Output, type TimerVariant } from "@/lib/ladder/types";
+import { outputAddressOptions, type CounterVariant, type DeclaredVariable, type Output, type TimerVariant } from "@/lib/ladder/types";
 
 const KIND_LABEL: Record<Output["kind"], string> = {
   COIL: "( )",
@@ -16,6 +16,7 @@ export default function OutputSlot({
   output,
   energized,
   addressTaken,
+  customVariables,
   onSetAddress,
   onSetVariant,
   onSetPreset,
@@ -25,6 +26,7 @@ export default function OutputSlot({
   output: Output | null;
   energized: boolean;
   addressTaken: (address: string) => boolean;
+  customVariables?: DeclaredVariable[];
   onSetAddress: (address: string) => void;
   onSetVariant: (variant: TimerVariant | CounterVariant) => void;
   onSetPreset: (preset: number) => void;
@@ -48,7 +50,7 @@ export default function OutputSlot({
     );
   }
 
-  const options = outputAddressOptions(output.kind);
+  const options = outputAddressOptions(output.kind, customVariables);
   const unassigned = !output.address;
   const color = unassigned
     ? "text-red-500"

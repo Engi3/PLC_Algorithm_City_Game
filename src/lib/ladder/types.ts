@@ -13,8 +13,64 @@ export const INPUT_ADDRESSES = [
   "I7",
 ] as const;
 export const COIL_ADDRESSES = ["Q0", "Q1", "Q2", "Q3"] as const;
-export const TIMER_ADDRESSES = ["T0", "T1", "T2", "T3"] as const;
-export const COUNTER_ADDRESSES = ["C0", "C1", "C2", "C3"] as const;
+/** Range widened 0-99 (Phase 10) so a program can use up to MAX_RUNGS distinct timers without exhausting addresses. */
+export const TIMER_ADDRESSES = Array.from({ length: 100 }, (_, i) => `T${i}`);
+export const COUNTER_ADDRESSES = Array.from({ length: 100 }, (_, i) => `C${i}`);
+
+/**
+ * Phase 10 dynamic I/O pool. `I`/`Q` (Allen-Bradley style, above) stay fixed
+ * and always available so every existing level/hint/reference-solution
+ * keeps working unchanged. `X`/`Y`/`M` (Mitsubishi/JIS style) are the
+ * namespace new variables get added to via "+ Add Variable" in the Sandbox
+ * and Level Builder - I/X and Q/Y are functionally aliased in the engine
+ * (same read/write behavior, just different prefixes), and M is an
+ * internal auxiliary relay (behaves exactly like a coil, but isn't meant
+ * to represent a physical output).
+ */
+export type VariableKind = "input" | "output" | "relay";
+export type SwitchType = "momentary" | "toggle";
+
+export type DeclaredVariable = {
+  address: string;
+  kind: VariableKind;
+};
+
+export const MAX_VARIABLE_NUMBER = 99;
+
+const VARIABLE_PREFIX: Record<VariableKind, string> = {
+  input: "X",
+  output: "Y",
+  relay: "M",
+};
+
+export function buildVariableAddress(kind: VariableKind, num: number): string {
+  return `${VARIABLE_PREFIX[kind]}${num}`;
+}
+
+export function isValidVariableNumber(num: number): boolean {
+  return Number.isInteger(num) && num >= 0 && num <= MAX_VARIABLE_NUMBER;
+}
+
+function customAddressesByKind(variables: DeclaredVariable[], kind: VariableKind): string[] {
+  return variables.filter((v) => v.kind === kind).map((v) => v.address);
+}
+
+const INPUT_PREFIXES = new Set(["I", "X"]);
+const OUTPUT_FAMILY_PREFIXES = new Set(["Q", "Y", "M"]);
+
+function addressPrefixLetters(address: string): string {
+  return address.match(/^[A-Za-z]+/)?.[0] ?? "";
+}
+
+/** True for I/X-prefixed addresses (the two aliased digital-input conventions). */
+export function isInputAddress(address: string): boolean {
+  return INPUT_PREFIXES.has(addressPrefixLetters(address));
+}
+
+/** True for Q/Y/M-prefixed addresses (coils, aliased outputs, and internal relays - all backed by the same memory.coils store). */
+export function isOutputFamilyAddress(address: string): boolean {
+  return OUTPUT_FAMILY_PREFIXES.has(addressPrefixLetters(address));
+}
 
 export const MAX_RUNGS = 12;
 export const MAX_BRANCHES_PER_RUNG = 3;
@@ -54,7 +110,7 @@ export type LadderProgram = {
   rungs: Rung[];
 };
 
-export type TimerMemory = { acc: number; preset: number; done: boolean };
+export type TimerMemory = { acc: number; preset: number; done: boolean; en: boolean };
 export type CounterMemory = {
   cv: number;
   preset: number;
@@ -62,6 +118,7 @@ export type CounterMemory = {
   variant: CounterVariant;
   /** Rung-energized state as of the previous scan, for rising-edge detection. */
   prevEnergized: boolean;
+  en: boolean;
 };
 
 export type SimMemory = {
@@ -105,32 +162,46 @@ function defaultOutputForKind(kind: OutputKind): Output {
 
 export { defaultOutputForKind };
 
-/** Address dropdown options for a given output kind. */
-export function outputAddressOptions(kind: OutputKind): readonly string[] {
+/** Address dropdown options for a given output kind, plus any custom X/Y/M variables declared in the current session. */
+export function outputAddressOptions(kind: OutputKind, customVariables: DeclaredVariable[] = []): string[] {
+  const customOutputs = customAddressesByKind(customVariables, "output");
+  const customRelays = customAddressesByKind(customVariables, "relay");
+
   switch (kind) {
     case "COIL":
     case "SET":
-      return COIL_ADDRESSES;
+      return [...COIL_ADDRESSES, ...customOutputs, ...customRelays];
     case "TIMER":
-      return TIMER_ADDRESSES;
+      return [...TIMER_ADDRESSES];
     case "COUNTER":
-      return COUNTER_ADDRESSES;
+      return [...COUNTER_ADDRESSES];
     case "RESET":
-      return [...COIL_ADDRESSES, ...TIMER_ADDRESSES, ...COUNTER_ADDRESSES];
+      return [...COIL_ADDRESSES, ...customOutputs, ...customRelays, ...TIMER_ADDRESSES, ...COUNTER_ADDRESSES];
   }
 }
 
-/** Addresses usable as a contact input: raw inputs, coils, and timer/counter done bits. */
-export function contactAddressOptions(program: LadderProgram): string[] {
-  const doneBits = program.rungs
+/** Addresses usable as a contact input: raw inputs, coils, custom X/Y/M variables, and timer/counter .DN/.EN bits. */
+export function contactAddressOptions(program: LadderProgram, customVariables: DeclaredVariable[] = []): string[] {
+  const statusBits = program.rungs
     .map((r) => r.output)
     .filter(
       (o): o is Extract<Output, { kind: "TIMER" | "COUNTER" }> =>
         !!o && (o.kind === "TIMER" || o.kind === "COUNTER") && !!o.address
     )
-    .map((o) => `${o.address}.DN`);
+    .flatMap((o) => [`${o.address}.DN`, `${o.address}.EN`]);
 
-  return [...INPUT_ADDRESSES, ...COIL_ADDRESSES, ...doneBits];
+  const customInputs = customAddressesByKind(customVariables, "input");
+  const customOutputs = customAddressesByKind(customVariables, "output");
+  const customRelays = customAddressesByKind(customVariables, "relay");
+
+  return [
+    ...INPUT_ADDRESSES,
+    ...customInputs,
+    ...COIL_ADDRESSES,
+    ...customOutputs,
+    ...customRelays,
+    ...statusBits,
+  ];
 }
 
 /**

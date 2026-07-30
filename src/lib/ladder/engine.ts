@@ -1,4 +1,4 @@
-import type { Branch, Contact, Inputs, LadderProgram, SimMemory } from "./types";
+import { isInputAddress, isOutputFamilyAddress, type Branch, type Contact, type Inputs, type LadderProgram, type SimMemory } from "./types";
 
 export function readBit(address: string | null, inputs: Inputs, memory: SimMemory): boolean {
   if (!address) return false;
@@ -6,8 +6,35 @@ export function readBit(address: string | null, inputs: Inputs, memory: SimMemor
     const base = address.slice(0, -".DN".length);
     return memory.timers[base]?.done ?? memory.counters[base]?.done ?? false;
   }
-  if (address.startsWith("Q")) return memory.coils[address] ?? false;
+  if (address.endsWith(".EN")) {
+    const base = address.slice(0, -".EN".length);
+    return memory.timers[base]?.en ?? memory.counters[base]?.en ?? false;
+  }
+  // Q/Y (aliased outputs) and M (internal relays) all live in the same
+  // coil store; I/X (aliased inputs) read from the live input state.
+  if (isOutputFamilyAddress(address)) return memory.coils[address] ?? false;
+  if (isInputAddress(address)) return inputs[address] ?? false;
   return inputs[address] ?? false;
+}
+
+/**
+ * Reads a timer/counter's integer register (`.PRE` preset or `.ACC`
+ * accumulated value) - unlike readBit these are numbers, not booleans, so
+ * they can't be wired to a contact. Exists for the Phase 11 comparison
+ * blocks (e.g. `T0.ACC >= 1000`), added now so the memory model exposes
+ * these values cleanly from day one.
+ */
+export function readRegister(address: string | null, memory: SimMemory): number {
+  if (!address) return 0;
+  if (address.endsWith(".PRE")) {
+    const base = address.slice(0, -".PRE".length);
+    return memory.timers[base]?.preset ?? memory.counters[base]?.preset ?? 0;
+  }
+  if (address.endsWith(".ACC")) {
+    const base = address.slice(0, -".ACC".length);
+    return memory.timers[base]?.acc ?? memory.counters[base]?.cv ?? 0;
+  }
+  return 0;
 }
 
 export function evalContact(contact: Contact | null, inputs: Inputs, memory: SimMemory): boolean {
@@ -74,11 +101,11 @@ export function runScan(
       }
       case "RESET": {
         if (!energized) break;
-        if (addr.startsWith("Q")) {
+        if (isOutputFamilyAddress(addr)) {
           memory.coils[addr] = false;
         } else if (addr.startsWith("T")) {
           const prev = memory.timers[addr];
-          memory.timers[addr] = { acc: 0, preset: prev?.preset ?? 0, done: false };
+          memory.timers[addr] = { acc: 0, preset: prev?.preset ?? 0, done: false, en: prev?.en ?? false };
         } else if (addr.startsWith("C")) {
           const prev = memory.counters[addr];
           const preset = prev?.preset ?? 0;
@@ -92,6 +119,7 @@ export function runScan(
             done: variant === "CTD" ? cv <= 0 : preset > 0 && cv >= preset,
             variant,
             prevEnergized: prev?.prevEnergized ?? false,
+            en: prev?.en ?? false,
           };
         }
         break;
@@ -121,7 +149,7 @@ export function runScan(
           done = preset > 0 && acc >= preset;
         }
 
-        memory.timers[addr] = { acc, preset, done };
+        memory.timers[addr] = { acc, preset, done, en: energized };
         break;
       }
       case "COUNTER": {
@@ -141,7 +169,7 @@ export function runScan(
         }
 
         const done = output.variant === "CTU" ? preset > 0 && cv >= preset : cv <= 0;
-        memory.counters[addr] = { cv, preset, done, variant: output.variant, prevEnergized: energized };
+        memory.counters[addr] = { cv, preset, done, variant: output.variant, prevEnergized: energized, en: energized };
         break;
       }
     }

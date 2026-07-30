@@ -1,6 +1,6 @@
 "use client";
 
-import type { CounterVariant, Inputs, Rung as RungModel, SimMemory, TimerVariant } from "@/lib/ladder/types";
+import type { CounterVariant, DeclaredVariable, Inputs, Rung as RungModel, SimMemory, TimerVariant } from "@/lib/ladder/types";
 import { MAX_BRANCHES_PER_RUNG } from "@/lib/ladder/types";
 import { evalContact } from "@/lib/ladder/engine";
 import LadderCell from "./LadderCell";
@@ -14,6 +14,7 @@ export default function Rung({
   rungEnergized,
   addressOptions,
   addressTaken,
+  customVariables,
   onSetContactAddress,
   onRemoveContact,
   onSetOutputAddress,
@@ -31,6 +32,7 @@ export default function Rung({
   rungEnergized: boolean;
   addressOptions: string[];
   addressTaken: (address: string) => boolean;
+  customVariables?: DeclaredVariable[];
   onSetContactAddress: (rowIndex: number, colIndex: number, address: string) => void;
   onRemoveContact: (rowIndex: number, colIndex: number) => void;
   onSetOutputAddress: (address: string) => void;
@@ -99,6 +101,7 @@ export default function Rung({
         output={rung.output}
         energized={rungEnergized}
         addressTaken={addressTaken}
+        customVariables={customVariables}
         onSetAddress={onSetOutputAddress}
         onSetVariant={onSetOutputVariant}
         onSetPreset={onSetOutputPreset}

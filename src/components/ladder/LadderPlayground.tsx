@@ -6,11 +6,13 @@ import { contactAddressOptions, isOutputAddressTaken, MAX_RUNGS } from "@/lib/la
 import { evalRungEnergized } from "@/lib/ladder/engine";
 import { useLadderProgram } from "@/lib/ladder/use-ladder-program";
 import { useLadderDnd } from "@/lib/ladder/use-ladder-dnd";
+import { useVariablePool } from "@/lib/ladder/use-variable-pool";
 import LadderPalette from "./LadderPalette";
 import RungRow from "./Rung";
 import IoPanel from "./IoPanel";
 import FbdView from "./FbdView";
 import StView from "./StView";
+import VariablePoolDrawer from "./VariablePoolDrawer";
 import { getHintAction } from "@/app/dashboard/play/actions";
 import {
   submitLevelAction,
@@ -26,6 +28,11 @@ export type LevelInfo = { id: string; description: string; skillLabel: string; h
 export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) {
   const ladder = useLadderProgram();
   const { activeDrag, handleDragStart, handleDragEnd } = useLadderDnd(ladder);
+  const pool = useVariablePool();
+  // Custom X/Y/M variables are a Sandbox/Level-Builder feature only - a
+  // graded level's address set is defined by the level itself, so a
+  // student solving one never gets the "+ Add Variable" pool.
+  const customVariables = level ? [] : pool.customVariables;
   const [view, setView] = useState<ViewMode>("LD");
   const [hintsRevealed, setHintsRevealed] = useState(0);
   const [hint, setHint] = useState<string | null>(null);
@@ -89,7 +96,7 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
     }
   }
 
-  const addressOptions = contactAddressOptions(program);
+  const addressOptions = contactAddressOptions(program, customVariables);
 
   return (
     <DndContext id="ladder-dnd" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -142,6 +149,7 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
         {view === "LD" && (
           <>
             <LadderPalette />
+            {!level && <VariablePoolDrawer pool={pool} />}
 
             <div className="flex flex-col gap-3">
               {program.rungs.map((rung, index) => (
@@ -153,6 +161,7 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
                   memory={memory}
                   rungEnergized={evalRungEnergized(rung.branches, inputs, memory)}
                   addressOptions={addressOptions}
+                  customVariables={customVariables}
                   addressTaken={(addr) =>
                     rung.output ? isOutputAddressTaken(program, rung.output.kind, addr, rung.id) : false
                   }
@@ -262,7 +271,14 @@ export default function LadderPlayground({ level }: { level?: LevelInfo } = {}) 
           </div>
         )}
 
-        <IoPanel inputs={inputs} memory={memory} onToggleInput={ladder.toggleInput} />
+        <IoPanel
+          inputs={inputs}
+          memory={memory}
+          onToggleInput={ladder.toggleInput}
+          onSetInputValue={ladder.setInputValue}
+          customVariables={customVariables}
+          getSwitchType={pool.getSwitchType}
+        />
 
         <div className="flex flex-col gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-800">
           <button

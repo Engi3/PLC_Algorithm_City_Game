@@ -60,6 +60,14 @@ export function useLadderProgram(initial?: LadderProgram) {
     setMemory(newMemory);
   }
 
+  /** Sets an input to an explicit value, e.g. press/release for a momentary button (vs toggleInput's click-to-flip). */
+  function setInputValue(address: string, value: boolean) {
+    const nextInputs = { ...inputs, [address]: value };
+    const { memory: newMemory } = runScan(program, nextInputs, memory, { tick: false });
+    setInputs(nextInputs);
+    setMemory(newMemory);
+  }
+
   function step() {
     setMemory((prev) => runScan(program, inputs, prev, { tick: true }).memory);
   }
@@ -196,6 +204,7 @@ export function useLadderProgram(initial?: LadderProgram) {
     setRunning,
     loadProgram,
     toggleInput,
+    setInputValue,
     step,
     reset,
     addRung,
