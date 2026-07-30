@@ -146,3 +146,54 @@ export async function grantBonusCoinsAction(
   revalidatePath("/dashboard/analytics");
   return { error: null, success: `มอบ ${amount} เหรียญเรียบร้อยแล้ว` };
 }
+
+export type StudentAiEvaluation = {
+  id: string;
+  levelTitle: string;
+  levelNumber: number;
+  correctness: number;
+  conciseness: number;
+  safety: number;
+  feedback: string;
+  coinsAwarded: number;
+  createdAt: string;
+};
+
+/** Phase 15 drill-down: a student's past AI code-review results, most recent first. Teacher-only. */
+export async function getStudentAiEvaluationsAction(
+  userId: string
+): Promise<{ evaluations: StudentAiEvaluation[] } | { error: string }> {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.role !== "teacher") return { error: "Forbidden." };
+  if (!userId) return { error: "Missing user." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("ai_evaluations")
+    .select("id, correctness, conciseness, safety, feedback, coins_awarded, created_at, levels(title, level_number)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    console.error("getStudentAiEvaluationsAction: query failed", error);
+    return { error: "ไม่สามารถโหลดประวัติการประเมินได้" };
+  }
+
+  const evaluations: StudentAiEvaluation[] = (data ?? []).map((row) => {
+    const level = Array.isArray(row.levels) ? row.levels[0] : row.levels;
+    return {
+      id: row.id,
+      levelTitle: level?.title ?? "-",
+      levelNumber: level?.level_number ?? 0,
+      correctness: row.correctness,
+      conciseness: row.conciseness,
+      safety: row.safety,
+      feedback: row.feedback,
+      coinsAwarded: row.coins_awarded,
+      createdAt: row.created_at,
+    };
+  });
+
+  return { evaluations };
+}

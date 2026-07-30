@@ -1,77 +1,105 @@
 "use server";
 
 import { getCurrentProfile } from "@/lib/auth/get-profile";
-import { loadClassData, type ClassStudent } from "@/lib/analytics/load-class-data";
-import { computeSkillScores, type LevelSkillMap } from "@/lib/analytics/skill-radar";
+import { loadClassData } from "@/lib/analytics/load-class-data";
+import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
 import { SKILL_LABELS, type SkillCategory } from "@/lib/ladder/level-spec";
-import { generateGeminiText, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
+import { generateGeminiJSON, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
 
-export type ClassInsightsResult = { insights: string; error?: undefined } | { error: string; insights?: undefined };
+export type ClassInsightsResult =
+  | { insights: string; source: "ai" | "fallback"; error?: undefined }
+  | { error: string; insights?: undefined };
 
-/** A level attempted 2+ times but never passed is a concrete "stuck here" signal worth surfacing to the teacher. */
-function summarizeStudent(
-  student: ClassStudent,
-  levelSkills: LevelSkillMap,
+type ClassInsightsSchema = { summary: string };
+
+const RESPONSE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    summary: { type: "STRING" },
+  },
+  required: ["summary"],
+};
+
+/** A level 2+ distinct students have attempted and not yet passed - a concrete, class-wide "stuck here" signal. */
+function findCommonlyFailedLevels(
+  students: { logs: PlayLogLite[] }[],
   levelTitles: Record<string, string>
-): string {
-  const skillScores = computeSkillScores(student.logs, levelSkills);
-  const skillsLine = Object.entries(skillScores)
-    .map(([skill, score]) => `${SKILL_LABELS[skill as SkillCategory]}: ${score}`)
-    .join(", ");
-
-  const attemptsByLevel = new Map<string, { attempts: number; passed: boolean }>();
-  for (const log of student.logs) {
-    const cur = attemptsByLevel.get(log.level_id) ?? { attempts: 0, passed: false };
-    cur.attempts += 1;
-    if (log.is_success) cur.passed = true;
-    attemptsByLevel.set(log.level_id, cur);
+): { levelId: string; label: string; studentsStuck: number }[] {
+  const stuckCountByLevel = new Map<string, number>();
+  for (const student of students) {
+    const byLevel = new Map<string, PlayLogLite[]>();
+    for (const log of student.logs) {
+      const arr = byLevel.get(log.level_id) ?? [];
+      arr.push(log);
+      byLevel.set(log.level_id, arr);
+    }
+    for (const [levelId, logs] of byLevel) {
+      if (logs.some((l) => l.is_success)) continue;
+      stuckCountByLevel.set(levelId, (stuckCountByLevel.get(levelId) ?? 0) + 1);
+    }
   }
-  const strugglingLevels = [...attemptsByLevel.entries()]
-    .filter(([, v]) => !v.passed && v.attempts >= 2)
-    .map(([levelId]) => levelTitles[levelId] ?? levelId);
-
-  const strugglingNote =
-    strugglingLevels.length > 0 ? `, ด่านที่พยายามหลายครั้งแต่ยังไม่ผ่าน: ${strugglingLevels.join(", ")}` : "";
-
-  return `- ${student.username}: ผ่านด่านแล้ว ${student.levelsPassed} ด่าน, คะแนนรวม ${student.gameLogicScore}, คะแนนแต่ละทักษะ (${skillsLine})${strugglingNote}`;
+  return [...stuckCountByLevel.entries()]
+    .filter(([, count]) => count >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([levelId, count]) => ({ levelId, label: levelTitles[levelId] ?? levelId, studentsStuck: count }));
 }
 
+function buildFallbackSummary(
+  skillLine: string,
+  commonlyFailed: { label: string; studentsStuck: number }[]
+): string {
+  const failedLine =
+    commonlyFailed.length > 0
+      ? commonlyFailed.map((l) => `${l.label} (${l.studentsStuck} คนยังไม่ผ่าน)`).join(", ")
+      : "ไม่มีด่านที่นักเรียนหลายคนติดขัดเป็นพิเศษ";
+  return `สรุปข้อมูลดิบ (ไม่ผ่าน AI): คะแนนเฉลี่ยแต่ละทักษะ - ${skillLine}. ด่านที่นักเรียนหลายคนยังติดขัด: ${failedLine}`;
+}
+
+/**
+ * Sends only class-wide aggregates to Gemini - average score per skill
+ * category and which levels multiple students are stuck on - never
+ * individual student names or per-student scores, per Phase 15's
+ * "anonymized class score averages" requirement.
+ */
 export async function generateClassInsightsAction(): Promise<ClassInsightsResult> {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.role !== "teacher") return { error: "Forbidden." };
+
+  const { students, levelSkills, levelTitles } = await loadClassData();
+  if (students.length === 0) {
+    return { error: "ยังไม่มีนักเรียนที่อนุมัติแล้วให้วิเคราะห์" };
+  }
+
+  const classAverageScores = computeSkillScores(students.flatMap((s) => s.logs), levelSkills as LevelSkillMap);
+  const skillLine = (Object.entries(classAverageScores) as [SkillCategory, number][])
+    .map(([skill, score]) => `${SKILL_LABELS[skill]}: ${score}/100`)
+    .join(", ");
+
+  const commonlyFailed = findCommonlyFailedLevels(students, levelTitles);
+  const failedLine =
+    commonlyFailed.length > 0
+      ? commonlyFailed.map((l) => `${l.label} (นักเรียนที่ยังไม่ผ่าน ${l.studentsStuck} คน)`).join("; ")
+      : "ไม่มีด่านที่นักเรียนหลายคนติดขัดเป็นพิเศษ";
+
+  const prompt = `คุณเป็นผู้ช่วยอาจารย์วิเคราะห์ผลการเรียนวิชา PLC Ladder Logic ของนักเรียนทั้งชั้นเรียนจำนวน ${students.length} คน (ข้อมูลนี้เป็นค่าเฉลี่ยรวมของทั้งชั้น ไม่มีการระบุชื่อนักเรียนรายบุคคล)
+
+คะแนนเฉลี่ยของทั้งชั้นเรียนแยกตามทักษะ (เต็ม 100): ${skillLine}
+
+ด่านที่นักเรียนหลายคน (ตั้งแต่ 2 คนขึ้นไป) ยังติดขัดไม่ผ่าน: ${failedLine}
+
+กรุณาวิเคราะห์และให้คำแนะนำเป็นภาษาไทย กระชับ (3-5 ประโยค) ว่าหัวข้อ PLC ใดที่อาจารย์ควรทบทวนเพิ่มเติมในการบรรยายหน้าชั้นเรียน โดยอ้างอิงข้อมูลข้างต้นให้ชัดเจน ตอบเฉพาะเนื้อหาคำแนะนำเท่านั้น ห้ามใส่คำนำหรือคำลงท้าย`;
+
   try {
-    const profile = await getCurrentProfile();
-    if (!profile || profile.role !== "teacher") return { error: "Forbidden." };
-
-    const { students, levelSkills, levelTitles } = await loadClassData();
-    if (students.length === 0) {
-      return { error: "ยังไม่มีนักเรียนที่อนุมัติแล้วให้วิเคราะห์" };
-    }
-
-    const studentLines = students.map((s) => summarizeStudent(s, levelSkills, levelTitles)).join("\n");
-
-    const prompt = `คุณเป็นผู้ช่วยอาจารย์วิเคราะห์ผลการเรียนวิชา PLC Ladder Logic ของนักเรียนกลุ่มหนึ่ง โดยมีทักษะ 5 ด้าน (Basic Logic, Latching, Timers, Counters, Efficiency) คะแนนแต่ละด้านอยู่ระหว่าง 0-100
-
-ข้อมูลนักเรียนแต่ละคน (ระบุด้วยชื่อผู้ใช้):
-${studentLines}
-
-กรุณาวิเคราะห์และตอบเป็นภาษาไทย แบ่งเป็น 2 ส่วนชัดเจนโดยใช้หัวข้อระดับ ## :
-## ภาพรวมชั้นเรียน
-สรุปผลการเรียนโดยรวมของทั้งชั้น จุดแข็งและจุดอ่อนที่พบบ่อย (2-4 ประโยค)
-
-## คำแนะนำรายบุคคล
-สำหรับนักเรียนที่ดูเหมือนกำลังติดขัดในทักษะหรือด่านใดด่านหนึ่ง ให้ระบุชื่อผู้ใช้เป็นหัวข้อย่อยและคำแนะนำสั้นๆ ว่าควรทบทวนเรื่องอะไร (ถ้าไม่มีนักเรียนที่น่ากังวลเป็นพิเศษ ให้บอกว่าภาพรวมทั้งชั้นเรียนอยู่ในเกณฑ์ดี)
-
-ตอบในรูปแบบ Markdown สั้นกระชับ ใช้ bullet list ได้ ห้ามใส่คำนำหรือคำลงท้ายอื่นนอกจาก 2 หัวข้อนี้`;
-
-    const insights = await generateGeminiText(prompt);
-    return { insights };
+    const result = await generateGeminiJSON<ClassInsightsSchema>(prompt, RESPONSE_SCHEMA);
+    const summary = typeof result.summary === "string" && result.summary.trim() ? result.summary.trim() : null;
+    if (!summary) throw new GeminiRequestError("Gemini returned an empty summary.");
+    return { insights: summary, source: "ai" };
   } catch (err) {
-    console.error("generateClassInsightsAction failed:", err);
-    if (err instanceof GeminiConfigError) {
-      return { error: "AI insights are not configured on this server yet." };
+    console.error("generateClassInsightsAction: Gemini call failed, using local fallback", err);
+    if (!(err instanceof GeminiConfigError) && !(err instanceof GeminiRequestError)) {
+      console.error("generateClassInsightsAction: unexpected error type", err);
     }
-    if (err instanceof GeminiRequestError) {
-      return { error: "Could not reach the AI service. Please try again." };
-    }
-    return { error: "Something went wrong generating insights." };
+    return { insights: buildFallbackSummary(skillLine, commonlyFailed), source: "fallback" };
   }
 }
