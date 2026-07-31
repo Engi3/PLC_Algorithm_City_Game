@@ -156,7 +156,7 @@ export default function OutputSlot({
   const canAddMore = outputs.length < MAX_OUTPUTS_PER_RUNG;
 
   return (
-    <div className="flex shrink-0 flex-wrap items-center gap-2">
+    <div className="flex shrink-0 flex-col items-center gap-2">
       {outputs.map((output, i) => (
         <OutputSlotItem
           key={i}
