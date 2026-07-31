@@ -54,16 +54,11 @@ export const SKILL_LABELS: Record<SkillCategory, string> = {
   efficiency: "Efficiency",
 };
 
-/**
- * Tailwind classes for each skill category's badge, chosen to stay visually
- * distinct from colors that already carry meaning elsewhere in the app
- * (green = pass/success, red = error/unassigned, amber = coins/certificates,
- * purple = AI features).
- */
+/** Tailwind classes for each skill category's badge - explicit per-category colors requested directly. */
 export const SKILL_BADGE_CLASSES: Record<SkillCategory, string> = {
   basic_logic: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
-  latching: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400",
-  timers: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400",
-  counters: "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400",
-  efficiency: "bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-400",
+  latching: "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-400",
+  timers: "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400",
+  counters: "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400",
+  efficiency: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400",
 };
