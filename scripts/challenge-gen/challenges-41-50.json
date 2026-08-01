@@ -1,0 +1,717 @@
+[
+  {
+    "challenge_id": 41,
+    "title": "สายการบรรจุขวดน้ำอัตโนมัติครบวงจร (Automated Bottling: Fill, Cap, Label-Check, Count)",
+    "description": "เมื่อขวดมาถึงตำแหน่ง (I0 = true) วาล์วเติมน้ำ (Q0) ต้องเปิดจนกว่าระดับ (AI0) จะถึง 2000 หน่วย จากนั้นตัวปิดฝา (Q1) ทำงานทันทีและค้างไว้ 0.5 วินาที (Timer preset = 5) เพื่อปิดฝาให้แน่น เมื่อปิดฝาเสร็จให้ตรวจสอบเซนเซอร์ฉลาก (I1): หากมีฉลากครบถ้วนให้นับเป็นขวดที่ผ่านมาตรฐาน (C0) หากไม่มีฉลากให้คัดออกทันที (Q2) ห้ามเปิดวาล์วเติมน้ำและตัวปิดฝาทำงานพร้อมกันโดยเด็ดขาด และห้ามคัดออกขวดที่มีฉลากครบถ้วน",
+    "hints": [
+      "Q0 (เติมน้ำ): SET เมื่อขวดมาถึงและยังไม่เต็ม, RESET เมื่อเต็ม (เหมือนด่านที่ 31)",
+      "Q1 (ปิดฝา): SET เมื่อเต็ม, TON เริ่มนับเมื่อ Q1 ทำงาน, RESET เมื่อ T0.DN",
+      "หลัง T0.DN ให้เช็คฉลาก (I1) ทันที: C0 นับเมื่อ T0.DN และมีฉลาก, Q2 ทำงานเมื่อ T0.DN และไม่มีฉลาก"
+    ],
+    "required_competencies": ["ANALOG", "TIMER", "COUNTER", "INTERLOCK"],
+    "max_optimal_blocks": 18,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "fill-and-cap",
+              "description": "ห้ามเปิดวาล์วเติมน้ำและตัวปิดฝาทำงานพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "reject-with-label",
+              "description": "ห้ามคัดออกขวดที่มีฉลากครบถ้วน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: ขวดแรกมาถึง เริ่มเติมน้ำ",
+              "frames": [{ "inputs": { "I0": true, "I1": true }, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: เต็มแล้ว - เริ่มปิดฝา",
+              "frames": [{ "inputs": { "I0": false, "I1": true }, "analogInputs": { "AI0": 2100 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ปิดฝาเสร็จ มีฉลากครบ - นับเป็นขวดผ่านมาตรฐาน",
+              "frames": [{ "inputs": { "I1": true }, "analogInputs": { "AI0": 2100 }, "ticks": 6 }],
+              "expect": [
+                { "kind": "bit", "address": "Q1", "expected": false },
+                { "kind": "bit", "address": "Q2", "expected": false },
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+              ]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: ขวดที่สอง - เติมน้ำใหม่ ปิดฝา แต่ไม่มีฉลาก",
+              "frames": [
+                { "inputs": { "I0": true, "I1": false }, "analogInputs": { "AI0": 500 }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": false }, "analogInputs": { "AI0": 2100 }, "ticks": 6 }
+              ],
+              "expect": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 42,
+    "title": "คลังสินค้าอัจฉริยะคัดแยกพัสดุตามน้ำหนักและปลายทาง (Smart Warehouse Sort by Weight + Destination)",
+    "description": "ระบบสแกนบาร์โค้ดระบุปลายทางพัสดุ: I0 = ปลายทาง A, I1 = ปลายทาง B (แยกกันเสมอ ไม่มีทางเป็นจริงพร้อมกัน) เซนเซอร์ชั่งน้ำหนัก (AI0) ต้องตรวจสอบก่อนว่าพัสดุไม่หนักเกินพิกัดสายพานย่อยที่ 3000 หน่วย หากหนักเกินต้องคัดออกทันที (Q2) ไม่ว่าจะระบุปลายทางใด ห้ามส่งพัสดุที่หนักเกินพิกัดเข้าเลนปลายทางใดๆ โดยเด็ดขาด และห้ามเปิดเลน A และเลน B พร้อมกัน",
+    "hints": [
+      "Q0 (เลน A): I0 AND NC(I1) AND CMP(AI0 < 3000)",
+      "Q1 (เลน B): I1 AND NC(I0) AND CMP(AI0 < 3000)",
+      "Q2 (คัดออกน้ำหนักเกิน): CMP(AI0 >= 3000) ตรงๆ"
+    ],
+    "required_competencies": ["ANALOG", "MATH", "INTERLOCK", "COUNTER"],
+    "max_optimal_blocks": 15,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "lane-a-overweight",
+              "description": "ห้ามส่งพัสดุที่หนักเกินพิกัดเข้าเลน A",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "numeric", "address": "AI0", "operator": ">=", "value": 3000 }
+              ]
+            },
+            {
+              "id": "lane-b-overweight",
+              "description": "ห้ามส่งพัสดุที่หนักเกินพิกัดเข้าเลน B",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "numeric", "address": "AI0", "operator": ">=", "value": 3000 }
+              ]
+            },
+            {
+              "id": "both-lanes",
+              "description": "ห้ามเปิดเลน A และเลน B พร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: พัสดุปลายทาง A น้ำหนักปกติ",
+              "frames": [{ "inputs": { "I0": true, "I1": false }, "analogInputs": { "AI0": 1000 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q2", "expected": false }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: พัสดุปลายทาง B น้ำหนักปกติ",
+              "frames": [{ "inputs": { "I0": false, "I1": true }, "analogInputs": { "AI0": 1000 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": true }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: พัสดุปลายทาง A แต่หนักเกินพิกัด - ต้องคัดออก ไม่ใช่เข้าเลน A",
+              "frames": [{ "inputs": { "I0": true, "I1": false }, "analogInputs": { "AI0": 3500 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 43,
+    "title": "ระบบบรรจุถังแก๊สพร้อมตรวจสอบแรงดันและนับเหตุการณ์ระบายฉุกเฉิน (Gas Cylinder Filling with Pressure Verification)",
+    "description": "เมื่อวางถังแก๊สเข้าตำแหน่งแล้ว (I1 = true) และกด Start (I0) วาล์วเติมแก๊ส (Q0) ต้องเปิดจนกว่าแรงดัน (AI0) จะถึง 2000 หน่วย (เป้าหมาย) แล้วปิดทันที ห้ามเปิดวาล์วเติมแก๊สโดยเด็ดขาดหากแรงดันเกิน 2500 หน่วย (ค่าความปลอดภัยสูงกว่าเป้าหมาย) หากแรงดันพุ่งถึง 3000 หน่วยขึ้นไป (วิกฤต) หรือผู้ควบคุมกดปุ่มระบายฉุกเฉินด้วยมือ (I2) วาล์วระบายฉุกเฉิน (Q1) ต้องเปิดทันที และห้ามเปิดวาล์วเติมแก๊สพร้อมกับวาล์วระบายฉุกเฉินโดยเด็ดขาด ต้องนับจำนวนครั้งที่เกิดการระบายฉุกเฉินสะสมไว้ที่ C0 เพื่อบันทึกเหตุการณ์ด้านความปลอดภัย",
+    "hints": [
+      "Q0 (เติมแก๊ส): SET เมื่อ I0 และ I1 และยังไม่ถึงเป้าหมาย (CMP AI0 < 2000), RESET เมื่อถึงเป้าหมาย (CMP AI0 >= 2000)",
+      "Q1 (ระบายฉุกเฉิน): เปิดจาก CMP(AI0 >= 3000) หรือปุ่มมือ I2 (OR), RESET เมื่อ CMP(AI0 < 500)",
+      "C0 นับทุกครั้งที่ Q1 เปลี่ยนจากปิดเป็นเปิด"
+    ],
+    "required_competencies": ["ANALOG", "COUNTER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 16,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "fill-above-target-safety-margin",
+              "description": "ห้ามเปิดวาล์วเติมแก๊สขณะแรงดันเกิน 2500 หน่วย",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "numeric", "address": "AI0", "operator": ">=", "value": 2500 }
+              ]
+            },
+            {
+              "id": "fill-and-vent",
+              "description": "ห้ามเปิดวาล์วเติมแก๊สพร้อมกับวาล์วระบายฉุกเฉิน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: วางถังและกด Start - เริ่มเติมแก๊ส",
+              "frames": [{ "inputs": { "I0": true, "I1": true }, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ถึงเป้าหมายแล้ว - ปิดวาล์วเติมแก๊ส",
+              "frames": [{ "inputs": { "I0": false, "I1": true }, "analogInputs": { "AI0": 2100 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: แรงดันพุ่งถึงจุดวิกฤต - ระบายฉุกเฉินทำงานและนับเหตุการณ์",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 3200 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+              ]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: ระบายจนแรงดันต่ำแล้ว - วาล์วระบายปิด",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 300 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 44,
+    "title": "สายประกอบแผงวงจรพร้อมเตาอบรีโฟลว์และทดสอบคุณภาพ (PCB Assembly with Reflow Oven + Inline Test)",
+    "description": "เมื่อแผงวงจรมาถึง (I0 = true) หัวจับวาง (Q0) ต้องทำงานและค้างไว้ 0.4 วินาที (Timer preset = 4) เพื่อวางชิ้นส่วน จากนั้นเข้าสู่เตาอบรีโฟลว์ที่ควบคุมอุณหภูมิด้วยฮิสเทอรีซิส (Q1: ติดต่ำกว่า 1500, ดับตั้งแต่ 2500) เมื่อวางชิ้นส่วนเสร็จ (T0.DN) และเตาอบถึงอุณหภูมิ (AI0 >= 2500) ให้ตรวจสอบผลทดสอบ (I1 = true คือผ่าน): ผ่านให้นับที่ C0 ไม่ผ่านให้คัดออกทันที (Q2) ห้ามให้เตาอบทำงานหากอุณหภูมิเกินจุดวิกฤต 3000 หน่วย และห้ามคัดออกแผงวงจรที่ผ่านการทดสอบ",
+    "hints": [
+      "Q0 (หัวจับวาง): SET เมื่อ I0, TON เริ่มนับเมื่อ Q0 ทำงาน, RESET เมื่อ T0.DN",
+      "Q1 (เตาอบ): ใช้ SET/RESET กับ CMP สองตัวแบบฮิสเทอรีซิสเหมือนด่านที่ 31",
+      "ระวัง: T0.DN เป็นเพียงพัลส์ชั่วครู่ (จะดับกลับเองทันทีที่ Q0 ถูก RESET) แต่กว่าเตาอบจะถึงอุณหภูมิอาจใช้เวลานานกว่านั้น - ให้ประกาศตัวแปรภายใน M0 เป็น 'วางชิ้นส่วนเสร็จแล้ว' (SET เมื่อ T0.DN ค้างสถานะไว้) แล้วใช้ M0 แทน T0.DN ตรงๆ ในการเช็คร่วมกับอุณหภูมิและ I1"
+    ],
+    "required_competencies": ["ANALOG", "TIMER", "COUNTER", "INTERLOCK"],
+    "max_optimal_blocks": 17,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "oven-at-critical-temp",
+              "description": "ห้ามให้เตาอบทำงานขณะอุณหภูมิเกินจุดวิกฤต (3000 หน่วยขึ้นไป)",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "numeric", "address": "AI0", "operator": ">=", "value": 3000 }
+              ]
+            },
+            {
+              "id": "reject-passed-board",
+              "description": "ห้ามคัดออกแผงวงจรที่ผ่านการทดสอบแล้ว",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: แผงวงจรมาถึง - หัวจับวางเริ่มทำงาน",
+              "frames": [{ "inputs": { "I0": true }, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: วางชิ้นส่วนเสร็จ เตาอบถึงอุณหภูมิ ทดสอบผ่าน - นับที่ผ่านมาตรฐาน",
+              "frames": [
+                { "inputs": {}, "analogInputs": { "AI0": 500 }, "ticks": 5 },
+                { "inputs": { "I1": true }, "analogInputs": { "AI0": 2600 }, "ticks": 1 }
+              ],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 },
+                { "kind": "bit", "address": "Q2", "expected": false }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: แผงถัดไป - วางเสร็จแต่ทดสอบไม่ผ่าน",
+              "frames": [
+                { "inputs": { "I0": true, "I1": false }, "analogInputs": { "AI0": 500 }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": false }, "analogInputs": { "AI0": 500 }, "ticks": 5 },
+                { "inputs": { "I1": false }, "analogInputs": { "AI0": 2600 }, "ticks": 1 }
+              ],
+              "expect": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 45,
+    "title": "ระบบควบคุมถังปฏิกรณ์เคมีหลายขั้นตอนพร้อมความปลอดภัยสองตัวแปร (Multi-Stage Chemical Reactor with Dual Safety)",
+    "description": "กด Start (I0) เพื่อเริ่มเติมสาร (Q0) จนกว่าเซนเซอร์เติมเต็ม (I2 = true) จะทำงาน เมื่อเติมเสร็จให้เริ่มให้ความร้อน (Q1) จนกว่าอุณหภูมิ (AI0) จะถึง 3000 หน่วย (อุณหภูมิทำปฏิกิริยา) แล้วค้างไว้ 0.6 วินาที (Timer preset = 6) เพื่อให้ปฏิกิริยาสมบูรณ์ จากนั้นหยุดความร้อนโดยอัตโนมัติ ตลอดกระบวนการต้องตรวจสอบแรงดัน (AI1) ตลอดเวลา หากแรงดันถึง 3000 หน่วยขึ้นไป ต้องล็อคฉุกเฉินห้ามให้ความร้อนทำงานทันที จนกว่าจะกดปุ่มรีเซ็ต (I1) ห้ามเติมสารและให้ความร้อนพร้อมกันโดยเด็ดขาด",
+    "hints": [
+      "Q0 (เติมสาร): SET เมื่อ I0, RESET เมื่อ I2 (เซนเซอร์เติมเต็ม)",
+      "M0 (ล็อคฉุกเฉินแรงดัน): SET เมื่อ CMP(AI1 >= 3000), RESET เมื่อ I1",
+      "Q1 (ความร้อน): SET เมื่อ NC(Q0) และ CMP(AI0 < 3000) และ NC(M0), TON เริ่มนับเมื่อ CMP(AI0 >= 3000), RESET เมื่อ T0.DN หรือ M0 (OR)"
+    ],
+    "required_competencies": ["ANALOG", "TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 20,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "fill-and-heat",
+              "description": "ห้ามเติมสารและให้ความร้อนพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "heat-while-overpressure-locked",
+              "description": "ห้ามให้ความร้อนขณะล็อคฉุกเฉินแรงดันค้างอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "M0", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start - เริ่มเติมสาร",
+              "frames": [{ "inputs": { "I0": true }, "analogInputs": { "AI0": 500, "AI1": 500 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: เติมเต็มแล้ว - เริ่มให้ความร้อน",
+              "frames": [{ "inputs": { "I0": false, "I2": true }, "analogInputs": { "AI0": 500, "AI1": 500 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ถึงอุณหภูมิทำปฏิกิริยา ค้างไว้จนครบเวลา - หยุดความร้อนอัตโนมัติ",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 3100, "AI1": 500 }, "ticks": 7 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": false }]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: รอบใหม่ - แรงดันพุ่งวิกฤตระหว่างให้ความร้อน",
+              "frames": [
+                { "inputs": { "I0": true, "I2": false }, "analogInputs": { "AI0": 500, "AI1": 500 }, "ticks": 1 },
+                { "inputs": { "I0": false, "I2": true }, "analogInputs": { "AI0": 500, "AI1": 500 }, "ticks": 1 },
+                { "inputs": {}, "analogInputs": { "AI0": 500, "AI1": 3200 }, "ticks": 1 }
+              ],
+              "expect": [
+                { "kind": "bit", "address": "Q1", "expected": false },
+                { "kind": "bit", "address": "M0", "expected": true }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 46,
+    "title": "ระบบลำเลียงคัดแยกกล่องพัสดุแบบวนซ้ำต่อเนื่องพร้อมจับเวลา (Continuous-Loop Parcel Sort with Timed Diverters)",
+    "description": "เซนเซอร์ตรวจพบพัสดุ (I0) พร้อมสัญญาณระบุประเภท (I1 = true คือประเภท A, false คือประเภท B) ตัวผลักประเภท A (Q0) หรือประเภท B (Q1) ต้องทำงานตามประเภทที่ตรวจพบ และค้างไว้ 0.3 วินาที (Timer preset = 3) ต่อครั้งก่อนถอนกลับอัตโนมัติ ต้องนับจำนวนพัสดุประเภท A (C0) และประเภท B (C1) แยกกัน เมื่อพัสดุประเภท A ครบ 5 ชิ้น ต้องติดไฟชุดเสร็จสมบูรณ์ (Q2) ห้ามเปิดตัวผลักทั้งสองประเภทพร้อมกันโดยเด็ดขาด",
+    "hints": [
+      "Q0/Q1 แต่ละตัวใช้ SET เมื่อตรวจพบพัสดุประเภทนั้น, TON แยกกันคนละตัว (T0, T1), RESET เมื่อ TON ของตัวเองครบเวลา",
+      "C0 นับ rising edge ของ Q0, C1 นับ rising edge ของ Q1"
+    ],
+    "required_competencies": ["TIMER", "COUNTER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 18,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "both-pushers",
+              "description": "ห้ามเปิดตัวผลักประเภท A และประเภท B พร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: พัสดุประเภท A ชิ้นแรก",
+              "frames": [
+                { "inputs": { "I0": true, "I1": true }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": false }, "ticks": 5 }
+              ],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: พัสดุประเภท B ชิ้นแรก",
+              "frames": [
+                { "inputs": { "I0": true, "I1": false }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": false }, "ticks": 5 }
+              ],
+              "expect": [{ "kind": "numeric", "address": "C1.ACC", "operator": "==", "value": 1 }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: พัสดุประเภท A อีก 4 ชิ้นจนครบ 5 - ติดไฟชุดเสร็จสมบูรณ์",
+              "frames": [
+                { "inputs": { "I0": true, "I1": true }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": false }, "ticks": 5 },
+                { "inputs": { "I0": true, "I1": true }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": false }, "ticks": 5 },
+                { "inputs": { "I0": true, "I1": true }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": false }, "ticks": 5 },
+                { "inputs": { "I0": true, "I1": true }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": false }, "ticks": 5 }
+              ],
+              "expect": [
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 5 },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 47,
+    "title": "สถานีทดสอบและบรรจุอัตโนมัติพร้อมแจ้งเตือนหลายระดับ (Test-and-Pack Station with Multi-Level Quality Alerts)",
+    "description": "เซนเซอร์วัดคะแนนคุณภาพ (AI0): คะแนนตั้งแต่ 2500 ขึ้นไปคือดี (Q0 ติด), 1500 ถึงต่ำกว่า 2500 คือเตือน (Q1 ติด), ต่ำกว่า 1500 คือวิกฤตต้องคัดออกทันที (Q2 ติด) และนับจำนวนที่คัดออกสะสม (C0) เมื่อกด Start (I0) หากคุณภาพไม่วิกฤต (ดีหรือเตือนก็ได้) ตัวบรรจุ (Q3) ต้องทำงานและค้างไว้ 0.4 วินาที (Timer preset = 4) ก่อนถอนกลับ ห้ามบรรจุชิ้นงานที่ถูกคัดออกเนื่องจากคุณภาพวิกฤตโดยเด็ดขาด และทั้งสามระดับสัญญาณคุณภาพต้องไม่ติดพร้อมกันเกินหนึ่งระดับ",
+    "hints": [
+      "Q0/Q1/Q2 ใช้ CMP แบ่งช่วงเหมือนด่านที่ 33 (ระวังขอบเขต >= และ <)",
+      "Q3 (ตัวบรรจุ): SET เมื่อ I0 และ NC(Q2), TON เริ่มนับเมื่อ Q3 ทำงาน, RESET เมื่อ T0.DN"
+    ],
+    "required_competencies": ["ANALOG", "TIMER", "COUNTER", "INTERLOCK"],
+    "max_optimal_blocks": 18,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "good-and-warning",
+              "description": "ห้ามติดไฟดีและไฟเตือนพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "warning-and-critical",
+              "description": "ห้ามติดไฟเตือนและไฟวิกฤตพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            },
+            {
+              "id": "pack-critical",
+              "description": "ห้ามบรรจุชิ้นงานที่ถูกคัดออกเนื่องจากคุณภาพวิกฤต",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q3", "expected": true },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: คุณภาพดี กด Start - บรรจุทำงาน",
+              "frames": [{ "inputs": { "I0": true }, "analogInputs": { "AI0": 3000 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q3", "expected": true }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: บรรจุเสร็จ - ถอนกลับ",
+              "frames": [{ "inputs": { "I0": false }, "analogInputs": { "AI0": 3000 }, "ticks": 5 }],
+              "expect": [{ "kind": "bit", "address": "Q3", "expected": false }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: คุณภาพวิกฤต - คัดออก ห้ามบรรจุแม้กด Start",
+              "frames": [{ "inputs": { "I0": true }, "analogInputs": { "AI0": 1000 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "bit", "address": "Q3", "expected": false },
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 48,
+    "title": "ระบบควบคุมวงจรนึ่งฆ่าเชื้อ (Autoclave Sterilization Cycle Control)",
+    "description": "กด Start (I0) ขณะประตูปิด (I1) เพื่อล็อคประตู (Q0) ทันที เมื่อล็อคแล้วเริ่มเพิ่มไอน้ำ (Q1) และความร้อน (Q2) พร้อมกันจนกว่าทั้งแรงดัน (AI0) และอุณหภูมิ (AI1) จะถึง 3000 หน่วยพร้อมกัน จากนั้นค้างไว้ 0.8 วินาที (Timer preset = 8) เพื่อฆ่าเชื้อให้สมบูรณ์ แล้วจึงหยุดไอน้ำและความร้อน ปลดล็อคประตูได้ก็ต่อเมื่อฆ่าเชื้อครบเวลาแล้ว และแรงดันลดลงต่ำกว่า 500 หน่วย (ไม่มีแรงดันตกค้าง) เท่านั้น ห้ามให้ไอน้ำหรือความร้อนทำงานขณะประตูไม่ได้ล็อค และห้ามปลดล็อคประตูขณะยังมีแรงดันตกค้างในหม้อนึ่งโดยเด็ดขาด",
+    "hints": [
+      "Q0 (ล็อคประตู): SET เมื่อ I0 และ I1 - ระวัง T0.DN เป็นพัลส์ชั่วครู่ที่จะดับเองทันทีที่แรงดัน/อุณหภูมิเริ่มลดลงระหว่างการระบาย (นานก่อนที่ AI0 จะลดต่ำกว่า 500) ให้ประกาศตัวแปร M1 เป็น 'ฆ่าเชื้อเสร็จสมบูรณ์' (SET เมื่อ T0.DN ค้างสถานะไว้) แล้ว RESET Q0 เมื่อ M1 และแรงดันต่ำ (CMP AI0 < 500) พร้อมกัน",
+      "Q1/Q2 (ไอน้ำ/ความร้อน): SET เมื่อ Q0 ทำงาน (ประตูล็อคแล้ว) และ NC(M1) (ยังไม่ฆ่าเชื้อเสร็จ) - ถ้าเช็คแค่ Q0 อย่างเดียว จะกลับมาติดใหม่ในช่วงพักเย็นหลังฆ่าเชื้อเสร็จ เพราะประตูยังล็อคอยู่, RESET เมื่อ T0.DN",
+      "T0 เริ่มนับเมื่อทั้งแรงดันและอุณหภูมิถึง 3000 พร้อมกัน (CMP สองตัวต่ออนุกรม)"
+    ],
+    "required_competencies": ["ANALOG", "TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 18,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "steam-without-lock",
+              "description": "ห้ามให้ไอน้ำทำงานขณะประตูไม่ได้ล็อค",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "heat-without-lock",
+              "description": "ห้ามให้ความร้อนทำงานขณะประตูไม่ได้ล็อค",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            },
+            {
+              "id": "unlock-with-residual-pressure",
+              "description": "ห้ามปลดล็อคประตูขณะยังมีแรงดันตกค้างในหม้อนึ่ง",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "numeric", "address": "AI0", "operator": ">=", "value": 1000 }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะประตูปิด - ล็อคประตูและเริ่มไอน้ำ+ความร้อน",
+              "frames": [{ "inputs": { "I0": true, "I1": true }, "analogInputs": { "AI0": 500, "AI1": 500 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ถึงแรงดันและอุณหภูมิเป้าหมายพร้อมกัน ค้างจนครบเวลาฆ่าเชื้อ",
+              "frames": [{ "inputs": { "I0": false }, "analogInputs": { "AI0": 3100, "AI1": 3100 }, "ticks": 9 }],
+              "expect": [
+                { "kind": "bit", "address": "Q1", "expected": false },
+                { "kind": "bit", "address": "Q2", "expected": false },
+                { "kind": "bit", "address": "Q0", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: แรงดันยังตกค้างอยู่ (ยังไม่ต่ำกว่า 500) - ห้ามปลดล็อค",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1200, "AI1": 500 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: แรงดันลดลงต่ำแล้ว - ปลดล็อคประตูได้",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 300, "AI1": 500 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 49,
+    "title": "ระบบควบคุมการพาสเจอร์ไรส์นมพร้อมรีเซ็ตเวลาเมื่ออุณหภูมิตก (Pasteurization Hold-Time with Auto-Restart on Dip)",
+    "description": "เตาให้ความร้อน (Q0) ทำงานตลอดเวลาที่กด Start (I0) ค้างไว้ นมจะไหลผ่านไปยังขั้นตอนถัดไปได้ (Q1 = Flow Allowed) ก็ต่อเมื่ออุณหภูมิ (AI0) อยู่ที่ 2500 หน่วยขึ้นไป ต่อเนื่องไม่ขาดตอนครบ 0.8 วินาที (Timer preset = 8) เท่านั้น หากอุณหภูมิตกลงต่ำกว่า 2500 หน่วยแม้เพียงชั่วขณะก่อนครบเวลา ต้องเริ่มนับเวลาใหม่ตั้งแต่ศูนย์โดยอัตโนมัติ (ห้ามสะสมเวลาข้ามช่วงที่อุณหภูมิตก) และห้ามอนุญาตให้นมไหลผ่านโดยเด็ดขาดในขณะที่อุณหภูมิปัจจุบันต่ำกว่าเกณฑ์ ไม่ว่าจะเคยถึงเวลาที่กำหนดมาก่อนหน้านี้แล้วหรือไม่ก็ตาม",
+    "hints": [
+      "TON ธรรมดาที่มีเงื่อนไขพลังงานเป็น CMP(AI0 >= 2500) จะรีเซ็ตค่าสะสมกลับเป็น 0 เองอัตโนมัติทันทีที่เงื่อนไขเป็นเท็จอยู่แล้ว โดยไม่ต้องเขียนโค้ดเพิ่มเพื่อ 'รีเซ็ตเวลา' เลย",
+      "Q1 (Flow Allowed) ควรใช้ COIL ธรรมดาผูกกับเงื่อนไข T0.DN และ CMP(AI0 >= 2500) พร้อมกัน ไม่ใช่ SET เพียงอย่างเดียว เพื่อให้ตัดทันทีถ้าอุณหภูมิตกในภายหลัง"
+    ],
+    "required_competencies": ["ANALOG", "TIMER", "INTERLOCK"],
+    "max_optimal_blocks": 14,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "flow-below-threshold",
+              "description": "ห้ามอนุญาตให้นมไหลผ่านขณะอุณหภูมิปัจจุบันต่ำกว่าเกณฑ์พาสเจอร์ไรส์",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "numeric", "address": "AI0", "operator": "<", "value": 2500 }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: อุณหภูมิถึงเกณฑ์ ค้างไว้ 5 tick (ยังไม่ครบ 8) - ยังไม่อนุญาตให้ไหล",
+              "frames": [{ "inputs": { "I0": true }, "analogInputs": { "AI0": 2600 }, "ticks": 5 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": false }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: อุณหภูมิตกลงก่อนครบเวลา - ต้องรีเซ็ตนับใหม่",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2000 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q1", "expected": false },
+                { "kind": "numeric", "address": "T0.ACC", "operator": "==", "value": 0 }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: อุณหภูมิกลับมาถึงเกณฑ์และค้างไว้จนครบเวลาใหม่ทั้งหมด - อนุญาตให้ไหล",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2600 }, "ticks": 9 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": true }]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: หลังไหลผ่านแล้ว อุณหภูมิตกอีกครั้ง - ต้องตัดทันที",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2000 }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 50,
+    "title": "สถานีบูรณาการระบบโรงงานสมบูรณ์แบบ - Capstone สุดท้าย (Ultimate Full Plant Integration Capstone)",
+    "description": "ด่านสุดท้ายของหลักสูตรรวมทุกทักษะเข้าด้วยกัน: กด Start (I0) ขณะประตูนิรภัยปิด (I1) เพื่อล็อคประตู (Q0) แล้วเริ่มเติมสาร (Q1) จนกว่าระดับ (AI0) จะถึง 2000 จากนั้นเริ่มให้ความร้อน (Q2) จนกว่าอุณหภูมิ (AI1) จะถึง 2000 แล้วค้างไว้ 0.5 วินาที (Timer preset = 5) เพื่อบ่มให้สมบูรณ์ จากนั้นเปิดวาล์วระบาย (Q3) จนกว่าระดับจะลดลงต่ำกว่า 200 จึงปลดล็อคประตูและนับเป็นชุดผลิตที่เสร็จสมบูรณ์ (C0) หากอุณหภูมิเคยพุ่งถึง 3000 ขึ้นไป ต้องล็อคฉุกเฉินห้ามให้ความร้อนทำงานจนกว่าจะกดปุ่มรีเซ็ต (I2) ห้ามให้ขั้นตอนใดสองขั้นตอนทำงานพร้อมกัน (เติมสาร/ให้ความร้อน/ระบาย) และห้ามให้ขั้นตอนใดๆ ทำงานขณะประตูไม่ได้ล็อค",
+    "hints": [
+      "ประกอบจากด่านที่เคยทำมาแล้วทั้งหมด: ล็อคประตู (ด่านที่ 48), เติม-ร้อน-ระบายตามลำดับ (ด่านที่ 35/40), ล็อคฉุกเฉินอุณหภูมิ (ด่านที่ 34/45)",
+      "ปลดล็อคประตู (RESET Q0) เมื่อระบายเสร็จแล้วเท่านั้น: ใช้ NC(Q3) (คือ Q3 หยุดทำงานแล้ว ไม่ใช่ NO ที่แปลว่ากำลังทำงาน) ร่วมกับ CMP(AI0 < 200) - อย่าลืมนับ C0 ตอนเดียวกัน",
+      "เงื่อนไข SET ของแต่ละขั้นตอนต้องเช็ค NC ของอีกสองขั้นตอนเสมอ เพื่อป้องกันการทำงานซ้อนกัน"
+    ],
+    "required_competencies": ["ANALOG", "TIMER", "COUNTER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 24,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "fill-and-heat",
+              "description": "ห้ามเติมสารและให้ความร้อนพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            },
+            {
+              "id": "heat-and-drain",
+              "description": "ห้ามให้ความร้อนและระบายพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "bit", "address": "Q3", "expected": true }
+              ]
+            },
+            {
+              "id": "fill-without-lock",
+              "description": "ห้ามเติมสารขณะประตูไม่ได้ล็อค",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "heat-at-critical-temp",
+              "description": "ห้ามให้ความร้อนขณะอุณหภูมิถึงจุดวิกฤต (3000 ขึ้นไป)",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "numeric", "address": "AI1", "operator": ">=", "value": 3000 }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะประตูปิด - ล็อคประตูและเริ่มเติมสาร",
+              "frames": [{ "inputs": { "I0": true, "I1": true }, "analogInputs": { "AI0": 500, "AI1": 500 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: เติมเต็มแล้ว - ปิดเติมสาร เริ่มให้ความร้อน",
+              "frames": [{ "inputs": { "I0": false }, "analogInputs": { "AI0": 2100, "AI1": 500 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q1", "expected": false },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ถึงอุณหภูมิ ค้างจนครบเวลาบ่ม - หยุดร้อน เปิดระบาย",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2100, "AI1": 2100 }, "ticks": 6 }],
+              "expect": [
+                { "kind": "bit", "address": "Q2", "expected": false },
+                { "kind": "bit", "address": "Q3", "expected": true }
+              ]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: ระบายจนเกือบว่าง - ปลดล็อคประตู นับชุดผลิตสำเร็จ",
+              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 100, "AI1": 2100 }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q3", "expected": false },
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
