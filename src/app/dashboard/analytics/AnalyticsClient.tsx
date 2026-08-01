@@ -9,6 +9,7 @@ import MarkdownContent from "@/components/markdown/MarkdownContent";
 import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
 import {
   computeCompetencyScores,
+  computeAllLevelsAverage,
   averageCompetencyScores,
   ALL_COMPETENCY_AXES,
   type CompetencyScores,
@@ -204,6 +205,7 @@ function EvaluationCard({ evaluation }: { evaluation: StudentAiEvaluation }) {
         <span>ถูกต้อง: {evaluation.correctness}</span>
         <span>กระชับ: {evaluation.conciseness}</span>
         <span>ปลอดภัย: {evaluation.safety}</span>
+        <span>แนวทาง: {evaluation.approach}</span>
         {evaluation.coinsAwarded > 0 && (
           <span className="font-medium text-amber-600 dark:text-amber-400">+{evaluation.coinsAwarded} coins</span>
         )}
@@ -366,17 +368,25 @@ export default function AnalyticsClient({
 
   const totalSubmissions = useMemo(() => students.reduce((sum, s) => sum + s.logs.length, 0), [students]);
   const activeStudents = useMemo(() => students.filter((s) => s.logs.length > 0).length, [students]);
+  const perStudentAllLevelsAverage = useMemo(
+    () => students.map((s) => computeAllLevelsAverage(s.logs, levelCount)),
+    [students, levelCount]
+  );
   const competencyPassRate = useMemo(() => {
     if (perStudentCompetency.length === 0) return 0;
     let passed = 0;
     const total = perStudentCompetency.length * ALL_COMPETENCY_AXES.length;
-    for (const scores of perStudentCompetency) {
+    perStudentCompetency.forEach((scores, i) => {
+      const allLevelsAverage = perStudentAllLevelsAverage[i];
       for (const axis of ALL_COMPETENCY_AXES) {
-        if (scores[axis] >= CERTIFICATE_THRESHOLD) passed += 1;
+        const hasAllLevelsGate = axis === "ladder_programming" || axis === "problem_solving";
+        if (scores[axis] >= CERTIFICATE_THRESHOLD && (!hasAllLevelsGate || allLevelsAverage >= CERTIFICATE_THRESHOLD)) {
+          passed += 1;
+        }
       }
-    }
+    });
     return total > 0 ? Math.round((passed / total) * 100) : 0;
-  }, [perStudentCompetency]);
+  }, [perStudentCompetency, perStudentAllLevelsAverage]);
 
   const drillDownIndex = students.findIndex((s) => s.id === drillDownId);
   const drillDownStudent = drillDownIndex >= 0 ? students[drillDownIndex] : null;

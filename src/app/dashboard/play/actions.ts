@@ -1,8 +1,9 @@
 "use server";
 
 import { generateGeminiText, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
-import { programToStructuredText } from "@/lib/ladder/render-st";
-import { isComparisonBlock, type Inputs, type LadderProgram, type SimMemory } from "@/lib/ladder/types";
+import { compileGridProgram, compiledProgramToStructuredText } from "@/lib/ladder/iec-compiler";
+import type { GridProgram } from "@/lib/ladder/grid-types";
+import type { Inputs, SimMemory } from "@/lib/ladder/types";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -10,17 +11,22 @@ export type HintResult =
   | { hint: string; hintCreditsRemaining: number | null; error?: undefined }
   | { error: string; hint?: undefined };
 
-function hasUnassignedAddress(program: LadderProgram): boolean {
-  return program.rungs.some(
-    (r) =>
-      r.branches.some((b) =>
-        b.cells.some((c) => c && (isComparisonBlock(c) ? !c.sourceA : !c.address))
-      ) || r.outputs.some((o) => !o.address)
-  );
+/** Grid-native counterpart of the legacy hasUnassignedAddress - true if any placed node (contact/comparison/coil) still has a "?" (null) address. */
+function hasUnassignedGridAddress(program: GridProgram): boolean {
+  for (const grid of program.grids) {
+    for (const row of grid.cells) {
+      for (const cell of row) {
+        const node = cell.node;
+        if (!node) continue;
+        if (node.kind === "COMPARE" ? !node.sourceA : !node.address) return true;
+      }
+    }
+  }
+  return false;
 }
 
 export async function getHintAction(
-  program: LadderProgram,
+  program: GridProgram,
   inputs: Inputs,
   memory: SimMemory
 ): Promise<HintResult> {
@@ -35,8 +41,8 @@ export async function getHintAction(
       return { error: "คุณใช้คำใบ้ครบแล้ว กรุณาซื้อ Hint Unlocker จากร้านค้า" };
     }
 
-    const st = programToStructuredText(program);
-    const unassignedNote = hasUnassignedAddress(program)
+    const st = compiledProgramToStructuredText(compileGridProgram(program.grids));
+    const unassignedNote = hasUnassignedGridAddress(program)
       ? "หมายเหตุ: มีบาง contact หรือ output ที่ยังไม่ได้กำหนดแอดเดรส (address)"
       : "";
 

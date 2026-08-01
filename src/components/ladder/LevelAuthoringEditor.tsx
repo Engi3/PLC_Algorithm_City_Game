@@ -2,28 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { DndContext, DragOverlay } from "@dnd-kit/core";
-import {
-  COIL_ADDRESSES,
-  contactAddressOptions,
-  INPUT_ADDRESSES,
-  isOutputAddressTaken,
-  MAX_RUNGS,
-  numericAddressOptions,
-  type Inputs,
-  type LadderProgram,
-} from "@/lib/ladder/types";
-import { evalRungEnergized, readBit } from "@/lib/ladder/engine";
-import { evaluateLevel, type LevelEvalResult } from "@/lib/ladder/level-eval";
+import { COIL_ADDRESSES, INPUT_ADDRESSES, type Inputs } from "@/lib/ladder/types";
+import { readBit } from "@/lib/ladder/engine";
+import { COIL_COLUMN, isCoilNode, type GridProgram } from "@/lib/ladder/grid-types";
+import { programToGridProgram } from "@/lib/ladder/grid-adapter";
+import { evaluateGridLevel, type LevelEvalResult } from "@/lib/ladder/level-eval";
 import { SKILL_LABELS, type LevelSpec, type LevelTestCase, type SkillCategory } from "@/lib/ladder/level-spec";
-import { useLadderProgram } from "@/lib/ladder/use-ladder-program";
-import { useLadderDnd } from "@/lib/ladder/use-ladder-dnd";
+import { useLadderGrid } from "@/lib/ladder/use-ladder-grid";
 import { useVariablePool } from "@/lib/ladder/use-variable-pool";
-import LadderPalette from "./LadderPalette";
-import RungRow from "./Rung";
-import IoPanel from "./IoPanel";
-import AnalogInputPanel from "./AnalogInputPanel";
-import VariablePoolDrawer from "./VariablePoolDrawer";
+import GridEditorSurface from "@/components/ladder-grid/GridEditorSurface";
 import { saveLevelAction } from "@/app/dashboard/levels/actions";
 
 export type InitialLevel = {
@@ -34,23 +21,38 @@ export type InitialLevel = {
   spec: LevelSpec;
 };
 
-function relevantExpectAddresses(program: LadderProgram, allowedOutputs: string[]): string[] {
+/**
+ * Grid-native counterpart of the legacy `relevantExpectAddresses` this
+ * replaced - same purpose (offer every allowed output plus any TIMER/
+ * COUNTER's `.DN` done-bit as a candidate for a test case's expected
+ * outcome), just reading coil-column nodes out of every rung's grid instead
+ * of a legacy Rung's `outputs` array.
+ */
+function relevantGridExpectAddresses(gridProgram: GridProgram, allowedOutputs: string[]): string[] {
   const addrs = new Set<string>(allowedOutputs);
-  for (const rung of program.rungs) {
-    for (const output of rung.outputs) {
-      if (!output.address) continue;
-      if (output.kind === "TIMER" || output.kind === "COUNTER") {
-        addrs.add(`${output.address}.DN`);
+  for (const grid of gridProgram.grids) {
+    for (const row of grid.cells) {
+      const node = row[COIL_COLUMN].node;
+      if (!node || !isCoilNode(node) || !node.address) continue;
+      if (node.kind === "TIMER" || node.kind === "COUNTER") {
+        addrs.add(`${node.address}.DN`);
       }
     }
   }
   return [...addrs];
 }
 
+/** Seeds the authoring editor's grid from whichever reference-solution shape the level was last saved with - preferring the grid-native field, falling back to a lossless legacy->grid conversion for levels saved before this migration, or starting empty for a brand new level. */
+function initialGridProgram(spec: LevelSpec | undefined): GridProgram | undefined {
+  if (!spec) return undefined;
+  if (spec.referenceGridProgram) return spec.referenceGridProgram;
+  if (spec.referenceProgram) return programToGridProgram(spec.referenceProgram);
+  return undefined;
+}
+
 export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: InitialLevel }) {
   const router = useRouter();
-  const ladder = useLadderProgram(initialLevel?.spec.referenceProgram);
-  const { activeDrag, handleDragStart, handleDragEnd } = useLadderDnd(ladder);
+  const grid = useLadderGrid(useMemo(() => initialGridProgram(initialLevel?.spec), [initialLevel]));
   const pool = useVariablePool();
 
   const [title, setTitle] = useState(initialLevel?.title ?? "");
@@ -73,13 +75,10 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const { program, inputs, analogInputs, memory } = ladder;
-  const addressOptions = contactAddressOptions(program, pool.customVariables);
-  const numericOptions = numericAddressOptions(program, pool.customVariables);
-  const analogAddresses = pool.customVariables.filter((v) => v.kind === "analog_input").map((v) => v.address);
+  const { gridProgram, inputs, memory } = grid;
   const expectAddresses = useMemo(
-    () => relevantExpectAddresses(program, allowedOutputs),
-    [program, allowedOutputs]
+    () => relevantGridExpectAddresses(gridProgram, allowedOutputs),
+    [gridProgram, allowedOutputs]
   );
 
   function toggleInAllowedInputs(addr: string) {
@@ -89,28 +88,36 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
     setAllowedOutputs((prev) => (prev.includes(addr) ? prev.filter((a) => a !== addr) : [...prev, addr]));
   }
 
+  /**
+   * The test-case recorder wraps the grid's own toggleInput/setInputValue/
+   * step so every input change or scan tick during recording resets
+   * `pendingTicks` back to 0 the moment inputs change (a frame's `ticks`
+   * counts scans *after* that frame's inputs were applied, not before) -
+   * unchanged in spirit from the legacy recorder, just driven by the grid
+   * hook's equivalents instead of `useLadderProgram`'s.
+   */
   function recordToggleInput(addr: string) {
-    ladder.toggleInput(addr);
+    grid.toggleInput(addr);
     setPendingTicks(0);
   }
 
   function recordSetInputValue(addr: string, value: boolean) {
-    ladder.setInputValue(addr, value);
+    grid.setInputValue(addr, value);
     setPendingTicks(0);
   }
 
   function recordSetAnalogInput(addr: string, value: number) {
-    ladder.setAnalogInput(addr, value);
+    grid.setAnalogInput(addr, value);
     setPendingTicks(0);
   }
 
   function recordStep() {
-    ladder.step();
+    grid.step();
     setPendingTicks((t) => t + 1);
   }
 
   function resetRecording() {
-    ladder.reset();
+    grid.reset();
     setCurrentFrames([]);
     setPendingTicks(0);
   }
@@ -121,9 +128,6 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
   }
 
   function captureTestCase() {
-    if (currentFrames.length === 0 && pendingTicks === 0 && Object.keys(inputs).length === 0) {
-      // still allow capturing a single implicit frame from current state
-    }
     const frames =
       currentFrames.length > 0 || pendingTicks > 0
         ? [...currentFrames, { inputs: { ...inputs }, ticks: pendingTicks }]
@@ -150,7 +154,7 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
 
   function runTest() {
     const spec: LevelSpec = { description, skill, allowedInputs, allowedOutputs, testCases };
-    setTestResult(evaluateLevel(program, spec));
+    setTestResult(evaluateGridLevel(gridProgram, spec));
   }
 
   async function save() {
@@ -168,7 +172,7 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
         allowedOutputs,
         testCases,
         hints,
-        referenceProgram: program,
+        referenceGridProgram: gridProgram,
       };
       const result = await saveLevelAction({
         levelId: initialLevel?.id,
@@ -307,71 +311,23 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
           start a fresh test case from empty memory.
         </p>
 
-        <DndContext id="level-authoring-dnd" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="flex flex-col gap-3">
-            <LadderPalette />
-            <VariablePoolDrawer pool={pool} />
-            <div className="flex flex-col gap-3">
-              {program.rungs.map((rung, index) => (
-                <RungRow
-                  key={rung.id}
-                  rung={rung}
-                  index={index}
-                  inputs={inputs}
-                  memory={memory}
-                  rungEnergized={evalRungEnergized(rung.branches, inputs, memory, analogInputs)}
-                  addressOptions={addressOptions}
-                  numericOptions={numericOptions}
-                  analogInputs={analogInputs}
-                  customVariables={pool.customVariables}
-                  addressTaken={(addr, outputIndex) =>
-                    isOutputAddressTaken(program, rung.outputs[outputIndex].kind, addr, rung.id, outputIndex)
-                  }
-                  onSetContactAddress={(r, c, addr) => ladder.setContactAddress(rung.id, r, c, addr)}
-                  onRemoveContact={(r, c) => ladder.removeContact(rung.id, r, c)}
-                  onUpdateComparison={(r, c, patch) => ladder.updateComparison(rung.id, r, c, patch)}
-                  onSetOutputAddress={(i, addr) => ladder.setOutputAddress(rung.id, i, addr)}
-                  onSetOutputVariant={(i, variant) => ladder.setOutputVariant(rung.id, i, variant)}
-                  onSetOutputPreset={(i, preset) => ladder.setOutputPreset(rung.id, i, preset)}
-                  onRemoveOutput={(i) => ladder.removeOutput(rung.id, i)}
-                  onAddBranch={() => ladder.addBranch(rung.id)}
-                  onRemoveBranch={(r) => ladder.removeBranch(rung.id, r)}
-                  onRemoveRung={() => ladder.removeRung(rung.id)}
-                />
-              ))}
+        <GridEditorSurface
+          grid={grid}
+          pool={pool}
+          onStep={recordStep}
+          onToggleInput={recordToggleInput}
+          onSetInputValue={recordSetInputValue}
+          onSetAnalogInput={recordSetAnalogInput}
+          onReset={resetRecording}
+          banner={
+            <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 text-xs text-purple-800 dark:border-purple-900 dark:bg-purple-950 dark:text-purple-300">
+              <strong>Reference Solution Editor.</strong> วงจรที่สร้างในนี้คือคำตอบต้นแบบของด่านนี้ - นักเรียนจะไม่เห็นวงจรนี้เลย ใช้ปุ่ม Step/Reset
+              ด้านล่างเพื่อบันทึก test case และตรวจสอบว่าโจทย์แก้ได้จริงเท่านั้น
             </div>
-            {program.rungs.length < MAX_RUNGS && (
-              <button
-                type="button"
-                onClick={ladder.addRung}
-                className="w-fit rounded-md border border-dashed border-zinc-400 px-3 py-1.5 text-sm font-medium text-zinc-600 hover:border-blue-500 hover:text-blue-600 dark:text-zinc-400"
-              >
-                + Add rung
-              </button>
-            )}
-          </div>
-
-          <DragOverlay>
-            {activeDrag && (
-              <div className="rounded-md border border-blue-500 bg-white px-3 py-2 text-center font-mono text-sm shadow-lg dark:bg-zinc-900">
-                {activeDrag.kind === "contact"
-                  ? activeDrag.contactType
-                  : activeDrag.kind === "comparison"
-                    ? "CMP"
-                    : activeDrag.outputKind}
-              </div>
-            )}
-          </DragOverlay>
-        </DndContext>
+          }
+        />
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={recordStep}
-            className="rounded-md bg-zinc-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-700"
-          >
-            Step
-          </button>
           <span className="text-xs text-zinc-500 dark:text-zinc-400">
             Pending ticks this frame: {pendingTicks}
           </span>
@@ -382,13 +338,6 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
           >
             + Add frame
           </button>
-          <button
-            type="button"
-            onClick={resetRecording}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300"
-          >
-            Reset (new test case)
-          </button>
         </div>
 
         <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
@@ -396,17 +345,6 @@ export default function LevelAuthoringEditor({ initialLevel }: { initialLevel?: 
           {currentFrames.length > 0 &&
             ` (${currentFrames.map((f) => `ticks=${f.ticks}`).join(", ")})`}
         </div>
-
-        <IoPanel
-          inputs={inputs}
-          memory={memory}
-          onToggleInput={recordToggleInput}
-          onSetInputValue={recordSetInputValue}
-          customVariables={pool.customVariables}
-          getSwitchType={pool.getSwitchType}
-        />
-
-        <AnalogInputPanel addresses={analogAddresses} values={analogInputs} onChange={recordSetAnalogInput} />
 
         {expectAddresses.length > 0 && (
           <div className="mt-3 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">

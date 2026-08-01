@@ -2,7 +2,7 @@ import { isComparisonBlock, type Branch, type BranchCell, type LadderProgram, ty
 
 const OPERATOR_ST: Record<string, string> = { ">": ">", "<": "<", "==": "=", ">=": ">=", "<=": "<=" };
 
-function cellExpr(cell: BranchCell): string {
+export function cellExpr(cell: BranchCell): string {
   if (isComparisonBlock(cell)) {
     const b = cell.sourceB.kind === "constant" ? String(cell.sourceB.value) : cell.sourceB.address;
     return `${cell.sourceA ?? "???"} ${OPERATOR_ST[cell.operator]} ${b}`;
@@ -24,7 +24,7 @@ export function rungExpr(branches: Branch[]): string {
   return exprs.map((e) => (e.includes(" AND ") ? `(${e})` : e)).join(" OR ");
 }
 
-function outputStatement(output: Output, condition: string): string {
+export function outputStatement(output: Output, condition: string): string {
   const addr = output.address ?? "???";
   switch (output.kind) {
     case "COIL":

@@ -1,4 +1,5 @@
 import type { AnalogInputs, Inputs, LadderProgram } from "./types";
+import type { GridProgram } from "./grid-types";
 
 /** Skill category a level is tagged with, used for the teacher's radar chart. */
 export type SkillCategory = "basic_logic" | "latching" | "timers" | "counters" | "efficiency";
@@ -30,8 +31,20 @@ export type LevelSpec = {
    * The teacher's model solution, kept only so re-opening the level in the
    * authoring editor restores their work. Never read by grading - students
    * never see this, and evaluateLevel only ever runs the student's program.
+   * Legacy field - no longer written once the authoring editor moved onto
+   * the grid model (see referenceGridProgram below), but old level rows
+   * saved before that migration still carry this shape, so it stays here
+   * purely for LevelAuthoringEditor to read-and-convert on load.
    */
   referenceProgram?: LadderProgram;
+  /**
+   * The teacher's model solution in the grid-editor's native shape - what
+   * LevelAuthoringEditor now reads and writes. Preferred over
+   * `referenceProgram` when both are present (never happens in practice,
+   * since a save always writes exactly one of the two depending on which
+   * editor made it).
+   */
+  referenceGridProgram?: GridProgram;
 };
 
 export function isLevelSpec(value: unknown): value is LevelSpec {

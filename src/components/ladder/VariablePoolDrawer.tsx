@@ -19,6 +19,7 @@ export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) 
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<VariableKind>("input");
   const [num, setNum] = useState<number | "">("");
+  const [label, setLabel] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   function handleAdd() {
@@ -26,9 +27,12 @@ export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) 
       setError("Enter a number 0-99.");
       return;
     }
-    const result = pool.addVariable(kind, num);
+    const result = pool.addVariable(kind, num, label);
     setError(result.error);
-    if (!result.error) setNum("");
+    if (!result.error) {
+      setNum("");
+      setLabel("");
+    }
   }
 
   return (
@@ -86,6 +90,15 @@ export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) 
                   placeholder={`0-${maxNumberForKind(kind)}`}
                   className="w-20 rounded border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                 />
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
+                  placeholder="คำอธิบาย เช่น เซ็นเซอร์หน้า (ไม่บังคับ)"
+                  className="flex-1 rounded border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                />
                 <button
                   type="button"
                   onClick={handleAdd}
@@ -108,8 +121,9 @@ export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) 
                 {pool.customVariables.map((v) => (
                   <li
                     key={v.address}
-                    className="flex items-center justify-between gap-2 rounded border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-800"
+                    className="flex flex-col gap-1 rounded border border-zinc-200 px-2 py-1.5 text-xs dark:border-zinc-800"
                   >
+                  <div className="flex items-center justify-between gap-2">
                     <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-50">
                       {v.address}
                     </span>
@@ -118,17 +132,19 @@ export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) 
                         <button
                           type="button"
                           onClick={() => pool.setSwitchType(v.address, "toggle")}
+                          title="ค้างสถานะจนกว่าจะกดอีกครั้ง (Latching Switch)"
                           className={`rounded px-1.5 py-0.5 ${
                             pool.getSwitchType(v.address) === "toggle"
                               ? "bg-blue-600 text-white"
                               : "border border-zinc-300 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
                           }`}
                         >
-                          Toggle
+                          Latching
                         </button>
                         <button
                           type="button"
                           onClick={() => pool.setSwitchType(v.address, "momentary")}
+                          title="เปิดเฉพาะตอนกดค้างเท่านั้น (Momentary Switch)"
                           className={`rounded px-1.5 py-0.5 ${
                             pool.getSwitchType(v.address) === "momentary"
                               ? "bg-blue-600 text-white"
@@ -146,6 +162,15 @@ export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) 
                     >
                       Remove
                     </button>
+                  </div>
+                  <input
+                    type="text"
+                    defaultValue={v.label ?? ""}
+                    onBlur={(e) => pool.updateVariableLabel(v.address, e.target.value)}
+                    placeholder="คำอธิบาย (ไม่บังคับ)"
+                    aria-label={`Label for ${v.address}`}
+                    className="w-full rounded border border-zinc-200 bg-zinc-50 px-1.5 py-1 text-[11px] text-zinc-700 placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                  />
                   </li>
                 ))}
               </ul>

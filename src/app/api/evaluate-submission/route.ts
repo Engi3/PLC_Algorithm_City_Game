@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
-import { evaluateLevel, countBlocks } from "@/lib/ladder/level-eval";
+import { evaluateGridLevel, countGridBlocks } from "@/lib/ladder/level-eval";
 import { isLevelSpec } from "@/lib/ladder/level-spec";
-import { programToStructuredText } from "@/lib/ladder/render-st";
+import { compileGridProgram, compiledProgramToStructuredText } from "@/lib/ladder/iec-compiler";
 import { generateGeminiJSON, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
-import type { LadderProgram } from "@/lib/ladder/types";
+import type { GridProgram } from "@/lib/ladder/grid-types";
 
-type AiReviewScores = { correctness: number; conciseness: number; safety: number; feedback: string };
+type AiReviewScores = { correctness: number; conciseness: number; safety: number; approach: number; feedback: string };
 
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
@@ -16,9 +16,10 @@ const RESPONSE_SCHEMA = {
     correctness: { type: "INTEGER" },
     conciseness: { type: "INTEGER" },
     safety: { type: "INTEGER" },
+    approach: { type: "INTEGER" },
     feedback: { type: "STRING" },
   },
-  required: ["correctness", "conciseness", "safety", "feedback"],
+  required: ["correctness", "conciseness", "safety", "approach", "feedback"],
 };
 
 function clamp0to100(n: unknown): number {
@@ -37,7 +38,7 @@ function clamp0to100(n: unknown): number {
  * the deterministic test-case gate before this endpoint is even called.
  */
 export async function POST(request: Request) {
-  let body: { levelId?: string; program?: LadderProgram };
+  let body: { levelId?: string; program?: GridProgram };
   try {
     body = await request.json();
   } catch {
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Level not found or misconfigured." }, { status: 404 });
   }
 
-  const evalResult = evaluateLevel(program, level.map_layout_json);
+  const evalResult = evaluateGridLevel(program, level.map_layout_json);
   if (!evalResult.passed) {
     return NextResponse.json(
       { error: "โปรแกรมยังไม่ผ่านชุดทดสอบของด่านนี้ กรุณาส่งคำตอบที่ถูกต้องก่อนขอรีวิวจาก AI" },
@@ -73,8 +74,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const blocksUsed = countBlocks(program);
-  const structuredText = programToStructuredText(program);
+  const blocksUsed = countGridBlocks(program);
+  const structuredText = compiledProgramToStructuredText(compileGridProgram(program.grids));
 
   const prompt = `คุณเป็นวิศวกรอาวุโสที่ตรวจสอบโค้ด PLC Ladder Logic ของนักศึกษา
 
@@ -85,12 +86,13 @@ ${structuredText}
 
 จำนวนบล็อกที่ใช้: ${blocksUsed}${level.optimal_blocks_count ? ` (ค่าที่เหมาะสมที่สุดคือ ${level.optimal_blocks_count} บล็อก)` : ""}
 
-โปรแกรมนี้ผ่านชุดทดสอบทั้งหมดแล้ว (ทำงานถูกต้องตามข้อกำหนด) กรุณาประเมิน 3 ด้านนี้เป็นคะแนน 0-100:
+โปรแกรมนี้ผ่านชุดทดสอบทั้งหมดแล้ว (ทำงานถูกต้องตามข้อกำหนด) กรุณาประเมิน 4 ด้านนี้เป็นคะแนน 0-100:
 - correctness: ความถูกต้องเชิงตรรกะและความสมเหตุสมผลของวิธีแก้ปัญหา
 - conciseness: ความกระชับ ใช้จำนวนรังคำสั่ง (rung) และบล็อกคำสั่งอย่างมีประสิทธิภาพ เทียบกับจำนวนบล็อกที่เหมาะสมที่สุด
 - safety: การมี interlock ด้านความปลอดภัย การรีเซ็ตที่เหมาะสม หรือโครงสร้างที่อ่านง่าย
+- approach: แนวทางและตรรกะการคิดแก้ปัญหาของนักเรียน (ไม่ใช่แค่ว่าผ่านหรือไม่ - ประเมินว่าวิธีคิดมีประสิทธิภาพหรืออ้อมค้อม ใช้เทคนิคที่ชาญฉลาด เช่น self-hold, interlock, การแบ่งแขนงที่เหมาะสม หรือมีรูปแบบที่ไม่ดี (antipattern) เช่น การต่อวนซ้ำซ้อนโดยไม่จำเป็น)
 
-และ feedback: คำแนะนำเชิงสร้างสรรค์เป็นภาษาไทย อธิบายว่าโค้ดนี้ดีอย่างไรหรือควรปรับปรุงอย่างไรให้ดีขึ้น (2-4 ประโยค)`;
+และ feedback: คำแนะนำเชิงสร้างสรรค์เป็นภาษาไทย อธิบายว่าโค้ดนี้ดีอย่างไรหรือควรปรับปรุงอย่างไรให้ดีขึ้น รวมถึงความเห็นต่อแนวทางการแก้ปัญหาของนักเรียน (2-4 ประโยค)`;
 
   let review: AiReviewScores;
   try {
@@ -109,6 +111,7 @@ ${structuredText}
   const correctness = clamp0to100(review.correctness);
   const conciseness = clamp0to100(review.conciseness);
   const safety = clamp0to100(review.safety);
+  const approach = clamp0to100(review.approach);
   const feedback =
     typeof review.feedback === "string" && review.feedback.trim()
       ? review.feedback.trim()
@@ -131,6 +134,7 @@ ${structuredText}
         correctness,
         conciseness,
         safety,
+        approach,
         feedback,
         coins_awarded: coinsAwarded,
       });
@@ -153,6 +157,7 @@ ${structuredText}
     correctness,
     conciseness,
     safety,
+    approach,
     feedback,
     coinsAwarded,
   });

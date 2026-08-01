@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PLC Algorithm City",
+  title: "PLC Algorithm Practice",
   description: "Gamified PLC ladder logic learning platform",
 };
 

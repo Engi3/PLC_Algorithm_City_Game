@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isLevelSpec, type SkillCategory } from "@/lib/ladder/level-spec";
-import LadderPlayground from "@/components/ladder/LadderPlayground";
+import GridLadderPlayground from "@/components/ladder/GridLadderPlayground";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 
 export default async function LevelPlayPage({
@@ -116,7 +116,7 @@ export default async function LevelPlayPage({
           )}
         </div>
       </div>
-      <LadderPlayground level={{ id: levelId, description, skill, hints }} />
+      <GridLadderPlayground level={{ id: levelId, description, skill, hints }} />
     </div>
   );
 }

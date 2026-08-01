@@ -9,6 +9,7 @@ import {
   type Contact,
   type Inputs,
   type LadderProgram,
+  type Output,
   type SimMemory,
 } from "./types";
 
@@ -145,6 +146,103 @@ export function evalRungEnergized(
  * Counters are edge-triggered off rung-energized transitions, not time, so
  * they are unaffected by `tick`.
  */
+/**
+ * Writes one output's effect into `memory`, in place, for one scan. Pulled
+ * out of runScan (Task 3) so the new grid engine's per-cell coil writes
+ * share the exact same timer/counter/SET/RESET semantics rather than a
+ * second, driftable copy - the two engines must agree on this or a program
+ * that behaves one way in the legacy editor and another way in the grid
+ * editor would be a real correctness bug, not just a style inconsistency.
+ */
+export function applyOutputWrite(memory: SimMemory, output: Output, energized: boolean, tick: boolean): void {
+  if (!output.address) return;
+  const addr = output.address;
+
+  switch (output.kind) {
+    case "COIL": {
+      memory.coils[addr] = energized;
+      break;
+    }
+    case "SET": {
+      if (energized) memory.coils[addr] = true;
+      break;
+    }
+    case "RESET": {
+      if (!energized) break;
+      if (isOutputFamilyAddress(addr)) {
+        memory.coils[addr] = false;
+      } else if (addr.startsWith("T")) {
+        const prev = memory.timers[addr];
+        memory.timers[addr] = { acc: 0, preset: prev?.preset ?? 0, done: false, en: prev?.en ?? false };
+      } else if (addr.startsWith("C")) {
+        const prev = memory.counters[addr];
+        const preset = prev?.preset ?? 0;
+        const variant = prev?.variant ?? "CTU";
+        // CTD reloads to its preset (counts back down from there); CTU
+        // clears to 0 (counts back up from there).
+        const cv = variant === "CTD" ? preset : 0;
+        memory.counters[addr] = {
+          cv,
+          preset,
+          done: variant === "CTD" ? cv <= 0 : preset > 0 && cv >= preset,
+          variant,
+          prevEnergized: prev?.prevEnergized ?? false,
+          en: prev?.en ?? false,
+        };
+      }
+      break;
+    }
+    case "TIMER": {
+      const prev = memory.timers[addr];
+      const preset = output.preset;
+      let acc = prev?.acc ?? 0;
+      let done: boolean;
+
+      if (output.variant === "TON") {
+        if (!energized) acc = 0;
+        else if (tick) acc = Math.min(preset, acc + 1);
+        done = preset > 0 && acc >= preset;
+      } else if (output.variant === "TOF") {
+        if (energized) {
+          acc = 0;
+          done = true;
+        } else {
+          if (tick) acc = Math.min(preset, acc + 1);
+          done = preset > 0 && acc < preset;
+        }
+      } else {
+        // RTO: accumulates while energized, never auto-resets - only a
+        // RESET instruction targeting this address clears it.
+        if (energized && tick) acc = Math.min(preset, acc + 1);
+        done = preset > 0 && acc >= preset;
+      }
+
+      memory.timers[addr] = { acc, preset, done, en: energized };
+      break;
+    }
+    case "COUNTER": {
+      const prev = memory.counters[addr];
+      const preset = output.preset;
+      // CTD starts pre-loaded at the preset and counts down; CTU starts at 0.
+      // Re-seed (not just on first use) whenever the variant differs from
+      // what's stored, so switching CTU<->CTD in the editor reloads
+      // correctly instead of keeping a stale accumulator.
+      const sameVariant = prev?.variant === output.variant;
+      let cv = sameVariant ? prev!.cv : output.variant === "CTD" ? preset : 0;
+      const prevEnergized = sameVariant ? prev!.prevEnergized : false;
+      const risingEdge = energized && !prevEnergized;
+
+      if (risingEdge) {
+        cv = output.variant === "CTU" ? cv + 1 : Math.max(0, cv - 1);
+      }
+
+      const done = output.variant === "CTU" ? preset > 0 && cv >= preset : cv <= 0;
+      memory.counters[addr] = { cv, preset, done, variant: output.variant, prevEnergized: energized, en: energized };
+      break;
+    }
+  }
+}
+
 export function runScan(
   program: LadderProgram,
   inputs: Inputs,
@@ -164,92 +262,7 @@ export function runScan(
     rungEnergized[rung.id] = energized;
 
     for (const output of rung.outputs) {
-      if (!output.address) continue;
-      const addr = output.address;
-
-      switch (output.kind) {
-      case "COIL": {
-        memory.coils[addr] = energized;
-        break;
-      }
-      case "SET": {
-        if (energized) memory.coils[addr] = true;
-        break;
-      }
-      case "RESET": {
-        if (!energized) break;
-        if (isOutputFamilyAddress(addr)) {
-          memory.coils[addr] = false;
-        } else if (addr.startsWith("T")) {
-          const prev = memory.timers[addr];
-          memory.timers[addr] = { acc: 0, preset: prev?.preset ?? 0, done: false, en: prev?.en ?? false };
-        } else if (addr.startsWith("C")) {
-          const prev = memory.counters[addr];
-          const preset = prev?.preset ?? 0;
-          const variant = prev?.variant ?? "CTU";
-          // CTD reloads to its preset (counts back down from there); CTU
-          // clears to 0 (counts back up from there).
-          const cv = variant === "CTD" ? preset : 0;
-          memory.counters[addr] = {
-            cv,
-            preset,
-            done: variant === "CTD" ? cv <= 0 : preset > 0 && cv >= preset,
-            variant,
-            prevEnergized: prev?.prevEnergized ?? false,
-            en: prev?.en ?? false,
-          };
-        }
-        break;
-      }
-      case "TIMER": {
-        const prev = memory.timers[addr];
-        const preset = output.preset;
-        let acc = prev?.acc ?? 0;
-        let done: boolean;
-
-        if (output.variant === "TON") {
-          if (!energized) acc = 0;
-          else if (options.tick) acc = Math.min(preset, acc + 1);
-          done = preset > 0 && acc >= preset;
-        } else if (output.variant === "TOF") {
-          if (energized) {
-            acc = 0;
-            done = true;
-          } else {
-            if (options.tick) acc = Math.min(preset, acc + 1);
-            done = preset > 0 && acc < preset;
-          }
-        } else {
-          // RTO: accumulates while energized, never auto-resets - only a
-          // RESET instruction targeting this address clears it.
-          if (energized && options.tick) acc = Math.min(preset, acc + 1);
-          done = preset > 0 && acc >= preset;
-        }
-
-        memory.timers[addr] = { acc, preset, done, en: energized };
-        break;
-      }
-      case "COUNTER": {
-        const prev = memory.counters[addr];
-        const preset = output.preset;
-        // CTD starts pre-loaded at the preset and counts down; CTU starts at 0.
-        // Re-seed (not just on first use) whenever the variant differs from
-        // what's stored, so switching CTU<->CTD in the editor reloads
-        // correctly instead of keeping a stale accumulator.
-        const sameVariant = prev?.variant === output.variant;
-        let cv = sameVariant ? prev!.cv : output.variant === "CTD" ? preset : 0;
-        const prevEnergized = sameVariant ? prev!.prevEnergized : false;
-        const risingEdge = energized && !prevEnergized;
-
-        if (risingEdge) {
-          cv = output.variant === "CTU" ? cv + 1 : Math.max(0, cv - 1);
-        }
-
-        const done = output.variant === "CTU" ? preset > 0 && cv >= preset : cv <= 0;
-        memory.counters[addr] = { cv, preset, done, variant: output.variant, prevEnergized: energized, en: energized };
-        break;
-      }
-      }
+      applyOutputWrite(memory, output, energized, options.tick);
     }
   }
 

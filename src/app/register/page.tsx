@@ -13,7 +13,7 @@ export default async function RegisterPage() {
           Student Registration
         </h1>
         <p className="mb-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-          PLC Algorithm City
+          PLC Algorithm Practice
         </p>
         <RegisterForm />
       </div>

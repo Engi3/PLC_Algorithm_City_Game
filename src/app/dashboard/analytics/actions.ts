@@ -154,6 +154,7 @@ export type StudentAiEvaluation = {
   correctness: number;
   conciseness: number;
   safety: number;
+  approach: number;
   feedback: string;
   coinsAwarded: number;
   createdAt: string;
@@ -170,7 +171,7 @@ export async function getStudentAiEvaluationsAction(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("ai_evaluations")
-    .select("id, correctness, conciseness, safety, feedback, coins_awarded, created_at, levels(title, level_number)")
+    .select("id, correctness, conciseness, safety, approach, feedback, coins_awarded, created_at, levels(title, level_number)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(20);
@@ -189,6 +190,7 @@ export async function getStudentAiEvaluationsAction(
       correctness: row.correctness,
       conciseness: row.conciseness,
       safety: row.safety,
+      approach: row.approach,
       feedback: row.feedback,
       coinsAwarded: row.coins_awarded,
       createdAt: row.created_at,

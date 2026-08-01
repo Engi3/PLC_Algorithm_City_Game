@@ -33,6 +33,8 @@ export type SwitchType = "momentary" | "toggle";
 export type DeclaredVariable = {
   address: string;
   kind: VariableKind;
+  /** UX/UI refinement Task 3: an optional human-readable description (e.g. "เซ็นเซอร์หน้า" for X0) shown as a subtitle under the instruction symbol and next to the address in dropdowns/IoPanel - purely cosmetic, never read by the engine. */
+  label?: string;
 };
 
 export const MAX_VARIABLE_NUMBER = 99;
@@ -63,6 +65,66 @@ export function isValidVariableNumber(kind: VariableKind, num: number): boolean 
 
 function customAddressesByKind(variables: DeclaredVariable[], kind: VariableKind): string[] {
   return variables.filter((v) => v.kind === kind).map((v) => v.address);
+}
+
+/**
+ * UX/UI refinement Task 3: which named group an address belongs to, for
+ * rendering address `<select>`s as `<optgroup>` sections (Inputs/Outputs/
+ * Relays/Timers/Counters/Analog/status-bits/registers) instead of one long
+ * flat list - checked in this order because a status-bit or register
+ * address (e.g. "T0.DN", "C3.ACC") shares its base prefix with the plain
+ * Timer/Counter group it's derived from and must be told apart first.
+ */
+export function classifyAddressGroup(address: string): string {
+  if (address.endsWith(".DN") || address.endsWith(".EN")) return "Status Bits (.DN/.EN)";
+  if (address.endsWith(".ACC") || address.endsWith(".PRE")) return "Registers (.ACC/.PRE)";
+  const prefix = address.match(/^[A-Za-z]+/)?.[0] ?? "";
+  switch (prefix) {
+    case "AI":
+      return "Analog Inputs (AI)";
+    case "I":
+    case "X":
+      return "Inputs (I/X)";
+    case "Q":
+    case "Y":
+      return "Outputs (Q/Y)";
+    case "M":
+      return "Internal Relays (M)";
+    case "T":
+      return "Timers (T)";
+    case "C":
+      return "Counters (C)";
+    default:
+      return "Other";
+  }
+}
+
+export type AddressOption = { address: string; label?: string };
+export type AddressOptionGroup = { groupLabel: string; options: AddressOption[] };
+
+/**
+ * UX/UI refinement Task 3: buckets a flat address list (as already returned
+ * by contactAddressOptions/numericAddressOptions/outputAddressOptions) into
+ * ordered `<optgroup>`-ready sections, attaching each custom variable's
+ * declared label so the dropdown can show "X0 - เซ็นเซอร์หน้า" instead of a
+ * bare address - a no-typo picker the student clicks through rather than
+ * types into. Grouping is derived purely from the address string itself
+ * (classifyAddressGroup), so this works unchanged for the built-in I/Q
+ * addresses that have no DeclaredVariable entry at all.
+ */
+export function groupAddressOptions(addresses: string[], customVariables: DeclaredVariable[] = []): AddressOptionGroup[] {
+  const labelByAddress = new Map(customVariables.filter((v) => v.label).map((v) => [v.address, v.label as string]));
+  const groupOrder: string[] = [];
+  const byGroup = new Map<string, AddressOption[]>();
+  for (const address of addresses) {
+    const groupLabel = classifyAddressGroup(address);
+    if (!byGroup.has(groupLabel)) {
+      byGroup.set(groupLabel, []);
+      groupOrder.push(groupLabel);
+    }
+    byGroup.get(groupLabel)!.push({ address, label: labelByAddress.get(address) });
+  }
+  return groupOrder.map((groupLabel) => ({ groupLabel, options: byGroup.get(groupLabel)! }));
 }
 
 const INPUT_PREFIXES = new Set(["I", "X"]);

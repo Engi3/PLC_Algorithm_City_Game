@@ -1,4 +1,4 @@
-import LadderPlayground from "@/components/ladder/LadderPlayground";
+import GridLadderEditor from "@/components/ladder-grid/GridLadderEditor";
 
 export default function SandboxPage() {
   return (
@@ -8,13 +8,11 @@ export default function SandboxPage() {
           กระบะทรายจำลองวงจรแลดเดอร์ (Sandbox)
         </h1>
         <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-          ลากและวางคอนแทค NO/NC และเอาต์พุตลงบน Rung (แถวของวงจร) เชื่อมต่อสายไฟ
+          วางคอนแทค NO/NC และเอาต์พุตลงบนตารางแถว/คอลัมน์ สายไฟจะต่อให้อัตโนมัติ
           จากนั้นลองเปิด/ปิดอินพุต หรือกด Step/Run เพื่อดูการทำงานของลอจิก
-          โหมดนี้เป็นโหมดอิสระ ไม่มีเป้าหมายหรือการเก็บคะแนน -
-          หากต้องการเก็บคะแนนและประเมินผล ให้เข้าไปที่โหมดด่านทดสอบ (Levels)
         </p>
       </div>
-      <LadderPlayground />
+      <GridLadderEditor />
     </div>
   );
 }

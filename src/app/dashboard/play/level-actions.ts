@@ -3,9 +3,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
-import { evaluateLevel, countBlocks, computeScore, MIN_SCORE } from "@/lib/ladder/level-eval";
+import { evaluateGridLevel, countGridBlocks, computeScore, MIN_SCORE } from "@/lib/ladder/level-eval";
 import { isLevelSpec } from "@/lib/ladder/level-spec";
-import type { LadderProgram } from "@/lib/ladder/types";
+import type { GridProgram } from "@/lib/ladder/grid-types";
 import { applyEnergyRegen, computeCoinsForScore } from "@/lib/economy/energy";
 
 export type SubmitLevelResult =
@@ -22,7 +22,7 @@ export type SubmitLevelResult =
 
 export async function submitLevelAction(
   levelId: string,
-  program: LadderProgram
+  program: GridProgram
 ): Promise<SubmitLevelResult> {
   try {
     const profile = await getCurrentProfile();
@@ -70,8 +70,8 @@ export async function submitLevelAction(
       return { error: "This level is misconfigured." };
     }
 
-    const evalResult = evaluateLevel(program, level.map_layout_json);
-    const blocksUsed = countBlocks(program);
+    const evalResult = evaluateGridLevel(program, level.map_layout_json);
+    const blocksUsed = countGridBlocks(program);
     const score = evalResult.passed ? computeScore(blocksUsed, level.optimal_blocks_count) : 0;
 
     const { data: priorAttempts, error: attemptsError } = await supabase
@@ -206,7 +206,7 @@ export async function skipLevelAction(levelId: string): Promise<SkipLevelResult>
     const { error: insertError } = await supabase.from("play_logs").insert({
       user_id: profile.id,
       level_id: levelId,
-      ladder_blocks_json: { rungs: [] },
+      ladder_blocks_json: { grids: [] },
       is_success: true,
       attempts: attemptNumber,
       score: MIN_SCORE,

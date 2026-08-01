@@ -6,6 +6,7 @@ import { isLevelSpec } from "@/lib/ladder/level-spec";
 import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
 import {
   computeCompetencyScores,
+  computeAllLevelsAverage,
   ALL_COMPETENCY_AXES,
   type ManualCompetencyScores,
 } from "@/lib/analytics/competency";
@@ -101,6 +102,7 @@ export default async function ProgressPage() {
 
   const skillScores = computeSkillScores(logs, levelSkills);
   const competencyScores = computeCompetencyScores(logs, levelCount, manualCompetency);
+  const allLevelsAverage = computeAllLevelsAverage(logs, levelCount);
   const passedLevelIds = new Set(logs.filter((l) => l.is_success).map((l) => l.level_id));
   const studentName =
     profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : profile.username;
@@ -147,6 +149,9 @@ export default async function ProgressPage() {
               score={competencyScores[axis]}
               studentName={studentName}
               userId={profile.id}
+              allLevelsAverage={
+                axis === "ladder_programming" || axis === "problem_solving" ? allLevelsAverage : undefined
+              }
             />
           ))}
         </div>

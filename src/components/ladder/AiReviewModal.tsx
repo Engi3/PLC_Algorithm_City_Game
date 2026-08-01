@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { LadderProgram } from "@/lib/ladder/types";
+import type { GridProgram } from "@/lib/ladder/grid-types";
 
 type AiReviewResponse =
-  | { available: true; correctness: number; conciseness: number; safety: number; feedback: string; coinsAwarded: number }
+  | { available: true; correctness: number; conciseness: number; safety: number; approach: number; feedback: string; coinsAwarded: number }
   | { available: false; message: string }
   | { error: string };
 
@@ -30,7 +30,7 @@ export default function AiReviewModal({
   onClose,
 }: {
   levelId: string;
-  program: LadderProgram;
+  program: GridProgram;
   onClose: () => void;
 }) {
   const [loading, setLoading] = useState(true);
@@ -94,6 +94,7 @@ export default function AiReviewModal({
               <ScoreBar label="ความถูกต้อง (Correctness)" value={result.correctness} />
               <ScoreBar label="ความกระชับ (Conciseness)" value={result.conciseness} />
               <ScoreBar label="ความปลอดภัย (Safety)" value={result.safety} />
+              <ScoreBar label="แนวทางการแก้ปัญหา (Approach)" value={result.approach} />
             </div>
             <p className="rounded-md bg-purple-50 px-3 py-2 text-sm text-purple-900 dark:bg-purple-950 dark:text-purple-200">
               {result.feedback}

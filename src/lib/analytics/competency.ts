@@ -92,6 +92,27 @@ function computeDebuggingAuto(logs: PlayLogLite[]): number {
   return clamp0to100((recovered / firstAttemptFailed) * 100);
 }
 
+/**
+ * Certificate gate (Phase 5): best passing score per level, averaged across
+ * every level in the system (0 for never-passed/unattempted levels) - unlike
+ * computeLadderProgramming this isn't weighted by completion fraction, since
+ * the certificate rule wants "≥80% average across ALL levels" to mean what
+ * it says, not a completion-boosted number. Only meaningful for
+ * ladder_programming/problem_solving, the 2 axes actually derived from
+ * play_logs - see CertificateCard's allLevelsAverage prop.
+ */
+export function computeAllLevelsAverage(logs: PlayLogLite[], totalLevels: number): number {
+  if (totalLevels <= 0) return 0;
+  const bestByLevel = new Map<string, number>();
+  for (const log of logs) {
+    if (!log.is_success) continue;
+    const prev = bestByLevel.get(log.level_id) ?? 0;
+    bestByLevel.set(log.level_id, Math.max(prev, log.score ?? 0));
+  }
+  const total = [...bestByLevel.values()].reduce((a, b) => a + b, 0);
+  return clamp0to100(total / totalLevels);
+}
+
 export function computeCompetencyScores(
   logs: PlayLogLite[],
   totalLevels: number,

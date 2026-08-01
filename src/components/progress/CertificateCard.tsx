@@ -10,15 +10,19 @@ export default function CertificateCard({
   score,
   studentName,
   userId,
+  allLevelsAverage,
 }: {
   axis: CompetencyAxis;
   score: number;
   studentName: string;
   userId: string;
+  /** Phase 5: for ladder_programming/problem_solving only - the "≥80% average across ALL levels" additional gate, computed by computeAllLevelsAverage. Undefined for the other 4 axes, which have no such gate. */
+  allLevelsAverage?: number;
 }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const unlocked = score >= CERTIFICATE_THRESHOLD;
+  const meetsAllLevelsGate = allLevelsAverage === undefined || allLevelsAverage >= CERTIFICATE_THRESHOLD;
+  const unlocked = score >= CERTIFICATE_THRESHOLD && meetsAllLevelsGate;
 
   async function handleDownload() {
     setGenerating(true);
@@ -50,6 +54,11 @@ export default function CertificateCard({
         <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
           {score}/100 - ต้องถึง {CERTIFICATE_THRESHOLD} เพื่อปลดล็อก
         </p>
+        {allLevelsAverage !== undefined && (
+          <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
+            คะแนนเฉลี่ยทุกด่าน: {allLevelsAverage}/100 - ต้องถึง {CERTIFICATE_THRESHOLD}
+          </p>
+        )}
       </div>
     );
   }

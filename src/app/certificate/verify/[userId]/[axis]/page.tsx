@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   computeCompetencyScores,
+  computeAllLevelsAverage,
   ALL_COMPETENCY_AXES,
   COMPETENCY_LABELS_TH,
   type CompetencyAxis,
@@ -74,7 +75,13 @@ export default async function VerifyCertificatePage({
 
   const scores = computeCompetencyScores(logs, levelCount ?? 0, manual);
   const score = scores[axis];
-  const passed = score >= CERTIFICATE_THRESHOLD;
+  // Phase 5: ladder_programming/problem_solving also require ≥80% average
+  // across every level in the system - re-derived live here too, same as
+  // score itself, so a screenshot-edited certificate can't fake past this
+  // gate either (see this file's own doc comment).
+  const allLevelsAverage = computeAllLevelsAverage(logs, levelCount ?? 0);
+  const hasAllLevelsGate = axis === "ladder_programming" || axis === "problem_solving";
+  const passed = score >= CERTIFICATE_THRESHOLD && (!hasAllLevelsGate || allLevelsAverage >= CERTIFICATE_THRESHOLD);
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
@@ -95,9 +102,19 @@ export default async function VerifyCertificatePage({
         >
           {score}/100
         </p>
+        {hasAllLevelsGate && (
+          <>
+            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">คะแนนเฉลี่ยทุกด่านในระบบ</p>
+            <p
+              className={`text-base font-medium ${allLevelsAverage >= CERTIFICATE_THRESHOLD ? "text-green-600 dark:text-green-400" : "text-amber-600 dark:text-amber-400"}`}
+            >
+              {allLevelsAverage}/100
+            </p>
+          </>
+        )}
       </div>
       <p className="text-xs text-zinc-400 dark:text-zinc-500">
-        ผลการตรวจสอบนี้คำนวณจากข้อมูลปัจจุบัน ณ เวลาที่เข้าดูหน้านี้ - PLC Algorithm City
+        ผลการตรวจสอบนี้คำนวณจากข้อมูลปัจจุบัน ณ เวลาที่เข้าดูหน้านี้ - PLC Algorithm Practice
       </p>
     </div>
   );
