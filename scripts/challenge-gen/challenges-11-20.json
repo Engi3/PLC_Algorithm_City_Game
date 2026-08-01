@@ -1,0 +1,539 @@
+[
+  {
+    "challenge_id": 11,
+    "title": "ลำดับกระบอกสูบนิวเมติกส์ A+ B+ A- B- (Classic 4-Step Cylinder Sequence)",
+    "description": "สถานีประกอบชิ้นงานมีกระบอกสูบ 2 ตัว A (วาล์ว Q0) และ B (วาล์ว Q1) ต้องทำงานตามลำดับ A+ B+ A- B- อย่างเคร่งครัด: กด Start (I0) ขณะ A และ B หดกลับสุด (I2, I4 = true) เพื่อสั่งให้ A ยืดออก เมื่อ A ยืดสุด (ลิมิตสวิตช์ I1 = true) จึงสั่งให้ B ยืดออก เมื่อ B ยืดสุด (I3 = true) จึงสั่งให้ A หดกลับ เมื่อ A หดกลับสุดอีกครั้ง (I2 = true) จึงสั่งให้ B หดกลับ วาล์วที่ใช้เป็นชนิดต้องจ่ายไฟค้างไว้เพื่อรักษาตำแหน่ง (ไม่ใช่วาล์วชนิดจำตำแหน่ง) ข้อสำคัญที่สุดคือ B ต้องไม่เริ่มยืดออกก่อนที่จะได้รับการยืนยันจากลิมิตสวิตช์ว่า A ยืดสุดจริงแล้วเท่านั้น จะใช้ปุ่ม Start หรือตัวจับเวลาคาดเดาแทนไม่ได้",
+    "hints": [
+      "ไม่ต้องใช้ตัวแปรภายในเก็บ 'ขั้นตอน' แยกต่างหาก - ใช้สถานะของ Q0 และ Q1 เองเป็นตัวจำขั้นตอนได้เลย ผ่าน SET/RESET",
+      "Q0 (A): SET เมื่อกด Start และทั้งคู่หดกลับสุด, RESET เมื่อ B ยืดสุดแล้ว (I3)",
+      "Q1 (B): SET เมื่อ A ยืดสุดแล้ว (I1), RESET เมื่อ A หดกลับสุดอีกครั้ง (I2)"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 12,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "b-before-a-confirmed",
+              "description": "ห้ามให้ B เริ่มยืดออกก่อนที่ A จะยืดสุดและได้รับการยืนยันจากลิมิตสวิตช์",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะทั้งคู่หดกลับสุด - A เริ่มยืด",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": true, "I3": false, "I4": true }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: A ยืดสุดแล้ว (I1=true) - B ต้องเริ่มยืด",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false, "I3": false, "I4": false }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: B ยืดสุดแล้ว (I3=true) - A ต้องเริ่มหดกลับ",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false, "I3": true, "I4": false }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: A หดกลับสุดแล้ว (I2=true) - B ต้องหดกลับ ครบรอบ",
+              "frames": [{ "inputs": { "I0": false, "I1": false, "I2": true, "I3": true, "I4": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 12,
+    "title": "สถานีอัดขึ้นรูปพร้อมหน่วงเวลาบ่มและการ์ดนิรภัย (Press Station: Cure Dwell + Guard Interlock)",
+    "description": "เครื่องอัดขึ้นรูปกาว (Q0 = กระบอกอัดยืดลง) เริ่มทำงานเมื่อกด Start (I0) ขณะกระบอกหดกลับสุด (I2 = true) และการ์ดนิรภัยปิดสนิท (I3 = true คือปิด) เมื่อหัวอัดถึงตำแหน่งล่างสุด (ลิมิตสวิตช์ I1 = true) ต้องหน่วงเวลาค้างไว้ 1 วินาที (Timer preset = 10) เพื่อให้กาวบ่มตัว จากนั้นจึงถอนกลับอัตโนมัติ หากการ์ดนิรภัยถูกเปิดไม่ว่าขณะใดระหว่างที่กระบอกอัดกำลังทำงาน ต้องถอนกลับทันทีโดยไม่ต้องรอครบเวลาบ่ม",
+    "hints": [
+      "SET กระบอกอัดเมื่อ Start และหดกลับสุดและการ์ดปิด - ใช้ TON แยกอีกรังหนึ่งที่เริ่มนับเมื่อกระบอกอัดลงถึงล่างสุดแล้ว",
+      "RESET กระบอกอัดได้จาก 2 เงื่อนไข (OR): ครบเวลาบ่ม (T0.DN) หรือการ์ดนิรภัยเปิด - ใช้ Insert Branch Row"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 13,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "press-with-guard-open",
+              "description": "ห้ามให้กระบอกอัดทำงานขณะการ์ดนิรภัยเปิดอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I3", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะหดกลับสุดและการ์ดปิด",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": true, "I3": true }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: หัวอัดถึงล่างสุด ค้างไว้ให้ครบเวลาบ่ม 1 วินาที",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false, "I3": true }, "ticks": 12 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: รอบใหม่ - การ์ดเปิดกลางคันก่อนครบเวลาบ่ม",
+              "frames": [
+                { "inputs": { "I0": true, "I1": false, "I2": true, "I3": true }, "ticks": 1 },
+                { "inputs": { "I0": false, "I1": true, "I2": false, "I3": true }, "ticks": 2 },
+                { "inputs": { "I0": false, "I1": true, "I2": false, "I3": false }, "ticks": 1 }
+              ],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 13,
+    "title": "สถานีเจาะรูพร้อมหน่วงเวลาถอนดอกสว่านและการ์ดนิรภัย (Drilling Station: Timed Peck Delay)",
+    "description": "แท่นเจาะอัตโนมัติ (Q0 = สปินเดิลป้อนลง) เริ่มทำงานเมื่อกด Start (I0) ขณะสปินเดิลถอยกลับสุด (I2 = true) และการ์ดนิรภัยปิดสนิท (I3 = true) เมื่อเจาะถึงความลึกที่ตั้งไว้ (ลิมิตสวิตช์ I1 = true) ต้องค้างดอกสว่านไว้ที่ก้นรู 0.8 วินาที (Timer preset = 8) เพื่อสะบัดเศษวัสดุออกก่อนถอนกลับ (Peck Drilling) หากการ์ดนิรภัยถูกเปิดระหว่างเจาะต้องถอนสปินเดิลกลับทันที",
+    "hints": [
+      "โครงสร้างเหมือนสถานีอัดขึ้นรูป (ด่านที่ 12) ทุกประการ เปลี่ยนแค่ค่า Preset และชื่อสัญญาณ",
+      "อย่าลืม RESET ด้วยเงื่อนไข OR ระหว่างครบเวลาสะบัดเศษ กับการ์ดนิรภัยเปิด"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 13,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "drill-with-guard-open",
+              "description": "ห้ามให้สปินเดิลเจาะทำงานขณะการ์ดนิรภัยเปิดอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I3", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะถอยกลับสุดและการ์ดปิด",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": true, "I3": true }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: เจาะถึงความลึกที่ตั้งไว้ ค้างไว้ให้ครบเวลาสะบัดเศษ",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false, "I3": true }, "ticks": 10 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 14,
+    "title": "ระบบยึดชิ้นงานด้วยแคลมป์คู่ตามลำดับพร้อมเวลาตกตะกอน (Sequential Dual-Clamp with Settle Timer)",
+    "description": "ก่อนเริ่มกัดชิ้นงาน ต้องยึดชิ้นงานด้วยแคลมป์ 2 ตัวตามลำดับ: กด Start (I0) เพื่อสั่งแคลมป์ 1 (Q0) หนีบก่อน เมื่อแคลมป์ 1 ยืนยันหนีบแน่นแล้ว (ลิมิตสวิตช์ I1 = true) จึงสั่งแคลมป์ 2 (Q1) หนีบตาม เมื่อแคลมป์ 2 ยืนยันหนีบแน่นแล้วเช่นกัน (I2 = true) ต้องหน่วงเวลา 0.5 วินาที (Timer preset = 5) ให้ชิ้นงานนิ่งสนิทก่อน จึงจะเปิดสัญญาณอนุญาตให้สปินเดิลกัดชิ้นงานทำงานได้ (Q2 = Spindle Enable) ห้ามเปิดสัญญาณอนุญาตนี้โดยเด็ดขาดหากแคลมป์ตัวใดตัวหนึ่งยังหนีบไม่แน่น",
+    "hints": [
+      "Q0 (แคลมป์ 1) ทำงานตาม Start ปกติ, Q1 (แคลมป์ 2) ทำงานได้ก็ต่อเมื่อ I1 (แคลมป์ 1 ยืนยันแล้ว) เป็นจริง",
+      "TON เริ่มนับเมื่อทั้ง I1 และ I2 เป็นจริงพร้อมกัน แล้ว Q2 (Spindle Enable) ทำงานเมื่อ T0.DN"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 12,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "spindle-without-both-clamps",
+              "description": "ห้ามเปิดสัญญาณอนุญาตสปินเดิลถ้าแคลมป์ตัวใดตัวหนึ่งยังหนีบไม่แน่น",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": false }
+              ]
+            },
+            {
+              "id": "spindle-without-clamp2",
+              "description": "ห้ามเปิดสัญญาณอนุญาตสปินเดิลถ้าแคลมป์ 2 ยังหนีบไม่แน่น",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "bit", "address": "I2", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start - แคลมป์ 1 เริ่มหนีบ",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: แคลมป์ 1 ยืนยันหนีบแน่นแล้ว - แคลมป์ 2 ต้องเริ่มหนีบ",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": true }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ทั้งคู่หนีบแน่นแล้ว รอครบเวลาตกตะกอน",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 6 }],
+              "expect": [{ "kind": "bit", "address": "Q2", "expected": true }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 15,
+    "title": "สถานีเชื่อมจุดพร้อมเวลากดค้างและเวลาปล่อยกระแสเชื่อม (Spot Welding: Squeeze + Weld Timing)",
+    "description": "เครื่องเชื่อมจุด (Spot Welder) เริ่มวงจรเมื่อกด Start (I0): ขั้นแรกหัวเชื่อม (Q0 = Squeeze) กดชิ้นงานให้แน่นก่อน ต้องหน่วงเวลากดค้าง 0.6 วินาที (Timer preset = 6) เพื่อให้แรงกดคงที่ (Squeeze Time) จากนั้นจึงปล่อยกระแสไฟเชื่อม (Q1 = Weld Current) เป็นเวลา 0.4 วินาที (Timer preset = 4) แล้วตัดกระแสและถอนหัวเชื่อมกลับ ข้อกำหนดด้านความปลอดภัยและคุณภาพที่สำคัญที่สุดคือ ห้ามปล่อยกระแสไฟเชื่อม (Q1) โดยเด็ดขาดก่อนที่จะครบเวลากดค้าง (Squeeze Time) เพราะขั้วเชื่อมจะยังสัมผัสไม่แน่นพอ",
+    "hints": [
+      "TON ตัวแรกเริ่มนับเมื่อ Q0 (Squeeze) ทำงาน - ปล่อยกระแสเชื่อม Q1 ได้ก็ต่อเมื่อ T0.DN เป็นจริงแล้วเท่านั้น",
+      "TON ตัวที่สองเริ่มนับเมื่อ Q1 ทำงาน - ใช้ T1.DN เป็นสัญญาณตัดกระแสและถอนหัวเชื่อมกลับ (RESET ทั้ง Q0 และ Q1)"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 12,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "weld-before-squeeze-complete",
+              "description": "ห้ามปล่อยกระแสไฟเชื่อมก่อนที่จะครบเวลากดค้าง (Squeeze Time)",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "T0.DN", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start - เริ่ม Squeeze",
+              "frames": [{ "inputs": { "I0": true }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ครบเวลากดค้างแล้ว - ต้องปล่อยกระแสเชื่อม",
+              "frames": [{ "inputs": { "I0": false }, "ticks": 7 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ครบเวลาปล่อยกระแสแล้ว - ตัดกระแสและถอนหัวเชื่อม",
+              "frames": [{ "inputs": { "I0": false }, "ticks": 5 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 16,
+    "title": "ระบบผลักชิ้นงานแบบหน่วงเวลาพร้อมม่านแสงนิรภัย (Timed Pusher with Photo-Eye Safety Curtain)",
+    "description": "กระบอกดันชิ้นงาน (Q0) บนสายพานลำเลียงต้องรอให้เซนเซอร์ตรวจจับชิ้นงาน (I0 = true) แล้วหน่วงเวลา 0.3 วินาที (Timer preset = 3) เพื่อให้ชิ้นงานเคลื่อนที่มาอยู่ตรงตำแหน่งพอดีก่อนจึงจะดันออก ม่านแสงนิรภัย (Photo-eye, I1 = true คือมีวัตถุกีดขวางในโซนอันตราย) ต้องไม่มีสิ่งกีดขวางเสมอในขณะที่กระบอกดันทำงาน ไม่ว่าเซนเซอร์ตรวจจับชิ้นงานจะพร้อมหรือไม่ก็ตาม",
+    "hints": [
+      "TON เริ่มนับเมื่อ I0 เป็นจริง - กระบอกดัน (Q0) ทำงานเมื่อ T0.DN เป็นจริง",
+      "ห้ามเชื่อมสัญญาณม่านแสง (I1) เข้ากับเงื่อนไขการทำงานของกระบอกดันเลย ปล่อยให้ SafetyConstraint เป็นตัวตรวจจับแทน แล้วเพิ่มการเช็ค NC(I1) ในเงื่อนไข RESET เพื่อความปลอดภัยสองชั้น"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 11,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "pusher-with-obstruction",
+              "description": "ห้ามให้กระบอกดันชิ้นงานทำงานขณะมีวัตถุกีดขวางอยู่ในโซนอันตราย (ม่านแสงนิรภัยตรวจพบ)",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: ตรวจพบชิ้นงาน โซนอันตรายปลอดภัย รอครบเวลาหน่วง",
+              "frames": [{ "inputs": { "I0": true, "I1": false }, "ticks": 4 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ทดสอบความปลอดภัย - มีวัตถุกีดขวางเข้ามาขณะกระบอกกำลังทำงาน",
+              "frames": [{ "inputs": { "I0": true, "I1": true }, "ticks": 1 }],
+              "expect": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 17,
+    "title": "สถานีพ่นสีอัตโนมัติพร้อมหน่วงเวลาระเหยและการ์ดนิรภัย (Auto Spray Station: Flash-off Timer + Guard)",
+    "description": "หัวพ่นสี (Q0) เริ่มพ่นเมื่อกด Start (I0) ขณะการ์ดนิรภัยปิดสนิท (I2 = true) เป็นเวลา 0.7 วินาที (Timer preset = 7 นับตอนกำลังพ่น) จากนั้นหยุดพ่นและเปิดพัดลมระบายไอระเหย (Q1) อีก 0.5 วินาที (Timer preset = 5) ก่อนที่จะอนุญาตให้สายพานเคลื่อนชิ้นงานถัดไปเข้ามา (Q2 = Conveyor Index Enable) หากการ์ดนิรภัยถูกเปิดระหว่างพ่นสีต้องหยุดพ่นทันที",
+    "hints": [
+      "TON ตัวแรก (T0) นับเวลาพ่นสี - เมื่อครบแล้วให้หยุดพ่น (RESET Q0) และเริ่ม TON ตัวที่สอง (T1) นับเวลาระบายไอ",
+      "ระวัง: ถ้าใช้ COIL ธรรมดาผูก Q2 กับ T1.DN ตรงๆ อาจมีปัญหาถ้ารังอื่นไป RESET ตัวที่ป้อนพลังงานให้ T1 พร้อมกัน (T1.DN จะตกกลับเป็นเท็จทันที) - ใช้ SET แทนเพื่อให้ Q2 ค้างสถานะไว้เมื่อ T1.DN เป็นจริงแล้วอย่างน้อยหนึ่งครั้ง"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 14,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "spray-with-guard-open",
+              "description": "ห้ามให้หัวพ่นสีทำงานขณะการ์ดนิรภัยเปิดอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I2", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะการ์ดปิด - เริ่มพ่นสีจนครบเวลา",
+              "frames": [{ "inputs": { "I0": true, "I2": true }, "ticks": 8 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: รอครบเวลาระบายไอระเหย",
+              "frames": [{ "inputs": { "I0": false, "I2": true }, "ticks": 6 }],
+              "expect": [{ "kind": "bit", "address": "Q2", "expected": true }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 18,
+    "title": "ระบบล็อคประตูเตาอบพร้อมหน่วงเวลาความร้อนขั้นต่ำ (Oven Door Lock with Minimum Heat-Time Interlock)",
+    "description": "เตาอบบ่มชิ้นงาน (Curing Oven) เมื่อกด Start (I0) ขณะประตูปิด (I1 = true) ต้องล็อคประตูทันที (Q0 = Door Lock) และเปิดฮีตเตอร์ (Q1 = Heater) พร้อมกัน ฮีตเตอร์ต้องทำงานต่อเนื่องอย่างน้อย 1.2 วินาที (Timer preset = 12) ก่อนจึงจะอนุญาตปลดล็อคประตูได้ (กด Stop, I2) ห้ามปลดล็อคประตูก่อนครบเวลาโดยเด็ดขาดไม่ว่ากรณีใด และห้ามให้ฮีตเตอร์ทำงานในขณะที่ประตูไม่ได้ล็อคอยู่เช่นกัน",
+    "hints": [
+      "SET ทั้งประตูล็อคและฮีตเตอร์พร้อมกันตอน Start - TON เริ่มนับตั้งแต่ฮีตเตอร์เริ่มทำงาน",
+      "RESET ทั้งคู่ได้ก็ต่อเมื่อ ครบเวลาความร้อนขั้นต่ำ (T0.DN) แล้ว และมีการกดปุ่ม Stop (I2) เท่านั้น (AND ไม่ใช่ OR)"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 12,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "heater-without-lock",
+              "description": "ห้ามให้ฮีตเตอร์ทำงานขณะประตูไม่ได้ล็อค",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะประตูปิด - ล็อคประตูและเปิดฮีตเตอร์",
+              "frames": [{ "inputs": { "I0": true, "I1": true, "I2": false }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: กด Stop ก่อนครบเวลาความร้อนขั้นต่ำ - ต้องยังไม่ปลดล็อค",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 5 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ครบเวลาความร้อนขั้นต่ำแล้วและกด Stop ค้างไว้ - ปลดล็อคได้",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 8 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 19,
+    "title": "สถานีย้ำหมุดสองมือพร้อมเวลากดค้าง (Two-Hand Riveting Station with Timed Hold)",
+    "description": "เครื่องย้ำหมุด (Q0 = กระบอกย้ำ) ทำงานได้ก็ต่อเมื่อผู้ควบคุมกดปุ่มมือทั้งสองข้างพร้อมกัน (I0 = มือซ้าย, I1 = มือขวา) เหมือนเครื่องปั๊มขึ้นรูป เมื่อกระบอกย้ำถึงตำแหน่งย้ำแน่น (ลิมิตสวิตช์ I2 = true) ต้องค้างแรงกดไว้ 0.9 วินาที (Timer preset = 9) เพื่อให้หมุดเย็นตัวและยึดแน่น จากนั้นจึงถอนกลับอัตโนมัติ แม้ผู้ควบคุมจะปล่อยมือข้างใดข้างหนึ่งระหว่างช่วงกดค้างนี้ กระบอกย้ำก็ต้องค้างตำแหน่งจนครบเวลาก่อนจึงถอนกลับ (ไม่ใช่หยุดค้างกลางคันจากการปล่อยมือ)",
+    "hints": [
+      "ใช้ SET กระบอกย้ำเมื่อกดมือทั้งสองข้างพร้อมกัน (ไม่ใช่ COIL ธรรมดา) เพื่อให้ค้างตำแหน่งได้แม้ปล่อยมือระหว่างช่วงกดค้าง",
+      "TON เริ่มนับเมื่อถึงตำแหน่งย้ำแน่น (I2) - RESET กระบอกย้ำเมื่อ T0.DN"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 11,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "missing-left-hand-at-start",
+              "description": "ห้ามให้กระบอกย้ำเริ่มทำงานถ้าไม่มีมือซ้ายกดปุ่ม",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I0", "expected": false },
+                { "kind": "bit", "address": "I2", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กดมือทั้งสองข้างพร้อมกัน - กระบอกย้ำเริ่มทำงาน",
+              "frames": [{ "inputs": { "I0": true, "I1": true, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ถึงตำแหน่งย้ำแน่น ปล่อยมือข้างหนึ่งระหว่างค้างเวลา - ต้องยังค้างตำแหน่งอยู่",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 5 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ครบเวลากดค้างแล้ว - ถอนกลับอัตโนมัติ",
+              "frames": [{ "inputs": { "I0": false, "I1": false, "I2": true }, "ticks": 5 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 20,
+    "title": "สถานีล้างชิ้นงานหลายขั้นตอนตามลำดับเวลาพร้อมล็อคประตู (Multi-Stage Timed Wash Station)",
+    "description": "สถานีล้างชิ้นงานอัตโนมัติทำงานเป็น 3 ขั้นตอนต่อเนื่องภายในห้องล้างที่มีประตูล็อค: กด Start (I0) ขณะประตูปิด (I1 = true) จะล็อคประตูทันที (Q0) แล้วเริ่มฉีดน้ำยาล้าง (Q1) เป็นเวลา 0.6 วินาที (Timer preset = 6) ตามด้วยฉีดน้ำยาล้าง (Q2) เป็นเวลา 0.5 วินาที (Timer preset = 5) และสุดท้ายเป่าแห้ง (Q3) เป็นเวลา 0.7 วินาที (Timer preset = 7) เมื่อครบทั้ง 3 ขั้นตอนแล้วจึงปลดล็อคประตู (Q0 = false) ประตูห้องล้างต้องล็อคอยู่ตลอดเวลาตั้งแต่เริ่มจนจบทั้ง 3 ขั้นตอน ห้ามปลดล็อคก่อนกำหนดโดยเด็ดขาด และห้ามมีขั้นตอนใดทำงานพร้อมกันเกินหนึ่งขั้นตอนในเวลาเดียวกัน",
+    "hints": [
+      "ใช้ 3 TON แยกกัน โดยแต่ละตัวเริ่มนับเมื่อขั้นตอนของตัวเองกำลังทำงานอยู่ - ครบเวลาของขั้นตอนหนึ่งจึงค่อยเริ่มขั้นตอนถัดไป",
+      "Q0 (ล็อคประตู) ควร SET ตอน Start และ RESET ก็ต่อเมื่อขั้นตอนที่ 3 (เป่าแห้ง) เสร็จสิ้นแล้วเท่านั้น (T2.DN)",
+      "ระวังอย่าให้ Q1, Q2, Q3 ทำงานทับซ้อนกัน - แต่ละตัวต้อง RESET ตัวก่อนหน้าเมื่อเริ่มขั้นตอนใหม่"
+    ],
+    "required_competencies": ["TIMER", "INTERLOCK", "NO_NC"],
+    "max_optimal_blocks": 20,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "wash-with-door-unlocked",
+              "description": "ห้ามให้ขั้นตอนล้าง/ล้างน้ำ/เป่าแห้งใดๆ ทำงานขณะประตูห้องล้างไม่ได้ล็อค",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "wash-and-rinse-overlap",
+              "description": "ห้ามให้ขั้นตอนฉีดน้ำยาล้างและฉีดน้ำล้างทำงานพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            },
+            {
+              "id": "rinse-and-dry-overlap",
+              "description": "ห้ามให้ขั้นตอนฉีดน้ำล้างและเป่าแห้งทำงานพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q2", "expected": true },
+                { "kind": "bit", "address": "Q3", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะประตูปิด - ล็อคประตูและเริ่มฉีดน้ำยาล้าง",
+              "frames": [{ "inputs": { "I0": true, "I1": true }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ครบเวลาฉีดน้ำยาล้าง - เริ่มฉีดน้ำล้าง",
+              "frames": [{ "inputs": { "I0": false, "I1": true }, "ticks": 7 }],
+              "expect": [
+                { "kind": "bit", "address": "Q1", "expected": false },
+                { "kind": "bit", "address": "Q2", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ครบเวลาฉีดน้ำล้าง - เริ่มเป่าแห้ง",
+              "frames": [{ "inputs": { "I0": false, "I1": true }, "ticks": 6 }],
+              "expect": [
+                { "kind": "bit", "address": "Q2", "expected": false },
+                { "kind": "bit", "address": "Q3", "expected": true }
+              ]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: ครบเวลาเป่าแห้ง - จบครบ 3 ขั้นตอน ปลดล็อคประตู",
+              "frames": [{ "inputs": { "I0": false, "I1": true }, "ticks": 8 }],
+              "expect": [
+                { "kind": "bit", "address": "Q3", "expected": false },
+                { "kind": "bit", "address": "Q0", "expected": false }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
