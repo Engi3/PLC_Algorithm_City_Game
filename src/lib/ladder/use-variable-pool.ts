@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   buildVariableAddress,
+  isReservedBaseAddress,
   isValidVariableNumber,
   MAX_ANALOG_VARIABLE_NUMBER,
   MAX_VARIABLE_NUMBER,
@@ -29,6 +30,9 @@ export function useVariablePool() {
       return { error: `Number must be a whole number between 0 and ${max}.` };
     }
     const address = buildVariableAddress(kind, num);
+    if (isReservedBaseAddress(address)) {
+      return { error: `${address} is a built-in address and already available - no need to declare it.` };
+    }
     if (customVariables.some((v) => v.address === address)) {
       return { error: `${address} has already been added.` };
     }

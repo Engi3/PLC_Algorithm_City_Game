@@ -2,12 +2,15 @@
   {
     "challenge_id": 21,
     "title": "ระบบนับชิ้นงานบรรจุกล่องพร้อมป้องกันนับเกินความจุ (Box-Fill Counter with Overfill Protection)",
-    "description": "เซนเซอร์ตรวจจับชิ้นงาน (I0) ส่งพัลส์ทุกครั้งที่มีชิ้นงานตกลงกล่อง เมื่อนับครบ 5 ชิ้น (ความจุกล่อง) ต้องติดไฟสัญญาณกล่องเต็ม (Q0) ทันที และห้ามนับเกิน 5 โดยเด็ดขาดแม้จะมีชิ้นงานตกลงมาเพิ่มอีกก่อนเปลี่ยนกล่องใหม่ (เซนเซอร์อาจส่งพัลส์ต่อแม้กล่องเต็มแล้ว) ผู้ควบคุมกดปุ่ม Reset (I1) เพื่อเริ่มนับกล่องใหม่",
+    "description": "เซนเซอร์ตรวจจับชิ้นงาน (X0) ส่งพัลส์ทุกครั้งที่มีชิ้นงานตกลงกล่อง เมื่อนับครบ 5 ชิ้น (ความจุกล่อง) ต้องติดไฟสัญญาณกล่องเต็ม (Y0) ทันที และห้ามนับเกิน 5 โดยเด็ดขาดแม้จะมีชิ้นงานตกลงมาเพิ่มอีกก่อนเปลี่ยนกล่องใหม่ (เซนเซอร์อาจส่งพัลส์ต่อแม้กล่องเต็มแล้ว) ผู้ควบคุมกดปุ่ม Reset (X1) เพื่อเริ่มนับกล่องใหม่",
     "hints": [
-      "ใช้ CTU กับ Preset = 5 - เพิ่มเงื่อนไข NC ของสัญญาณกล่องเต็ม (Q0) เข้าไปในรังของ CTU เองด้วย เพื่อหยุดนับทันทีที่เต็ม",
-      "ถ้าไม่ใส่เงื่อนไข NC(Q0) ตัวนับจะยังนับต่อไปเรื่อยๆ เกิน 5 ได้ถ้ามีชิ้นงานมาเพิ่มก่อนกด Reset"
+      "ใช้ CTU กับ Preset = 5 - เพิ่มเงื่อนไข NC ของสัญญาณกล่องเต็ม (Y0) เข้าไปในรังของ CTU เองด้วย เพื่อหยุดนับทันทีที่เต็ม",
+      "ถ้าไม่ใส่เงื่อนไข NC(Y0) ตัวนับจะยังนับต่อไปเรื่อยๆ เกิน 5 ได้ถ้ามีชิ้นงานมาเพิ่มก่อนกด Reset"
     ],
-    "required_competencies": ["COUNTER", "MATH"],
+    "required_competencies": [
+      "COUNTER",
+      "MATH"
+    ],
     "max_optimal_blocks": 10,
     "stages_json": {
       "testCases": [
@@ -16,7 +19,14 @@
             {
               "id": "count-exceeds-capacity",
               "description": "ห้ามนับชิ้นงานเกินความจุกล่อง (5 ชิ้น)",
-              "violatingWhen": [{ "kind": "numeric", "address": "C0.ACC", "operator": ">", "value": 5 }]
+              "violatingWhen": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": ">",
+                  "value": 5
+                }
+              ]
             }
           ],
           "stages": [
@@ -24,40 +34,143 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: นับชิ้นงานครบ 5 ชิ้น - กล่องต้องเต็ม",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 5 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 5
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: มีชิ้นงานมาเพิ่มอีก 2 ชิ้นก่อนเปลี่ยนกล่อง - ห้ามนับเกิน",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
-              "expect": [{ "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 5 }]
+              "expect": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 5
+                }
+              ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: กด Reset เปลี่ยนกล่องใหม่",
-              "frames": [{ "inputs": { "I0": false, "I1": true }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": true
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 0 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 0
+                }
               ]
             }
           ]
@@ -68,12 +181,16 @@
   {
     "challenge_id": 22,
     "title": "ระบบคัดแยกชิ้นงานเสียด้วยตัวดันพร้อมม่านแสงนิรภัย (Defect Reject Pusher with Safety Curtain)",
-    "description": "เมื่อเซนเซอร์ตรวจพบชิ้นงานเสีย (I1 = true) และตัวดันหดกลับสุดอยู่ (I2 = true) ตัวดัน (Q0) ต้องยืดออกดันชิ้นงานเสียออกจากสายพาน เมื่อยืดสุด (ลิมิตสวิตช์ I3 = true) ให้ค้างไว้ 0.5 วินาที (Timer preset = 5) แล้วถอนกลับอัตโนมัติ ต้องนับจำนวนครั้งที่ตัวดันทำงานสะสมไว้ (C0) ห้ามให้ตัวดันทำงานโดยเด็ดขาดหากม่านแสงนิรภัย (I4 = true คือมีสิ่งกีดขวาง) ตรวจพบสิ่งกีดขวางในโซนอันตราย ไม่ว่าจะตรวจพบชิ้นงานเสียพร้อมกันหรือไม่ก็ตาม",
+    "description": "เมื่อเซนเซอร์ตรวจพบชิ้นงานเสีย (X1 = true) และตัวดันหดกลับสุดอยู่ (X2 = true) ตัวดัน (Y0) ต้องยืดออกดันชิ้นงานเสียออกจากสายพาน เมื่อยืดสุด (ลิมิตสวิตช์ X3 = true) ให้ค้างไว้ 0.5 วินาที (Timer preset = 5) แล้วถอนกลับอัตโนมัติ ต้องนับจำนวนครั้งที่ตัวดันทำงานสะสมไว้ (C0) ห้ามให้ตัวดันทำงานโดยเด็ดขาดหากม่านแสงนิรภัย (X4 = true คือมีสิ่งกีดขวาง) ตรวจพบสิ่งกีดขวางในโซนอันตราย ไม่ว่าจะตรวจพบชิ้นงานเสียพร้อมกันหรือไม่ก็ตาม",
     "hints": [
       "เงื่อนไข SET ของตัวดันต้องมี 3 อย่างครบ: ตรวจพบชิ้นงานเสีย, หดกลับสุด, และม่านแสงต้องไม่มีสิ่งกีดขวาง (NC)",
-      "ใช้ CTU นับทุกครั้งที่ตัวดัน (Q0) เปลี่ยนจากหดกลับเป็นยืดออก (rising edge ของ Q0 เอง)"
+      "ใช้ CTU นับทุกครั้งที่ตัวดัน (Y0) เปลี่ยนจากหดกลับเป็นยืดออก (rising edge ของ Y0 เอง)"
     ],
-    "required_competencies": ["COUNTER", "TIMER", "INTERLOCK"],
+    "required_competencies": [
+      "COUNTER",
+      "TIMER",
+      "INTERLOCK"
+    ],
     "max_optimal_blocks": 14,
     "stages_json": {
       "testCases": [
@@ -83,8 +200,16 @@
               "id": "pusher-with-obstruction",
               "description": "ห้ามให้ตัวดันชิ้นงานเสียทำงานขณะมีสิ่งกีดขวางในโซนอันตราย",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "I4", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "X4",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -93,30 +218,110 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: ตรวจพบชิ้นงานเสียชิ้นแรก - ตัวดันทำงานครบรอบ",
               "frames": [
-                { "inputs": { "I1": true, "I2": true, "I3": false, "I4": false }, "ticks": 1 },
-                { "inputs": { "I1": false, "I2": false, "I3": true, "I4": false }, "ticks": 6 },
-                { "inputs": { "I1": false, "I2": true, "I3": false, "I4": false }, "ticks": 1 }
+                {
+                  "inputs": {
+                    "X1": true,
+                    "X2": true,
+                    "X3": false,
+                    "X4": false
+                  },
+                  "ticks": 1
+                },
+                {
+                  "inputs": {
+                    "X1": false,
+                    "X2": false,
+                    "X3": true,
+                    "X4": false
+                  },
+                  "ticks": 6
+                },
+                {
+                  "inputs": {
+                    "X1": false,
+                    "X2": true,
+                    "X3": false,
+                    "X4": false
+                  },
+                  "ticks": 1
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 1
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: ตรวจพบชิ้นงานเสียชิ้นที่สอง - ตัวดันทำงานครบรอบอีกครั้ง",
               "frames": [
-                { "inputs": { "I1": true, "I2": true, "I3": false, "I4": false }, "ticks": 1 },
-                { "inputs": { "I1": false, "I2": false, "I3": true, "I4": false }, "ticks": 6 },
-                { "inputs": { "I1": false, "I2": true, "I3": false, "I4": false }, "ticks": 1 }
+                {
+                  "inputs": {
+                    "X1": true,
+                    "X2": true,
+                    "X3": false,
+                    "X4": false
+                  },
+                  "ticks": 1
+                },
+                {
+                  "inputs": {
+                    "X1": false,
+                    "X2": false,
+                    "X3": true,
+                    "X4": false
+                  },
+                  "ticks": 6
+                },
+                {
+                  "inputs": {
+                    "X1": false,
+                    "X2": true,
+                    "X3": false,
+                    "X4": false
+                  },
+                  "ticks": 1
+                }
               ],
-              "expect": [{ "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 2 }]
+              "expect": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 2
+                }
+              ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: ทดสอบความปลอดภัย - ตรวจพบชิ้นงานเสียขณะม่านแสงมีสิ่งกีดขวาง",
-              "frames": [{ "inputs": { "I1": true, "I2": true, "I3": false, "I4": true }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+              "frames": [
+                {
+                  "inputs": {
+                    "X1": true,
+                    "X2": true,
+                    "X3": false,
+                    "X4": true
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                }
+              ]
             }
           ]
         }
@@ -126,12 +331,16 @@
   {
     "challenge_id": 23,
     "title": "ระบบนับถอยหลังสต็อกฮอปเปอร์พร้อมล็อคการเติมสินค้า (Hopper Stock Countdown with Refill Interlock)",
-    "description": "ฮอปเปอร์บรรจุชิ้นส่วนเริ่มต้นที่ 5 ชิ้น ทุกครั้งที่กลไกจ่ายชิ้นส่วนทำงาน (พัลส์ I0) จำนวนคงเหลือ (C0) ต้องลดลง 1 เมื่อชิ้นส่วนหมด (C0.DN = true) ต้องปิดกลไกจ่าย (Q0) ทันทีโดยเด็ดขาด ห้ามจ่ายต่อไม่ว่ากรณีใด ผู้ควบคุมเติมสต็อกใหม่ได้ด้วยปุ่ม Refill (I1) แต่ต้องปิดฝาช่องเติม (I2 = true คือปิด) ก่อนเสมอเพื่อความสะอาดและปลอดภัย",
+    "description": "ฮอปเปอร์บรรจุชิ้นส่วนเริ่มต้นที่ 5 ชิ้น ทุกครั้งที่กลไกจ่ายชิ้นส่วนทำงาน (พัลส์ X0) จำนวนคงเหลือ (C0) ต้องลดลง 1 เมื่อชิ้นส่วนหมด (C0.DN = true) ต้องปิดกลไกจ่าย (Y0) ทันทีโดยเด็ดขาด ห้ามจ่ายต่อไม่ว่ากรณีใด ผู้ควบคุมเติมสต็อกใหม่ได้ด้วยปุ่ม Refill (X1) แต่ต้องปิดฝาช่องเติม (X2 = true คือปิด) ก่อนเสมอเพื่อความสะอาดและปลอดภัย",
     "hints": [
       "ใช้ CTD กับ Preset = 5 - CTD จะลดค่าลงทุกครั้งที่มีพัลส์เข้า (ไม่ต้องกังวลเรื่องนับติดลบ เพราะ CTD หยุดที่ 0 เองอัตโนมัติ)",
-      "Q0 (กลไกจ่าย) ทำงานได้ก็ต่อเมื่อ NC ของ C0.DN เป็นจริง (คือยังไม่ถึง 0)"
+      "Y0 (กลไกจ่าย) ทำงานได้ก็ต่อเมื่อ NC ของ C0.DN เป็นจริง (คือยังไม่ถึง 0)"
     ],
-    "required_competencies": ["COUNTER", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "COUNTER",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 10,
     "stages_json": {
       "testCases": [
@@ -141,8 +350,16 @@
               "id": "dispense-while-empty",
               "description": "ห้ามให้กลไกจ่ายชิ้นส่วนทำงานขณะฮอปเปอร์ว่างเปล่า",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "C0.DN", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "C0.DN",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -151,29 +368,104 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: จ่ายชิ้นส่วนจนหมด (5 ครั้ง)",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "C0.DN", "expected": true },
-                { "kind": "bit", "address": "Q0", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "C0.DN",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: เติมสต็อกโดยปิดฝาช่องเติมก่อน",
-              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": true,
+                    "X2": true
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "C0.DN", "expected": false },
-                { "kind": "bit", "address": "Q0", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "C0.DN",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
               ]
             }
           ]
@@ -184,12 +476,16 @@
   {
     "challenge_id": 24,
     "title": "ระบบนับรอบการผลิตครบชุดพร้อมสวิตช์ System Enable (Batch Production Counter with Master Enable)",
-    "description": "ทุกครั้งที่รอบการผลิตเสร็จสมบูรณ์ (พัลส์ I0) ตัวนับรอบการผลิต (C0) ต้องเพิ่มขึ้น 1 แต่จะนับได้ก็ต่อเมื่อสวิตช์ System Enable (I2) เปิดอยู่เท่านั้น เมื่อครบ 8 รอบ (ขนาดชุดผลิต) ต้องติดไฟสัญญาณชุดผลิตเสร็จสมบูรณ์ (Q0) และห้ามนับเกิน 8 โดยเด็ดขาดไม่ว่ากรณีใด ผู้ควบคุมกดปุ่ม Reset (I1) เพื่อเริ่มนับชุดผลิตใหม่",
+    "description": "ทุกครั้งที่รอบการผลิตเสร็จสมบูรณ์ (พัลส์ X0) ตัวนับรอบการผลิต (C0) ต้องเพิ่มขึ้น 1 แต่จะนับได้ก็ต่อเมื่อสวิตช์ System Enable (X2) เปิดอยู่เท่านั้น เมื่อครบ 8 รอบ (ขนาดชุดผลิต) ต้องติดไฟสัญญาณชุดผลิตเสร็จสมบูรณ์ (Y0) และห้ามนับเกิน 8 โดยเด็ดขาดไม่ว่ากรณีใด ผู้ควบคุมกดปุ่ม Reset (X1) เพื่อเริ่มนับชุดผลิตใหม่",
     "hints": [
       "เงื่อนไขของ CTU ต้องมี 3 อย่าง: พัลส์รอบการผลิต, System Enable เปิดอยู่, และ NC ของสัญญาณชุดผลิตเสร็จ (กันนับเกิน)",
       "โครงสร้างเหมือนด่านกล่องเต็ม (ด่านที่ 21) เพิ่มแค่เงื่อนไข System Enable เข้าไป"
     ],
-    "required_competencies": ["COUNTER", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "COUNTER",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 11,
     "stages_json": {
       "testCases": [
@@ -198,7 +494,14 @@
             {
               "id": "count-exceeds-batch-size",
               "description": "ห้ามนับรอบการผลิตเกินขนาดชุดผลิตที่กำหนด (8 รอบ)",
-              "violatingWhen": [{ "kind": "numeric", "address": "C0.ACC", "operator": ">", "value": 8 }]
+              "violatingWhen": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": ">",
+                  "value": 8
+                }
+              ]
             }
           ],
           "stages": [
@@ -206,44 +509,186 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: System Enable ปิดอยู่ - พัลส์ต้องไม่ถูกนับ",
               "frames": [
-                { "inputs": { "I0": true, "I2": false }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": false
+                  },
+                  "ticks": 0
+                }
               ],
-              "expect": [{ "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 0 }]
+              "expect": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 0
+                }
+              ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: เปิด System Enable แล้วผลิตครบ 8 รอบ",
               "frames": [
-                { "inputs": { "I0": true, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": true, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": true, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": true, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": true, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": true, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": true, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": true, "I2": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I2": true }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X2": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X2": true
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 8 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 8
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: กด Reset เริ่มชุดผลิตใหม่",
-              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": true,
+                    "X2": true
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 0 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 0
+                }
               ]
             }
           ]
@@ -254,12 +699,16 @@
   {
     "challenge_id": 25,
     "title": "ระบบคัดแยกชิ้นงานรับ/คัดออกสองเลนพร้อมนับแยก (Accept/Reject Dual-Lane Sort with Separate Counters)",
-    "description": "สถานีตรวจสอบคุณภาพมีเซนเซอร์แยก 2 ตัว: I0 ตรวจพบชิ้นงานผ่านมาตรฐาน (Accept) และ I1 ตรวจพบชิ้นงานไม่ผ่านมาตรฐาน (Reject) เมื่อพบชิ้นงานผ่านมาตรฐาน ตัวดันเลนรับ (Q0) ต้องดันเข้าเลนรับและนับสะสมที่ C0 เมื่อพบชิ้นงานไม่ผ่านมาตรฐาน ตัวดันเลนคัดออก (Q1) ต้องดันเข้าเลนคัดออกและนับสะสมที่ C1 ทั้งสองเหตุการณ์นี้ไม่มีทางเกิดพร้อมกันได้ในความเป็นจริง (ชิ้นงานหนึ่งชิ้นผ่านหรือไม่ผ่านอย่างใดอย่างหนึ่งเท่านั้น) ระบบต้องยืนยันด้วยการล็อคไม่ให้ตัวดันทั้งสองทำงานพร้อมกันโดยเด็ดขาด",
+    "description": "สถานีตรวจสอบคุณภาพมีเซนเซอร์แยก 2 ตัว: X0 ตรวจพบชิ้นงานผ่านมาตรฐาน (Accept) และ X1 ตรวจพบชิ้นงานไม่ผ่านมาตรฐาน (Reject) เมื่อพบชิ้นงานผ่านมาตรฐาน ตัวดันเลนรับ (Y0) ต้องดันเข้าเลนรับและนับสะสมที่ C0 เมื่อพบชิ้นงานไม่ผ่านมาตรฐาน ตัวดันเลนคัดออก (Y1) ต้องดันเข้าเลนคัดออกและนับสะสมที่ C1 ทั้งสองเหตุการณ์นี้ไม่มีทางเกิดพร้อมกันได้ในความเป็นจริง (ชิ้นงานหนึ่งชิ้นผ่านหรือไม่ผ่านอย่างใดอย่างหนึ่งเท่านั้น) ระบบต้องยืนยันด้วยการล็อคไม่ให้ตัวดันทั้งสองทำงานพร้อมกันโดยเด็ดขาด",
     "hints": [
-      "ใช้ CTU สองตัวแยกกัน (C0 นับ I0, C1 นับ I1) และ COIL สองตัวแยกกัน (Q0 ตาม I0, Q1 ตาม I1)",
-      "เพิ่ม NC ไขว้กันระหว่าง Q0 และ Q1 เพื่อป้องกันการทำงานพร้อมกัน แม้ในทางทฤษฎีจะไม่เกิดขึ้น"
+      "ใช้ CTU สองตัวแยกกัน (C0 นับ X0, C1 นับ X1) และ COIL สองตัวแยกกัน (Y0 ตาม X0, Y1 ตาม X1)",
+      "เพิ่ม NC ไขว้กันระหว่าง Y0 และ Y1 เพื่อป้องกันการทำงานพร้อมกัน แม้ในทางทฤษฎีจะไม่เกิดขึ้น"
     ],
-    "required_competencies": ["COUNTER", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "COUNTER",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 12,
     "stages_json": {
       "testCases": [
@@ -269,8 +718,16 @@
               "id": "both-lanes-active",
               "description": "ห้ามให้ตัวดันเลนรับและเลนคัดออกทำงานพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -279,27 +736,104 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: พบชิ้นงานผ่านมาตรฐาน 3 ชิ้น",
               "frames": [
-                { "inputs": { "I0": true, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": true, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": true, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                }
               ],
-              "expect": [{ "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 3 }]
+              "expect": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 3
+                }
+              ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: พบชิ้นงานไม่ผ่านมาตรฐาน 2 ชิ้น",
               "frames": [
-                { "inputs": { "I0": false, "I1": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": true }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "numeric", "address": "C1.ACC", "operator": "==", "value": 2 },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 3 }
+                {
+                  "kind": "numeric",
+                  "address": "C1.ACC",
+                  "operator": "==",
+                  "value": 2
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 3
+                }
               ]
             }
           ]
@@ -310,12 +844,16 @@
   {
     "challenge_id": 26,
     "title": "ระบบล็อคสายพานป้อนวัตถุดิบตามโซนสะสม (Accumulation-Buffer Conveyor Gating)",
-    "description": "โซนสะสมชิ้นงานรอแปรรูปรับได้สูงสุด 10 ชิ้น เซนเซอร์ทางเข้า (I0) ส่งพัลส์ทุกครั้งที่มีชิ้นงานเข้าสู่โซนสะสม สายพานป้อนวัตถุดิบ (Q0) ต้องทำงานต่อเนื่องตราบใดที่โซนสะสมยังไม่เต็ม เมื่อโซนสะสมเต็ม (C0.DN = true) ต้องหยุดสายพานทันทีโดยเด็ดขาดเพื่อป้องกันชิ้นงานล้นและติดขัด เมื่อสถานีถัดไปดึงชิ้นงานออกจนมีที่ว่างแล้วจะส่งสัญญาณ Buffer Cleared (I1) เพื่อรีเซ็ตตัวนับให้สายพานทำงานต่อได้",
+    "description": "โซนสะสมชิ้นงานรอแปรรูปรับได้สูงสุด 10 ชิ้น เซนเซอร์ทางเข้า (X0) ส่งพัลส์ทุกครั้งที่มีชิ้นงานเข้าสู่โซนสะสม สายพานป้อนวัตถุดิบ (Y0) ต้องทำงานต่อเนื่องตราบใดที่โซนสะสมยังไม่เต็ม เมื่อโซนสะสมเต็ม (C0.DN = true) ต้องหยุดสายพานทันทีโดยเด็ดขาดเพื่อป้องกันชิ้นงานล้นและติดขัด เมื่อสถานีถัดไปดึงชิ้นงานออกจนมีที่ว่างแล้วจะส่งสัญญาณ Buffer Cleared (X1) เพื่อรีเซ็ตตัวนับให้สายพานทำงานต่อได้",
     "hints": [
-      "Q0 (สายพาน) ทำงานเมื่อ NC ของ C0.DN เป็นจริง (ยังไม่เต็ม)",
+      "Y0 (สายพาน) ทำงานเมื่อ NC ของ C0.DN เป็นจริง (ยังไม่เต็ม)",
       "อย่าลืมใส่ NC(C0.DN) ในรังของ CTU เองด้วย เพื่อไม่ให้นับเกิน 10 ถ้ามีชิ้นงานเข้ามาเพิ่มก่อนมีการ Reset"
     ],
-    "required_competencies": ["COUNTER", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "COUNTER",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 10,
     "stages_json": {
       "testCases": [
@@ -325,8 +863,16 @@
               "id": "conveyor-with-full-buffer",
               "description": "ห้ามให้สายพานป้อนวัตถุดิบทำงานขณะโซนสะสมเต็มแล้ว",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "C0.DN", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "C0.DN",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -334,41 +880,175 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: โซนสะสมยังว่างอยู่ - สายพานต้องทำงาน",
-              "frames": [{ "inputs": { "I0": false, "I1": false }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: ชิ้นงานเข้าสู่โซนสะสมครบ 10 ชิ้น - สายพานต้องหยุด",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                }
+              ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: สถานีถัดไปส่งสัญญาณ Buffer Cleared - สายพานทำงานต่อ",
-              "frames": [{ "inputs": { "I0": false, "I1": true }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": true
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             }
           ]
         }
@@ -378,12 +1058,16 @@
   {
     "challenge_id": 27,
     "title": "ระบบนับถอยหลังรอบการบำรุงรักษาพร้อมรีเซ็ตสองปัจจัย (Maintenance Countdown with Two-Factor Reset)",
-    "description": "เครื่องจักรต้องเข้ารับการบำรุงรักษาทุก 10 รอบการทำงาน ทุกครั้งที่รอบการทำงานเสร็จสิ้น (พัลส์ I0) ตัวนับถอยหลัง (C0) ต้องลดลง 1 เมื่อครบกำหนด (C0.DN = true) ต้องติดไฟแจ้งเตือนถึงกำหนดบำรุงรักษา (Q0) และห้ามอนุญาตให้เดินเครื่องผลิตต่อ (Q1 = Production Run Enable) โดยเด็ดขาดจนกว่าจะบำรุงรักษาเสร็จ การรีเซ็ตตัวนับทำได้เมื่อช่างเทคนิคเสียบกุญแจยืนยันตัวตน (I1) และกดปุ่มยืนยันบำรุงรักษาเสร็จสิ้น (I2) พร้อมกันเท่านั้น",
+    "description": "เครื่องจักรต้องเข้ารับการบำรุงรักษาทุก 10 รอบการทำงาน ทุกครั้งที่รอบการทำงานเสร็จสิ้น (พัลส์ X0) ตัวนับถอยหลัง (C0) ต้องลดลง 1 เมื่อครบกำหนด (C0.DN = true) ต้องติดไฟแจ้งเตือนถึงกำหนดบำรุงรักษา (Y0) และห้ามอนุญาตให้เดินเครื่องผลิตต่อ (Y1 = Production Run Enable) โดยเด็ดขาดจนกว่าจะบำรุงรักษาเสร็จ การรีเซ็ตตัวนับทำได้เมื่อช่างเทคนิคเสียบกุญแจยืนยันตัวตน (X1) และกดปุ่มยืนยันบำรุงรักษาเสร็จสิ้น (X2) พร้อมกันเท่านั้น",
     "hints": [
-      "ใช้ CTD กับ Preset = 10 - Q1 (Production Run Enable) ทำงานเมื่อ NC ของ C0.DN เป็นจริง",
-      "เงื่อนไข RESET ต้องมีทั้งกุญแจช่าง (I1) และปุ่มยืนยัน (I2) พร้อมกัน (AND) ไม่ใช่แค่อย่างใดอย่างหนึ่ง"
+      "ใช้ CTD กับ Preset = 10 - Y1 (Production Run Enable) ทำงานเมื่อ NC ของ C0.DN เป็นจริง",
+      "เงื่อนไข RESET ต้องมีทั้งกุญแจช่าง (X1) และปุ่มยืนยัน (X2) พร้อมกัน (AND) ไม่ใช่แค่อย่างใดอย่างหนึ่ง"
     ],
-    "required_competencies": ["COUNTER", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "COUNTER",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 11,
     "stages_json": {
       "testCases": [
@@ -393,8 +1077,16 @@
               "id": "run-while-maintenance-due",
               "description": "ห้ามอนุญาตให้เดินเครื่องผลิตขณะถึงกำหนดบำรุงรักษาแล้ว",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "bit", "address": "C0.DN", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "C0.DN",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -403,45 +1095,185 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: ทำงานครบ 10 รอบ - ถึงกำหนดบำรุงรักษา",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: เสียบกุญแจช่างอย่างเดียว (ยังไม่กดปุ่มยืนยัน) - ต้องยังไม่รีเซ็ต",
-              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": true,
+                    "X2": false
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: เสียบกุญแจและกดปุ่มยืนยันพร้อมกัน - รีเซ็ตสำเร็จ",
-              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": true,
+                    "X2": true
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             }
           ]
@@ -452,12 +1284,15 @@
   {
     "challenge_id": 28,
     "title": "ระบบนับและตรวจสอบยอดสะสมให้ตรงเป้าหมายกลางรอบ (Count-and-Verify Against Interim Target)",
-    "description": "สถานีบรรจุต้องนับชิ้นงาน (พัลส์ I0) สะสมไปจนถึง 20 ชิ้น (ความจุถังใหญ่) แต่ต้องส่งสัญญาณเตือนกลางรอบ (Q0 = Half-Batch Reached) ทันทีที่นับได้ครบ 10 ชิ้นพอดี (ครึ่งหนึ่งของความจุ) เพื่อแจ้งให้เตรียมถังสำรอง สัญญาณนี้ต้องอ่านค่าที่นับสะสมได้ ณ ขณะนั้นเปรียบเทียบโดยตรง ไม่ใช่ใช้ตัวนับแยกต่างหาก",
+    "description": "สถานีบรรจุต้องนับชิ้นงาน (พัลส์ X0) สะสมไปจนถึง 20 ชิ้น (ความจุถังใหญ่) แต่ต้องส่งสัญญาณเตือนกลางรอบ (Y0 = Half-Batch Reached) ทันทีที่นับได้ครบ 10 ชิ้นพอดี (ครึ่งหนึ่งของความจุ) เพื่อแจ้งให้เตรียมถังสำรอง สัญญาณนี้ต้องอ่านค่าที่นับสะสมได้ ณ ขณะนั้นเปรียบเทียบโดยตรง ไม่ใช่ใช้ตัวนับแยกต่างหาก",
     "hints": [
       "ใช้ CTU ตัวเดียวกับ Preset = 20 สำหรับความจุถังใหญ่ทั้งหมด",
       "ใช้บล็อกเปรียบเทียบ (CMP) อ่านค่า C0.ACC เทียบกับ 10 (>=) เพื่อสร้างสัญญาณเตือนกลางรอบ แทนที่จะสร้างตัวนับใหม่"
     ],
-    "required_competencies": ["COUNTER", "MATH"],
+    "required_competencies": [
+      "COUNTER",
+      "MATH"
+    ],
     "max_optimal_blocks": 10,
     "stages_json": {
       "testCases": [
@@ -467,40 +1302,158 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: นับครบ 9 ชิ้น - ยังไม่ถึงครึ่งรอบ",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 9 },
-                { "kind": "bit", "address": "Q0", "expected": false }
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 9
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: ชิ้นที่ 10 มาถึง - ต้องเตือนกลางรอบทันที",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 10 },
-                { "kind": "bit", "address": "Q0", "expected": true }
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 10
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
               ]
             }
           ]
@@ -511,12 +1464,15 @@
   {
     "challenge_id": 29,
     "title": "ระบบเตือนพาเลทใกล้เต็มก่อนถึงขีดจำกัด (Near-Full Pallet Warning)",
-    "description": "หุ่นยนต์วางกล่องซ้อนพาเลทได้สูงสุด 6 กล่อง เซนเซอร์ตรวจจับ (I0) ส่งพัลส์ทุกครั้งที่วางกล่องสำเร็จ ระบบต้องเปิดไฟเตือนใกล้เต็ม (Q0) ทันทีที่วางกล่องที่ 5 (ก่อนถึงขีดจำกัดสุดท้าย 1 กล่อง) เพื่อให้ผู้ควบคุมเตรียมพาเลทเปล่าใหม่ล่วงหน้า และต้องแยกให้ชัดเจนจากสัญญาณพาเลทเต็มสมบูรณ์ (Q1) ที่ติดเมื่อครบ 6 กล่องพอดี",
+    "description": "หุ่นยนต์วางกล่องซ้อนพาเลทได้สูงสุด 6 กล่อง เซนเซอร์ตรวจจับ (X0) ส่งพัลส์ทุกครั้งที่วางกล่องสำเร็จ ระบบต้องเปิดไฟเตือนใกล้เต็ม (Y0) ทันทีที่วางกล่องที่ 5 (ก่อนถึงขีดจำกัดสุดท้าย 1 กล่อง) เพื่อให้ผู้ควบคุมเตรียมพาเลทเปล่าใหม่ล่วงหน้า และต้องแยกให้ชัดเจนจากสัญญาณพาเลทเต็มสมบูรณ์ (Y1) ที่ติดเมื่อครบ 6 กล่องพอดี",
     "hints": [
-      "ใช้ CTU ตัวเดียว Preset = 6 - Q1 (เต็มสมบูรณ์) ใช้ C0.DN ได้โดยตรง",
-      "Q0 (ใกล้เต็ม) ต้องใช้บล็อกเปรียบเทียบ (CMP) อ่าน C0.ACC >= 5 แยกต่างหาก เพราะ 5 ไม่ใช่ค่า Preset ของตัวนับ"
+      "ใช้ CTU ตัวเดียว Preset = 6 - Y1 (เต็มสมบูรณ์) ใช้ C0.DN ได้โดยตรง",
+      "Y0 (ใกล้เต็ม) ต้องใช้บล็อกเปรียบเทียบ (CMP) อ่าน C0.ACC >= 5 แยกต่างหาก เพราะ 5 ไม่ใช่ค่า Preset ของตัวนับ"
     ],
-    "required_competencies": ["COUNTER", "MATH"],
+    "required_competencies": [
+      "COUNTER",
+      "MATH"
+    ],
     "max_optimal_blocks": 10,
     "stages_json": {
       "testCases": [
@@ -526,30 +1482,104 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: วางกล่องครบ 5 กล่อง - เตือนใกล้เต็ม แต่ยังไม่เต็มสมบูรณ์",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 },
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: วางกล่องที่ 6 - เต็มสมบูรณ์",
               "frames": [
-                { "inputs": { "I0": true }, "ticks": 0 },
-                { "inputs": { "I0": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "ticks": 0
+                }
               ],
-              "expect": [{ "kind": "bit", "address": "Q1", "expected": true }]
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
+              ]
             }
           ]
         }
@@ -559,13 +1589,17 @@
   {
     "challenge_id": 30,
     "title": "สถานีคัดแยกและนับชุดผลิตแบบครบวงจร (Full Batching & Sorting Station Capstone)",
-    "description": "สถานีสุดท้ายของสายการผลิตรวมทุกทักษะของบทที่ 3 เข้าด้วยกัน: เซนเซอร์ตรวจพบชิ้นงาน (I0) ทำงานคู่กับเซนเซอร์ตรวจพบของเสีย (I1) เมื่อพบชิ้นงานที่ไม่ใช่ของเสีย ตัวดันเลนรับ (Q0) ต้องดัน เมื่อพบของเสีย ตัวดันเลนคัดออก (Q1) ต้องดัน ทั้งสองต้องไม่ทำงานพร้อมกันเด็ดขาด ทุกชิ้นงานที่ผ่านสถานี (ไม่ว่าจะรับหรือคัดออก) ต้องถูกนับรวมที่ C0 เมื่อครบ 6 ชิ้น (ขนาดชุดผลิต) ต้องติดไฟชุดผลิตเสร็จสมบูรณ์ (Q2) และห้ามนับเกิน 6 โดยเด็ดขาด ผู้ควบคุมรีเซ็ตชุดใหม่ได้ด้วยกุญแจหัวหน้างาน (I3) เท่านั้น",
+    "description": "สถานีสุดท้ายของสายการผลิตรวมทุกทักษะของบทที่ 3 เข้าด้วยกัน: เซนเซอร์ตรวจพบชิ้นงาน (X0) ทำงานคู่กับเซนเซอร์ตรวจพบของเสีย (X1) เมื่อพบชิ้นงานที่ไม่ใช่ของเสีย ตัวดันเลนรับ (Y0) ต้องดัน เมื่อพบของเสีย ตัวดันเลนคัดออก (Y1) ต้องดัน ทั้งสองต้องไม่ทำงานพร้อมกันเด็ดขาด ทุกชิ้นงานที่ผ่านสถานี (ไม่ว่าจะรับหรือคัดออก) ต้องถูกนับรวมที่ C0 เมื่อครบ 6 ชิ้น (ขนาดชุดผลิต) ต้องติดไฟชุดผลิตเสร็จสมบูรณ์ (Y2) และห้ามนับเกิน 6 โดยเด็ดขาด ผู้ควบคุมรีเซ็ตชุดใหม่ได้ด้วยกุญแจหัวหน้างาน (X3) เท่านั้น",
     "hints": [
       "แยกทำทีละส่วน: ตัวดันสองเลน (เหมือนด่านที่ 25), ตัวนับรวมพร้อมป้องกันนับเกิน (เหมือนด่านที่ 21), แล้วค่อยรวมเข้าด้วยกัน",
-      "ตัวนับรวม C0 ต้องนับทุกครั้งที่ I0 เป็นจริง โดยไม่สนใจว่า I1 จะเป็นจริงด้วยหรือไม่ (นับทุกชิ้นที่ผ่าน ไม่ใช่แค่ที่รับ)",
-      "รีเซ็ตด้วยกุญแจหัวหน้างาน (I3) เพียงเงื่อนไขเดียวก็พอสำหรับด่านนี้"
+      "ตัวนับรวม C0 ต้องนับทุกครั้งที่ X0 เป็นจริง โดยไม่สนใจว่า X1 จะเป็นจริงด้วยหรือไม่ (นับทุกชิ้นที่ผ่าน ไม่ใช่แค่ที่รับ)",
+      "รีเซ็ตด้วยกุญแจหัวหน้างาน (X3) เพียงเงื่อนไขเดียวก็พอสำหรับด่านนี้"
     ],
-    "required_competencies": ["COUNTER", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "COUNTER",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 15,
     "stages_json": {
       "testCases": [
@@ -575,14 +1609,29 @@
               "id": "both-lanes-active",
               "description": "ห้ามให้ตัวดันเลนรับและเลนคัดออกทำงานพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "count-exceeds-batch-size",
               "description": "ห้ามนับชิ้นงานรวมเกินขนาดชุดผลิตที่กำหนด (6 ชิ้น)",
-              "violatingWhen": [{ "kind": "numeric", "address": "C0.ACC", "operator": ">", "value": 6 }]
+              "violatingWhen": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": ">",
+                  "value": 6
+                }
+              ]
             }
           ],
           "stages": [
@@ -590,52 +1639,171 @@
               "id": "stage1",
               "name": "ขั้นที่ 1: ชิ้นงานผ่านมาตรฐาน 1 ชิ้น",
               "frames": [
-                { "inputs": { "I0": true, "I1": false }, "ticks": 1 }
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": false
+                  },
+                  "ticks": 1
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 1
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: ชิ้นงานเสีย 1 ชิ้น",
               "frames": [
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": true, "I1": true }, "ticks": 1 }
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": true
+                  },
+                  "ticks": 1
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 2 }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 2
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: ผลิตต่อจนครบชุด 6 ชิ้น",
               "frames": [
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": true, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": true, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": true, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": false, "I1": false }, "ticks": 0 },
-                { "inputs": { "I0": true, "I1": false }, "ticks": 0 }
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false
+                  },
+                  "ticks": 0
+                },
+                {
+                  "inputs": {
+                    "X0": true,
+                    "X1": false
+                  },
+                  "ticks": 0
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "Q2", "expected": true },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 6 }
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 6
+                }
               ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: รีเซ็ตด้วยกุญแจหัวหน้างาน",
-              "frames": [{ "inputs": { "I0": false, "I1": false, "I3": true }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false,
+                    "X1": false,
+                    "X3": true
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q2", "expected": false },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 0 }
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": false
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 0
+                }
               ]
             }
           ]

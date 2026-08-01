@@ -1,0 +1,4168 @@
+[
+  {
+    "level_number": 101,
+    "title": "สายพานลำเลียงพร้อมล็อคฉุกเฉินและรีเซ็ตด้วยมือ",
+    "optimal_blocks_count": 10,
+    "map_layout_json": {
+      "description": "X0=Start (กดค้าง), X1=Stop (กดค้าง), X2=สวิตช์ฉุกเฉิน (จริง=ถูกกด), X3=ปุ่มรีเซ็ตข้อผิดพลาด (กดค้าง). เมื่อกด E-Stop ต้องล็อคมอเตอร์ Y0 ไว้ถาวรแม้ปล่อย E-Stop แล้ว จนกว่าจะกด Reset. ใช้ M0 เป็นตัวจดจำสถานะข้อผิดพลาด",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2",
+        "X3"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": true
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        }
+      ],
+      "hints": [
+        "สร้าง M0 = SET เมื่อ X2 จริง, RESET เมื่อ X3 จริง - นี่คือตัวจดจำข้อผิดพลาด",
+        "Y0 เปิดได้ก็ต่อเมื่อ X0 จริง และ M0 เป็นเท็จ (ยังไม่มีข้อผิดพลาด)",
+        "Y0 ปิดเมื่อ X1 จริง หรือ M0 เป็นจริง (ข้อผิดพลาดเกิดขึ้น)"
+      ]
+    }
+  },
+  {
+    "level_number": 102,
+    "title": "มอเตอร์สองสเตจพร้อมหน่วงเวลาก่อนเริ่มสเตจ 2",
+    "optimal_blocks_count": 8,
+    "map_layout_json": {
+      "description": "X0=Start (กดค้าง), X1=Stop (กดค้าง). กด Start แล้ว Y0 (สเตจ 1) ต้องค้างทำงานทันทีจนกว่าจะกด Stop. หลังจาก Y0 ทำงานครบ 3 รอบสแกน (ticks) ให้ Y1 (สเตจ 2) เริ่มทำงานด้วย",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 1
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 3
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 3
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "ใช้ Self-Hold กับ X0/X1 เพื่อให้ Y0 ค้างสถานะ",
+        "ใช้ TON (T0) หน่วงเวลา 3 นับจาก Y0",
+        "Y1 = T0.DN"
+      ]
+    }
+  },
+  {
+    "level_number": 103,
+    "title": "ตัวนับชิ้นงานพร้อมรีเซ็ตด้วยมือ",
+    "optimal_blocks_count": 7,
+    "map_layout_json": {
+      "description": "X0=เซนเซอร์ตรวจจับชิ้นงาน (พัลส์), X1=ปุ่มรีเซ็ตตัวนับ. เมื่อครบ 3 ชิ้น ให้ Y0 (สัญญาณครบชุด) ติดค้างไว้จนกว่าจะกด Reset",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "ใช้ CTU (C0) นับพัลส์จาก X0 ตั้งค่า Preset = 3",
+        "ใส่หน้าสัมผัส NC ของ C0.DN ในอนุกรมก่อนตัวนับเอง เพื่อไม่ให้นับเกิน",
+        "Y0 = C0.DN, และ RESET C0 ด้วย X1"
+      ]
+    }
+  },
+  {
+    "level_number": 104,
+    "title": "สัญญาณเตือนอุณหภูมิสูงเกินค้างสถานะ",
+    "optimal_blocks_count": 4,
+    "map_layout_json": {
+      "description": "AI0=อุณหภูมิ, X0=ปุ่มรับทราบ/รีเซ็ต. เมื่ออุณหภูมิเกิน 8000 ให้ Y0 (ไฟเตือน) ติดค้างไว้แม้อุณหภูมิจะลดลงแล้ว จนกว่าจะกด X0",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "AI0"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 0
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 8000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9000
+              }
+            },
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 0
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9000
+              }
+            },
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 0
+              }
+            },
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 0
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "ใช้บล็อกเปรียบเทียบ CMP (AI0 > 8000) ต่อกับ SET (Y0)",
+        "ใช้ X0 เป็นเงื่อนไข RESET (Y0)"
+      ]
+    }
+  },
+  {
+    "level_number": 105,
+    "title": "วาล์วเติมถังพร้อมระดับสองจุด (Hysteresis)",
+    "optimal_blocks_count": 4,
+    "map_layout_json": {
+      "description": "AI0=ระดับน้ำในถัง. Y0=วาล์วเติมน้ำ ต้องเปิดเมื่อระดับต่ำกว่า 2000 และค้างเปิดไว้จนกว่าระดับจะถึง 8000 จึงปิด (ป้องกันวาล์วเปิดปิดถี่เกินไป)",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "AI0"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 1000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 1000
+              }
+            },
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 1000
+              }
+            },
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 1000
+              }
+            },
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9000
+              }
+            },
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "CMP (AI0 < 2000) -> SET (Y0)",
+        "CMP (AI0 >= 8000) -> RESET (Y0)"
+      ]
+    }
+  },
+  {
+    "level_number": 106,
+    "title": "มอเตอร์พร้อมล็อคป้องกันโหลดเกินและปุ่มรีเซ็ต",
+    "optimal_blocks_count": 7,
+    "map_layout_json": {
+      "description": "X0=สวิตช์เปิดใช้งาน (ค้างสถานะ), X1=สัญญาณโหลดเกิน (จริง=เกิดปัญหา), X2=ปุ่มรีเซ็ตข้อผิดพลาด. Y0 ทำงานได้ก็ต่อเมื่อ X0 เปิดอยู่ และไม่มีข้อผิดพลาดค้าง (ข้อผิดพลาดต้องกด Reset จึงจะหายไป)",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        }
+      ],
+      "hints": [
+        "ใช้ M0 = SET เมื่อ X1 จริง, RESET เมื่อ X2 จริง",
+        "Y0 = X0 AND NC(M0)"
+      ]
+    }
+  },
+  {
+    "level_number": 107,
+    "title": "สตาร์ทมอเตอร์แบบสตาร์-เดลต้าจำลอง",
+    "optimal_blocks_count": 16,
+    "map_layout_json": {
+      "description": "X0=Start (กดค้าง), X1=Stop (กดค้าง). เมื่อสตาร์ท Y0 (คอนแทคเตอร์ Star) ทำงานทันที หลังจากผ่านไป 3 รอบสแกน ให้สลับเป็น Y1 (คอนแทคเตอร์ Delta) แทน โดย Y0 และ Y1 ห้ามทำงานพร้อมกันเด็ดขาด",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 3
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 3
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 3
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "ใช้ Self-Hold กับ X0/X1 เป็นตัวจดจำสถานะทำงาน (M0)",
+        "ใช้ TON (T0) หน่วงเวลา 3 นับจาก M0",
+        "M1 = SET เมื่อ T0.DN, RESET เมื่อ M0 เป็นเท็จ - ใช้ M1 แยก Y0/Y1"
+      ]
+    }
+  },
+  {
+    "level_number": 108,
+    "title": "ประตูควบคุมการเข้าถึงพร้อมจำกัดจำนวนครั้งเปิด",
+    "optimal_blocks_count": 8,
+    "map_layout_json": {
+      "description": "X0=สิทธิ์เข้าถึง (ค้างสถานะ), X1=เซนเซอร์ประตู (พัลส์เมื่อเปิด), X2=ปุ่มรีเซ็ตของหัวหน้างาน. Y0 (ปลดล็อคประตู) ทำงานได้เมื่อ X0 จริง และประตูยังเปิดไม่ครบ 3 ครั้ง",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        }
+      ],
+      "hints": [
+        "ใช้ CTU (C0) นับพัลส์จาก X1 ตั้งค่า Preset = 3 พร้อม NC(C0.DN) กันนับเกิน",
+        "Y0 = X0 AND NC(C0.DN)",
+        "RESET C0 ด้วย X2"
+      ]
+    }
+  },
+  {
+    "level_number": 109,
+    "title": "รอบผสมสารพร้อมหยุดอัตโนมัติเมื่อครบเวลาแช่",
+    "optimal_blocks_count": 10,
+    "map_layout_json": {
+      "description": "X0=Start (กดค้าง), X1=Stop ฉุกเฉิน (กดค้าง). กด Start แล้ว Y0 (มอเตอร์ผสม) ทำงานและหยุดเองอัตโนมัติหลังจากผ่านไป 3 รอบสแกน (ไม่ต้องกด Stop) หรือหยุดทันทีถ้ากด Stop ก่อนครบเวลา",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 3
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 1
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "M0 = SET เมื่อ X0, RESET เมื่อ T0.DN หรือ X1",
+        "T0 = TON หน่วงเวลา 3 จาก M0",
+        "Y0 = M0 AND NC(T0.DN)"
+      ]
+    }
+  },
+  {
+    "level_number": 110,
+    "title": "ตัวนับผลผลิตสองกะพร้อมสวิตช์เลือกกะ (ใช้ X/Y)",
+    "optimal_blocks_count": 8,
+    "map_layout_json": {
+      "description": "X0=สวิตช์กะกลางวันทำงาน, X1=เซนเซอร์นับชิ้นงาน (พัลส์), X2=ปุ่มรีเซ็ตตัวนับ. Y0=สัญญาณครบชุด 3 ชิ้น - นับได้เฉพาะช่วงกะกลางวัน (X0 จริง) เท่านั้น ใช้ตัวแปรที่ประกาศเอง (X/Y) แทน I/Q",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "กด + Add Variable เพื่อประกาศ X0, X1, X2 (Input) และ Y0 (Output) ก่อนเริ่มต่อวงจร",
+        "CTU (C0) นับ X1 แต่ต้องมี X0 เป็นเงื่อนไขอนุกรมร่วมด้วย พร้อม NC(C0.DN) กันนับเกิน",
+        "Y0 = C0.DN, RESET C0 ด้วย X2"
+      ]
+    }
+  },
+  {
+    "level_number": 111,
+    "title": "เตาอบพร้อมพัดลมระบายความร้อนฉุกเฉิน",
+    "optimal_blocks_count": 5,
+    "map_layout_json": {
+      "description": "AI0=อุณหภูมิ, X0=สวิตช์เปิดใช้งานเตา. Y0 (ฮีตเตอร์) ทำงานเมื่อเปิดใช้งานและอุณหภูมิต่ำกว่า 7000 เท่านั้น. Y1 (พัดลมระบายความร้อน) ต้องทำงานทันทีเมื่ออุณหภูมิถึง 7000 ขึ้นไป ไม่ว่าจะเปิดใช้งานเตาหรือไม่",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "AI0"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 7000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 8000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 6999
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "Y0 = X0 AND CMP(AI0 < 7000)",
+        "Y1 = CMP(AI0 >= 7000) เท่านั้น ไม่ต้องพึ่ง X0"
+      ]
+    }
+  },
+  {
+    "level_number": 112,
+    "title": "ระบบความปลอดภัยแรงดันสองเซนเซอร์",
+    "optimal_blocks_count": 7,
+    "map_layout_json": {
+      "description": "AI0, AI1=เซนเซอร์แรงดัน 2 ตัว, X0=ปุ่มรีเซ็ต. หากเซนเซอร์ตัวใดตัวหนึ่งเกิน 9000 ให้ M0 (ล็อคข้อผิดพลาด) ค้างสถานะไว้ แม้แรงดันจะลดลงแล้ว จนกว่าจะกด Reset. Y0 (พร้อมทำงาน) เป็นจริงเมื่อไม่มีข้อผิดพลาดค้าง",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "AI0",
+        "AI1"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000,
+                "AI1": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9500,
+                "AI1": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000,
+                "AI1": 9500
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9500,
+                "AI1": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000,
+                "AI1": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9500,
+                "AI1": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000,
+                "AI1": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000,
+                "AI1": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        }
+      ],
+      "hints": [
+        "ใช้ CMP สองตัว (AI0>9000 และ AI1>9000) ต่อแบบขนาน (OR) เข้า SET (M0)",
+        "Y0 = NC(M0)"
+      ]
+    }
+  },
+  {
+    "level_number": 113,
+    "title": "สายพานลำเลียง 3 โซนล็อคระหว่างกัน",
+    "optimal_blocks_count": 12,
+    "map_layout_json": {
+      "description": "X0=เปิดใช้งานระบบ, X1=เซนเซอร์ติดขัดโซน 1, X2=เซนเซอร์ติดขัดโซน 2, X3=เซนเซอร์ติดขัดโซน 3. แต่ละโซนทำงานได้ก็ต่อเมื่อระบบเปิดใช้งาน, โซนตัวเองไม่ติดขัด, และทุกโซนที่อยู่ถัดไป (downstream) ต้องไม่ติดขัดด้วย (Y0=โซน1 อยู่ต้นสุด, Y2=โซน3 อยู่ปลายสุด)",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2",
+        "X3"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1",
+        "Y2"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false,
+            "Y2": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": true,
+            "Y2": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false,
+            "Y2": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false,
+            "Y2": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true,
+            "Y2": true
+          }
+        }
+      ],
+      "hints": [
+        "Y2 (โซนปลายสุด) = X0 AND NC(X3)",
+        "Y1 = X0 AND NC(X2) AND NC(X3)",
+        "Y0 (โซนต้นสุด) = X0 AND NC(X1) AND NC(X2) AND NC(X3)"
+      ]
+    }
+  },
+  {
+    "level_number": 114,
+    "title": "ประตูควบคุมการเข้าถึงพร้อมปลดล็อคชั่วคราว",
+    "optimal_blocks_count": 6,
+    "map_layout_json": {
+      "description": "X0=บัตรผ่านได้รับอนุมัติ (กดค้าง). เมื่อ X0 จริง ให้ Y0 (ปลดล็อค) ทำงานทันที และให้ล็อคกลับอัตโนมัติเองหลังจากผ่านไป 3 รอบสแกน โดยไม่ต้องมีสัญญาณอื่นมาสั่งปิด",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 3
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 3
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "SET (Y0) เมื่อ X0",
+        "TON (T0) หน่วงเวลา 3 จาก Y0",
+        "RESET (Y0) เมื่อ T0.DN"
+      ]
+    }
+  },
+  {
+    "level_number": 115,
+    "title": "ตัวนับชุดผลิตพร้อมคูลดาวน์รีเซ็ตอัตโนมัติ",
+    "optimal_blocks_count": 10,
+    "map_layout_json": {
+      "description": "X0=เซนเซอร์ตรวจจับชิ้นงาน (พัลส์), X1=ปุ่มรีเซ็ตฉุกเฉิน. เมื่อครบ 3 ชิ้น Y0 (ครบชุด) ติดขึ้น และให้ตัวนับรีเซ็ตอัตโนมัติเองหลังจากครบ 2 รอบสแกนถัดไป (คูลดาวน์) โดยไม่ต้องกด Reset",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 2
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "CTU (C0) preset=3 นับ X0 พร้อม NC(C0.DN) กันนับเกิน",
+        "TON (T0) preset=2 หน่วงเวลาเริ่มจาก C0.DN",
+        "RESET (C0) เมื่อ T0.DN หรือ X1"
+      ]
+    }
+  },
+  {
+    "level_number": 116,
+    "title": "สวิตช์เลือกโหมด Auto/Manual พร้อมเซนเซอร์วัดค่า",
+    "optimal_blocks_count": 5,
+    "map_layout_json": {
+      "description": "X0=เลือกโหมด (เท็จ=Manual, จริง=Auto), X1=ปุ่มสั่งทำงานด้วยมือ, AI0=ค่าจากเซนเซอร์. โหมด Manual: Y0 ทำงานตาม X1. โหมด Auto: Y0 ทำงานเมื่อ AI0 เกิน 5000 เท่านั้น (ไม่สนใจ X1)",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "AI0"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 0
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 0
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 0
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 6000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 6000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "Y0 = (NC(X0) AND X1) OR (X0 AND CMP(AI0 > 5000))"
+      ]
+    }
+  },
+  {
+    "level_number": 117,
+    "title": "สัญญาณเตือนแหล่งที่มาลำดับแรก (First-Out Annunciator)",
+    "optimal_blocks_count": 12,
+    "map_layout_json": {
+      "description": "X0=แหล่งสัญญาณผิดพลาด 1, X1=แหล่งสัญญาณผิดพลาด 2, X2=ปุ่มรีเซ็ต. ต้องระบุได้ว่าแหล่งใดเกิดขึ้น 'ก่อน' - Y0 ค้างสถานะถ้า X0 เกิดก่อน, Y1 ค้างสถานะถ้า X1 เกิดก่อน โดยห้ามค้างพร้อมกันทั้งคู่",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "M0 (Y0) = SET เมื่อ X0 AND NC(M1) - ล็อคได้ก็ต่อเมื่ออีกฝั่งยังไม่ล็อค",
+        "M1 (Y1) = SET เมื่อ X1 AND NC(M0)",
+        "ทั้งคู่ RESET ด้วย X2"
+      ]
+    }
+  },
+  {
+    "level_number": 118,
+    "title": "ปั๊มสำรอง Duty/Standby พร้อม Failover อัตโนมัติ",
+    "optimal_blocks_count": 6,
+    "map_layout_json": {
+      "description": "X0=คำสั่งให้ทำงาน, X1=สัญญาณปั๊มหลักเสีย. Y0 (ปั๊มหลัก) ทำงานเมื่อสั่งทำงานและปั๊มหลักไม่เสีย. Y1 (ปั๊มสำรอง) ทำงานแทนทันทีเมื่อสั่งทำงานแต่ปั๊มหลักเสีย",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "Y0 = X0 AND NC(X1)",
+        "Y1 = X0 AND X1"
+      ]
+    }
+  },
+  {
+    "level_number": 119,
+    "title": "วาล์วระบายความดันฉุกเฉินพร้อมควบคุมด้วยมือ",
+    "optimal_blocks_count": 5,
+    "map_layout_json": {
+      "description": "AI0=แรงดัน, X0=เปิดวาล์วด้วยมือ, X1=ปิด/รีเซ็ตวาล์ว. Y0 (วาล์วเปิด) ต้องเปิดค้างอัตโนมัติเมื่อแรงดันเกิน 9000 หรือเมื่อกด X0 และต้องค้างไว้จนกว่าจะกด X1",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "AI0"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9500
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9500
+              }
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9500
+              }
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "SET (Y0) เมื่อ CMP(AI0 > 9000) OR X0",
+        "RESET (Y0) เมื่อ X1"
+      ]
+    }
+  },
+  {
+    "level_number": 120,
+    "title": "ถังเติมอัตโนมัติพร้อมสัญญาณเตือนระดับวิกฤตค้าง",
+    "optimal_blocks_count": 8,
+    "map_layout_json": {
+      "description": "AI0=ระดับถัง, X0=ปุ่มรับทราบสัญญาณเตือน. Y0 (วาล์วเติม) ทำงานแบบ Hysteresis: เปิดเมื่อระดับต่ำกว่า 2000, ปิดเมื่อถึง 8000. Y1 (สัญญาณเตือนวิกฤต) ค้างสถานะเมื่อระดับต่ำกว่า 500 จนกว่าจะกด X0",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "AI0"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 1000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 300
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 300
+              }
+            },
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 300
+              }
+            },
+            {
+              "inputs": {
+                "X0": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 9000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "Y0: CMP(AI0<2000)->SET, CMP(AI0>=8000)->RESET",
+        "Y1: CMP(AI0<500)->SET, X0->RESET"
+      ]
+    }
+  },
+  {
+    "level_number": 121,
+    "title": "วงจรกดสองมือพร้อมหน้าต่างเวลา (Anti-Tie-Down)",
+    "optimal_blocks_count": 11,
+    "map_layout_json": {
+      "description": "X0=ปุ่มมือ 1, X1=ปุ่มมือ 2. ต้องกดปุ่มทั้งสองข้างภายใน 2 รอบสแกนของกันและกัน จึงจะให้ Y0 (สั่งเครื่องอัด) ทำงาน - ถ้ากดข้างเดียวค้างไว้เกินเวลาโดยไม่กดอีกข้าง ต้องยกเลิกอัตโนมัติ (ป้องกันการผูกปุ่มค้าง)",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 2
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        }
+      ],
+      "hints": [
+        "M0 = SET เมื่อ X0 - เป็นตัวจดจำว่ากดมือแรกแล้ว",
+        "TON (T0) preset=2 หน่วงเวลาหน้าต่างจาก M0",
+        "Y0 = M0 AND X1 AND NC(T0.DN)",
+        "RESET (M0) เมื่อ T0.DN (หมดเวลา) หรือ Y0 (สำเร็จแล้ว)"
+      ]
+    }
+  },
+  {
+    "level_number": 122,
+    "title": "ลิฟต์ขนของสองชั้นพร้อมตรวจสอบตำแหน่ง",
+    "optimal_blocks_count": 6,
+    "map_layout_json": {
+      "description": "X0=เรียกขึ้น, X1=เรียกลง, X2=เซนเซอร์อยู่ชั้นบนสุด, X3=เซนเซอร์อยู่ชั้นล่างสุด. Y0 (มอเตอร์ขึ้น) ทำงานเมื่อเรียกขึ้นและยังไม่ถึงชั้นบนสุด. Y1 (มอเตอร์ลง) ทำงานเมื่อเรียกลงและยังไม่ถึงชั้นล่างสุด",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2",
+        "X3"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false,
+                "X3": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "Y0 = X0 AND NC(X2)",
+        "Y1 = X1 AND NC(X3)"
+      ]
+    }
+  },
+  {
+    "level_number": 123,
+    "title": "ระบบป้อนชิ้นงานพร้อมนับรวมและนับของเสีย",
+    "optimal_blocks_count": 14,
+    "map_layout_json": {
+      "description": "X0=เซนเซอร์นับชิ้นงานรวม (พัลส์), X1=เซนเซอร์ตรวจพบของเสีย (พัลส์), X2=ปุ่มรีเซ็ต. Y0 ติดเมื่อครบชุด 3 ชิ้น. Y1 ติดเมื่อพบของเสียครบ 2 ชิ้น (หยุดสายการผลิตเพื่อตรวจสอบ)",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "ใช้ CTU (C0) preset=3 นับ X0 และ CTU (C1) preset=2 นับ X1 แยกกัน อย่าลืม NC ของแต่ละ .DN กันนับเกิน",
+        "Y0=C0.DN, Y1=C1.DN, RESET ทั้งคู่ด้วย X2"
+      ]
+    }
+  },
+  {
+    "level_number": 124,
+    "title": "สถานีเชื่อมพร้อมจำกัดรอบและคูลดาวน์",
+    "optimal_blocks_count": 10,
+    "map_layout_json": {
+      "description": "X0=ทริกเกอร์เชื่อม (พัลส์), X1=ปุ่มรีเซ็ตด้วยมือ. Y0 (อนุญาตให้เชื่อม) เป็นจริงตลอดเวลา จนกว่าจะเชื่อมครบ 3 ครั้งติดต่อกัน ซึ่งจะบล็อคการเชื่อมจนกว่าจะผ่านไป 2 รอบสแกน (คูลดาวน์) หรือกด Reset",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 2
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        }
+      ],
+      "hints": [
+        "CTU (C0) preset=3 นับ X0 พร้อม NC(C0.DN) กันนับเกิน",
+        "Y0 = NC(C0.DN)",
+        "TON (T0) preset=2 จาก C0.DN, RESET C0 เมื่อ T0.DN หรือ X1"
+      ]
+    }
+  },
+  {
+    "level_number": 125,
+    "title": "ระบบล็อคตู้ไฟฟ้าแรงสูงด้วยกุญแจนิรภัย 2 ดอก",
+    "optimal_blocks_count": 4,
+    "map_layout_json": {
+      "description": "X0=กุญแจดอกที่ 1, X1=กุญแจดอกที่ 2, X2=เซนเซอร์ประตูตู้ (จริง=เปิดอยู่). Y0 (จ่ายไฟ) ทำงานได้ก็ต่อเมื่อไขกุญแจทั้งสองดอกพร้อมกัน และประตูตู้ปิดสนิทเท่านั้น",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": true,
+                "X2": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "ใช้หน้าสัมผัสอนุกรม 3 ตัวในรังเดียว: X0, X1, และ NC ของ X2"
+      ]
+    }
+  },
+  {
+    "level_number": 126,
+    "title": "ตรวจจับสายพานติดขัดด้วยเวลา (Jam Detection)",
+    "optimal_blocks_count": 16,
+    "map_layout_json": {
+      "description": "X0=Start (กดค้าง), X1=Stop (กดค้าง), X2=เซนเซอร์พบวัสดุไหลผ่าน (จริง=ปกติ), X3=ปุ่มรีเซ็ตข้อผิดพลาด. หากมอเตอร์ทำงานอยู่แต่ไม่พบวัสดุไหลผ่านนาน 3 รอบสแกน ให้ถือว่าสายพานติดขัด: ปิดมอเตอร์ Y0 และติดสัญญาณเตือน Y1 ค้างไว้จนกว่าจะกด Reset",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2",
+        "X3"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 5
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 3
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 3
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "M0 = Self-Hold ของ X0/X1 (คำสั่งให้ทำงาน)",
+        "TON (T0) preset=3 จาก (M0 AND NC(X2)) - นับเวลาที่วัสดุขาดหายไป",
+        "M1 = SET เมื่อ T0.DN, RESET เมื่อ X3",
+        "Y0 = M0 AND NC(M1), Y1 = M1"
+      ]
+    }
+  },
+  {
+    "level_number": 127,
+    "title": "ผสมสารสองชนิดตามลำดับด้วยเซนเซอร์เปรียบเทียบ",
+    "optimal_blocks_count": 5,
+    "map_layout_json": {
+      "description": "AI0=ระดับสาร A, AI1=ระดับสาร B. Y0 (วาล์ว A) เปิดจนกว่า AI0 จะถึง 5000. หลังจากนั้น Y1 (วาล์ว B) จึงเปิดจนกว่า AI1 จะถึง 3000 (วาล์ว B ต้องไม่เปิดก่อนสาร A เสร็จ)",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "AI0",
+        "AI1"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 0,
+                "AI1": 0
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 6000,
+                "AI1": 0
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 6000,
+                "AI1": 4000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {},
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 3000,
+                "AI1": 1000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false
+          }
+        }
+      ],
+      "hints": [
+        "Y0 = CMP(AI0 < 5000)",
+        "Y1 = CMP(AI0 >= 5000) AND CMP(AI1 < 3000)"
+      ]
+    }
+  },
+  {
+    "level_number": 128,
+    "title": "สัญญาณเตือนของเสียสะสมพร้อมรีเซ็ตเมื่อครบชุด",
+    "optimal_blocks_count": 14,
+    "map_layout_json": {
+      "description": "X0=เซนเซอร์นับชิ้นงานรวม (พัลส์), X1=เซนเซอร์ของเสีย (พัลส์), X2=ปุ่มรีเซ็ตด้วยมือ. Y0 ติดเมื่อของเสียครบ 2 ชิ้น. เมื่อนับครบชุด 3 ชิ้น (รวม) ให้ตัวนับทั้งสองรีเซ็ตอัตโนมัติเพื่อเริ่มชุดใหม่",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "allowedOutputs": [
+        "Y0"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false
+              },
+              "ticks": 0
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false
+          }
+        }
+      ],
+      "hints": [
+        "CTU (C0) preset=3 นับรวม, CTU (C1) preset=2 นับของเสีย",
+        "Y0 = C1.DN",
+        "RESET ทั้งคู่เมื่อ C0.DN หรือ X2"
+      ]
+    }
+  },
+  {
+    "level_number": 129,
+    "title": "สตาร์ทเครื่องจักรตามลำดับ 3 ขั้นตอน",
+    "optimal_blocks_count": 16,
+    "map_layout_json": {
+      "description": "X0=Start (กดค้าง), X1=Stop (กดค้าง). กด Start แล้ว Y0 (ปั๊มน้ำมันหล่อลื่น) ทำงานทันที. หลังจากผ่านไป 2 รอบสแกน ให้ Y1 (มอเตอร์หลัก) เริ่มทำงาน. หลังจากมอเตอร์หลักทำงานครบอีก 1 รอบสแกน ให้ Y2 (สายพานลำเลียง) เริ่มทำงานด้วย ทั้งหมดหยุดพร้อมกันเมื่อกด Stop",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1",
+        "Y2"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false,
+            "Y2": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false,
+            "Y2": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 2
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": true,
+            "Y2": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 3
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": true,
+            "Y2": true
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false
+              },
+              "ticks": 3
+            },
+            {
+              "inputs": {
+                "X0": false,
+                "X1": true
+              },
+              "ticks": 0
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false,
+            "Y2": false
+          }
+        }
+      ],
+      "hints": [
+        "M0 = Self-Hold ของ X0/X1, Y0 = M0",
+        "TON (T0) preset=2 จาก M0, Y1 = M0 AND T0.DN",
+        "TON (T1) preset=2 จาก Y1, Y2 = Y1 AND T1.DN"
+      ]
+    }
+  },
+  {
+    "level_number": 130,
+    "title": "ระบบบรรจุภัณฑ์อัตโนมัติแบบครบวงจร",
+    "optimal_blocks_count": 24,
+    "map_layout_json": {
+      "description": "X0=Start (กดค้าง), X1=Stop (กดค้าง), X2=เซนเซอร์กล่องผ่าน (พัลส์), X3=ปุ่มรีเซ็ตพาเลท. AI0=น้ำหนักกล่อง. Y0=สายพาน ทำงานตาม Start/Stop. Y1=ประตูคัดออก เปิดเมื่อกล่องน้ำหนักต่ำกว่า 3000 (ของเสีย). นับเฉพาะกล่องดีครบ 3 กล่อง/พาเลท (Y2) แล้วหน่วงเวลา 2 รอบก่อนส่งสัญญาณส่งออกพาเลท (Y3) และรีเซ็ตตัวนับเองสำหรับพาเลทถัดไป",
+      "skill": "efficiency",
+      "allowedInputs": [
+        "X0",
+        "X1",
+        "X2",
+        "X3",
+        "AI0"
+      ],
+      "allowedOutputs": [
+        "Y0",
+        "Y1",
+        "Y2",
+        "Y3"
+      ],
+      "testCases": [
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": false,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": false,
+            "Y1": false,
+            "Y2": false,
+            "Y3": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false,
+            "Y2": false,
+            "Y3": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 2000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": true,
+            "Y2": false,
+            "Y3": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y0": true,
+            "Y1": false,
+            "Y2": true,
+            "Y3": false
+          }
+        },
+        {
+          "frames": [
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": true,
+                "X3": false
+              },
+              "ticks": 0,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            },
+            {
+              "inputs": {
+                "X0": true,
+                "X1": false,
+                "X2": false,
+                "X3": false
+              },
+              "ticks": 2,
+              "analogInputs": {
+                "AI0": 5000
+              }
+            }
+          ],
+          "expect": {
+            "Y2": true,
+            "Y3": true
+          }
+        }
+      ],
+      "hints": [
+        "M0 = Self-Hold ของ X0/X1, Y0 = M0",
+        "Y1 = M0 AND CMP(AI0 < 3000)",
+        "CTU (C0) preset=3 นับ X2 โดยมีเงื่อนไข M0 AND NC(Y1) AND NC(C0.DN) (นับเฉพาะกล่องดีที่ไม่ถูกคัดออก)",
+        "Y2 = C0.DN, TON (T0) preset=2 จาก Y2, Y3 = Y2 AND T0.DN",
+        "RESET C0 เมื่อ Y3 หรือ X3"
+      ]
+    }
+  }
+]

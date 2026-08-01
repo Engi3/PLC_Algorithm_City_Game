@@ -3,29 +3,32 @@ export type TimerVariant = "TON" | "TOF" | "RTO";
 export type CounterVariant = "CTU" | "CTD";
 
 export const INPUT_ADDRESSES = [
-  "I0",
-  "I1",
-  "I2",
-  "I3",
-  "I4",
-  "I5",
-  "I6",
-  "I7",
+  "X0",
+  "X1",
+  "X2",
+  "X3",
+  "X4",
+  "X5",
+  "X6",
+  "X7",
 ] as const;
-export const COIL_ADDRESSES = ["Q0", "Q1", "Q2", "Q3"] as const;
+export const COIL_ADDRESSES = ["Y0", "Y1", "Y2", "Y3"] as const;
 /** Range widened 0-99 (Phase 10) so a program can use up to MAX_RUNGS distinct timers without exhausting addresses. */
 export const TIMER_ADDRESSES = Array.from({ length: 100 }, (_, i) => `T${i}`);
 export const COUNTER_ADDRESSES = Array.from({ length: 100 }, (_, i) => `C${i}`);
 
 /**
- * Phase 10 dynamic I/O pool. `I`/`Q` (Allen-Bradley style, above) stay fixed
- * and always available so every existing level/hint/reference-solution
- * keeps working unchanged. `X`/`Y`/`M` (Mitsubishi/JIS style) are the
- * namespace new variables get added to via "+ Add Variable" in the Sandbox
- * and Level Builder - I/X and Q/Y are functionally aliased in the engine
- * (same read/write behavior, just different prefixes), and M is an
- * internal auxiliary relay (behaves exactly like a coil, but isn't meant
- * to represent a physical output).
+ * X0-X7/Y0-Y3 (Mitsubishi/JIS style) are the fixed, always-available base
+ * I/O - the legacy Allen-Bradley-style `I`/`Q` prefixes have been retired
+ * project-wide (every level/challenge/hint migrated to X/Y). `X`/`Y` beyond
+ * the base range, plus `M` (internal relay), are the namespace new
+ * variables get added to via "+ Add Variable" in the Sandbox and Level
+ * Builder - see addVariable's base-range guard in use-variable-pool.ts,
+ * which keeps a custom declaration from colliding with X0-X7/Y0-Y3. `I`/`Q`
+ * are still recognized as address prefixes (isInputAddress/
+ * isOutputFamilyAddress below) purely as a defensive read-compat net for
+ * any pre-migration data that slipped through, never generated or shown
+ * anymore.
  */
 export type VariableKind = "input" | "output" | "relay" | "analog_input";
 export type SwitchType = "momentary" | "toggle";
@@ -63,6 +66,11 @@ export function isValidVariableNumber(kind: VariableKind, num: number): boolean 
   return Number.isInteger(num) && num >= 0 && num <= MAX_NUMBER_BY_KIND[kind];
 }
 
+/** True when address collides with a base built-in (X0-X7/Y0-Y3, always present) - a custom pool declaration must never shadow one of these. */
+export function isReservedBaseAddress(address: string): boolean {
+  return (INPUT_ADDRESSES as readonly string[]).includes(address) || (COIL_ADDRESSES as readonly string[]).includes(address);
+}
+
 function customAddressesByKind(variables: DeclaredVariable[], kind: VariableKind): string[] {
   return variables.filter((v) => v.kind === kind).map((v) => v.address);
 }
@@ -84,10 +92,10 @@ export function classifyAddressGroup(address: string): string {
       return "Analog Inputs (AI)";
     case "I":
     case "X":
-      return "Inputs (I/X)";
+      return "Inputs (X)";
     case "Q":
     case "Y":
-      return "Outputs (Q/Y)";
+      return "Outputs (Y)";
     case "M":
       return "Internal Relays (M)";
     case "T":

@@ -2,12 +2,16 @@
   {
     "challenge_id": 31,
     "title": "ระบบควบคุมอุณหภูมิถังบ่มด้วยฮิสเทอรีซิส (Curing Tank Temperature Hysteresis Control)",
-    "description": "เซนเซอร์วัดอุณหภูมิ (AI0) ส่งค่าตามจริงตลอดเวลา ฮีตเตอร์ (Q0) ต้องเปิดทำงานเมื่ออุณหภูมิต่ำกว่า 1000 หน่วย และต้องปิดเมื่ออุณหภูมิสูงถึง 2000 หน่วยขึ้นไป ในช่วงระหว่าง 1000-2000 (เขตกันการสั่น/Hysteresis Band) ฮีตเตอร์ต้องคงสถานะเดิมไว้ ห้ามเปลี่ยนสถานะไปมาถี่ๆ เพียงเพราะอุณหภูมิแกว่งอยู่ในช่วงกลาง และห้ามให้ฮีตเตอร์ทำงานโดยเด็ดขาดหากอุณหภูมิสูงถึงจุดวิกฤต 2500 หน่วยขึ้นไป",
+    "description": "เซนเซอร์วัดอุณหภูมิ (AI0) ส่งค่าตามจริงตลอดเวลา ฮีตเตอร์ (Y0) ต้องเปิดทำงานเมื่ออุณหภูมิต่ำกว่า 1000 หน่วย และต้องปิดเมื่ออุณหภูมิสูงถึง 2000 หน่วยขึ้นไป ในช่วงระหว่าง 1000-2000 (เขตกันการสั่น/Hysteresis Band) ฮีตเตอร์ต้องคงสถานะเดิมไว้ ห้ามเปลี่ยนสถานะไปมาถี่ๆ เพียงเพราะอุณหภูมิแกว่งอยู่ในช่วงกลาง และห้ามให้ฮีตเตอร์ทำงานโดยเด็ดขาดหากอุณหภูมิสูงถึงจุดวิกฤต 2500 หน่วยขึ้นไป",
     "hints": [
       "ใช้บล็อกเปรียบเทียบ (CMP) 2 ตัว: ตัวแรก AI0 < 1000 ป้อนเข้า SET, ตัวที่สอง AI0 >= 2000 ป้อนเข้า RESET",
       "ห้ามใช้ COIL ธรรมดาเทียบเงื่อนไขเดียว เพราะจะไม่มีเขตกันการสั่น (Hysteresis) - ต้องใช้ SET/RESET กับ CMP สองตัวคนละเงื่อนไขเท่านั้น"
     ],
-    "required_competencies": ["ANALOG", "MATH", "INTERLOCK"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "INTERLOCK"
+    ],
     "max_optimal_blocks": 12,
     "stages_json": {
       "testCases": [
@@ -17,8 +21,17 @@
               "id": "heater-at-critical-temp",
               "description": "ห้ามให้ฮีตเตอร์ทำงานขณะอุณหภูมิถึงจุดวิกฤต (2500 หน่วยขึ้นไป)",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "numeric", "address": "AI0", "operator": ">=", "value": 2500 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "AI0",
+                  "operator": ">=",
+                  "value": 2500
+                }
               ]
             }
           ],
@@ -26,26 +39,82 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: อุณหภูมิต่ำกว่าเกณฑ์ล่าง - ฮีตเตอร์ต้องติด",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: อุณหภูมิอยู่ในเขตกันการสั่น - ต้องคงสถานะเดิม (ยังติดอยู่)",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1500 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1500
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: อุณหภูมิสูงถึงเกณฑ์บน - ฮีตเตอร์ต้องดับ",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2200 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2200
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                }
+              ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: ทดสอบความปลอดภัย - อุณหภูมิพุ่งถึงจุดวิกฤต",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2600 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2600
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                }
+              ]
             }
           ]
         }
@@ -55,12 +124,16 @@
   {
     "challenge_id": 32,
     "title": "ระบบเติมและกวนผสมสารเคมีตามระดับ (Chemical Fill + Level-Gated Mixer)",
-    "description": "ถังผสมสารเคมีมีเซนเซอร์วัดระดับ (AI0) วาล์วเติมสาร (Q0) ต้องเปิดเมื่อระดับต่ำกว่า 1000 หน่วย และปิดเมื่อระดับสูงถึง 2000 หน่วยขึ้นไป (ควบคุมแบบฮิสเทอรีซิสเหมือนด่านที่ 31) มอเตอร์กวนผสม (Q1) ทำงานได้ก็ต่อเมื่อระดับสารสูงอย่างน้อย 1500 หน่วย (มีสารเพียงพอให้ใบพัดจุ่มอยู่) เท่านั้น และห้ามให้มอเตอร์กวนผสมทำงานโดยเด็ดขาดขณะวาล์วเติมสารยังเปิดอยู่ เพราะใบพัดจะปั่นสารที่กำลังไหลเข้าจนกระเซ็นล้นถัง",
+    "description": "ถังผสมสารเคมีมีเซนเซอร์วัดระดับ (AI0) วาล์วเติมสาร (Y0) ต้องเปิดเมื่อระดับต่ำกว่า 1000 หน่วย และปิดเมื่อระดับสูงถึง 2000 หน่วยขึ้นไป (ควบคุมแบบฮิสเทอรีซิสเหมือนด่านที่ 31) มอเตอร์กวนผสม (Y1) ทำงานได้ก็ต่อเมื่อระดับสารสูงอย่างน้อย 1500 หน่วย (มีสารเพียงพอให้ใบพัดจุ่มอยู่) เท่านั้น และห้ามให้มอเตอร์กวนผสมทำงานโดยเด็ดขาดขณะวาล์วเติมสารยังเปิดอยู่ เพราะใบพัดจะปั่นสารที่กำลังไหลเข้าจนกระเซ็นล้นถัง",
     "hints": [
-      "วาล์วเติมสาร (Q0) ใช้ SET/RESET กับ CMP สองตัวเหมือนด่านที่ 31",
-      "มอเตอร์กวนผสม (Q1) ใช้ COIL ธรรมดาก็พอ เงื่อนไข: CMP(AI0 >= 1500) และ NC(Q0)"
+      "วาล์วเติมสาร (Y0) ใช้ SET/RESET กับ CMP สองตัวเหมือนด่านที่ 31",
+      "มอเตอร์กวนผสม (Y1) ใช้ COIL ธรรมดาก็พอ เงื่อนไข: CMP(AI0 >= 1500) และ NC(Y0)"
     ],
-    "required_competencies": ["ANALOG", "MATH", "INTERLOCK"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "INTERLOCK"
+    ],
     "max_optimal_blocks": 13,
     "stages_json": {
       "testCases": [
@@ -70,16 +143,33 @@
               "id": "mixer-while-filling",
               "description": "ห้ามให้มอเตอร์กวนผสมทำงานขณะวาล์วเติมสารยังเปิดอยู่",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "bit", "address": "Q0", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "mixer-while-low-level",
               "description": "ห้ามให้มอเตอร์กวนผสมทำงานขณะระดับสารต่ำกว่าเกณฑ์ (ใบพัดจะไม่จุ่มในสาร)",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "numeric", "address": "AI0", "operator": "<", "value": 1500 }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "AI0",
+                  "operator": "<",
+                  "value": 1500
+                }
               ]
             }
           ],
@@ -87,25 +177,71 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: ถังว่าง - วาล์วเติมสารเปิด มอเตอร์กวนต้องยังไม่ทำงาน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: ระดับสูงพอสำหรับกวนแล้ว แต่วาล์วยังเปิดอยู่ (ยังไม่ถึง 2000) - ห้ามกวนผสม",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1800 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q1", "expected": false }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1800
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
+              ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: ระดับถึงเกณฑ์บน - วาล์วปิด มอเตอร์กวนผสมเริ่มทำงาน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2200 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2200
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             }
           ]
@@ -116,12 +252,16 @@
   {
     "challenge_id": 33,
     "title": "ระบบควบคุมความเร็วสายพาน 3 ระดับตามน้ำหนัก (3-Speed Conveyor Control by Weight)",
-    "description": "เซนเซอร์ชั่งน้ำหนักบนสายพาน (AI0) ต้องเลือกความเร็วสายพานให้เหมาะสมกับน้ำหนักชิ้นงานโดยอัตโนมัติ: น้ำหนักเบา (ต่ำกว่า 1000) ใช้ความเร็วต่ำ (Q0), น้ำหนักปานกลาง (1000 ถึงต่ำกว่า 2500) ใช้ความเร็วปานกลาง (Q1), น้ำหนักมาก (2500 ขึ้นไป) ใช้ความเร็วสูง (Q2) ต้องมีความเร็วเปิดทำงานเพียงระดับเดียวเท่านั้นตลอดเวลา ห้ามเปิดสองระดับพร้อมกันโดยเด็ดขาด",
+    "description": "เซนเซอร์ชั่งน้ำหนักบนสายพาน (AI0) ต้องเลือกความเร็วสายพานให้เหมาะสมกับน้ำหนักชิ้นงานโดยอัตโนมัติ: น้ำหนักเบา (ต่ำกว่า 1000) ใช้ความเร็วต่ำ (Y0), น้ำหนักปานกลาง (1000 ถึงต่ำกว่า 2500) ใช้ความเร็วปานกลาง (Y1), น้ำหนักมาก (2500 ขึ้นไป) ใช้ความเร็วสูง (Y2) ต้องมีความเร็วเปิดทำงานเพียงระดับเดียวเท่านั้นตลอดเวลา ห้ามเปิดสองระดับพร้อมกันโดยเด็ดขาด",
     "hints": [
-      "Q1 (ปานกลาง) ต้องใช้ CMP สองตัวต่ออนุกรมกัน: AI0 >= 1000 และ AI0 < 2500",
+      "Y1 (ปานกลาง) ต้องใช้ CMP สองตัวต่ออนุกรมกัน: AI0 >= 1000 และ AI0 < 2500",
       "ตรวจสอบขอบเขตให้ดี: น้ำหนักพอดี 1000 ต้องเป็นปานกลาง (ไม่ใช่เบา), น้ำหนักพอดี 2500 ต้องเป็นหนัก (ไม่ใช่ปานกลาง)"
     ],
-    "required_competencies": ["ANALOG", "MATH", "INTERLOCK"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "INTERLOCK"
+    ],
     "max_optimal_blocks": 12,
     "stages_json": {
       "testCases": [
@@ -131,24 +271,48 @@
               "id": "low-and-medium",
               "description": "ห้ามเปิดความเร็วต่ำและปานกลางพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "medium-and-high",
               "description": "ห้ามเปิดความเร็วปานกลางและสูงพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "bit", "address": "Q2", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "low-and-high",
               "description": "ห้ามเปิดความเร็วต่ำและสูงพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q2", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -156,48 +320,136 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: น้ำหนักเบา",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false },
-                { "kind": "bit", "address": "Q2", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: น้ำหนักปานกลาง",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "bit", "address": "Q2", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: น้ำหนักมาก",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 3000 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 3000
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q1", "expected": false },
-                { "kind": "bit", "address": "Q2", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: ทดสอบขอบเขตพอดี 1000 - ต้องเป็นปานกลาง",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1000 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1000
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage5",
               "name": "ขั้นที่ 5: ทดสอบขอบเขตพอดี 2500 - ต้องเป็นหนัก",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q1", "expected": false },
-                { "kind": "bit", "address": "Q2", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": true
+                }
               ]
             }
           ]
@@ -208,12 +460,17 @@
   {
     "challenge_id": 34,
     "title": "ระบบล็อคฉุกเฉินเมื่ออุณหภูมิสูงเกินพร้อมรีเซ็ตด้วยมือ (Overtemperature Emergency Lockout with Manual Reset)",
-    "description": "ฮีตเตอร์ (Q0) ควบคุมด้วยฮิสเทอรีซิสเหมือนด่านที่ 31 (ติดต่ำกว่า 1000, ดับที่ 2000 ขึ้นไป) แต่เพิ่มระบบล็อคฉุกเฉิน: หากอุณหภูมิ (AI0) เคยพุ่งถึง 2800 หน่วยขึ้นไปแม้เพียงครั้งเดียว ต้องล็อคห้ามฮีตเตอร์ทำงานทันที และต้องค้างล็อคไว้ แม้อุณหภูมิจะลดลงต่ำกว่า 1000 ในภายหลังก็ตาม จนกว่าผู้ควบคุมจะกดปุ่มยืนยันรีเซ็ต (I1) ด้วยตนเองเท่านั้น",
+    "description": "ฮีตเตอร์ (Y0) ควบคุมด้วยฮิสเทอรีซิสเหมือนด่านที่ 31 (ติดต่ำกว่า 1000, ดับที่ 2000 ขึ้นไป) แต่เพิ่มระบบล็อคฉุกเฉิน: หากอุณหภูมิ (AI0) เคยพุ่งถึง 2800 หน่วยขึ้นไปแม้เพียงครั้งเดียว ต้องล็อคห้ามฮีตเตอร์ทำงานทันที และต้องค้างล็อคไว้ แม้อุณหภูมิจะลดลงต่ำกว่า 1000 ในภายหลังก็ตาม จนกว่าผู้ควบคุมจะกดปุ่มยืนยันรีเซ็ต (X1) ด้วยตนเองเท่านั้น",
     "hints": [
-      "ประกาศตัวแปรภายใน (M) เพิ่ม 1 ตัวเป็น 'ล็อคฉุกเฉิน' - SET เมื่อ AI0 >= 2800, RESET เมื่อกดปุ่ม I1",
+      "ประกาศตัวแปรภายใน (M) เพิ่ม 1 ตัวเป็น 'ล็อคฉุกเฉิน' - SET เมื่อ AI0 >= 2800, RESET เมื่อกดปุ่ม X1",
       "เงื่อนไข SET ของฮีตเตอร์ต้องเพิ่ม NC ของตัวล็อคฉุกเฉินเข้าไปด้วย และเงื่อนไข RESET ของฮีตเตอร์ต้องมีตัวล็อคฉุกเฉิน (OR) เพิ่มเข้ามาด้วย"
     ],
-    "required_competencies": ["ANALOG", "MATH", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 15,
     "stages_json": {
       "testCases": [
@@ -223,16 +480,33 @@
               "id": "heater-at-critical-temp",
               "description": "ห้ามให้ฮีตเตอร์ทำงานขณะอุณหภูมิถึงจุดวิกฤตที่ต้องล็อคฉุกเฉิน (2800 หน่วยขึ้นไป)",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "numeric", "address": "AI0", "operator": ">=", "value": 2800 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "AI0",
+                  "operator": ">=",
+                  "value": 2800
+                }
               ]
             },
             {
               "id": "heater-while-locked",
               "description": "ห้ามให้ฮีตเตอร์ทำงานขณะล็อคฉุกเฉินยังค้างอยู่",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "M0", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "M0",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -240,34 +514,102 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: อุณหภูมิต่ำ - ฮีตเตอร์ทำงานปกติ",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: อุณหภูมิพุ่งถึงจุดวิกฤต - ล็อคฉุกเฉินทำงาน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2900 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2900
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "M0", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "M0",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: อุณหภูมิลดลงต่ำแล้ว แต่ยังไม่ได้กดรีเซ็ต - ฮีตเตอร์ต้องยังไม่ทำงาน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                }
+              ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: กดปุ่มรีเซ็ต - ฮีตเตอร์กลับมาทำงานได้ตามปกติ",
               "frames": [
-                { "inputs": { "I1": true }, "analogInputs": { "AI0": 500 }, "ticks": 1 },
-                { "inputs": { "I1": false }, "analogInputs": { "AI0": 500 }, "ticks": 1 }
+                {
+                  "inputs": {
+                    "X1": true
+                  },
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                },
+                {
+                  "inputs": {
+                    "X1": false
+                  },
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "M0", "expected": false },
-                { "kind": "bit", "address": "Q0", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "M0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
               ]
             }
           ]
@@ -278,13 +620,18 @@
   {
     "challenge_id": 35,
     "title": "ระบบเติมสาร-กวนผสม-ระบายตามลำดับพร้อมจับเวลา (Sequential Fill-Mix-Drain with Timed Dwell)",
-    "description": "กด Start (I0) เพื่อเริ่มเติมสาร (Q0) จนกว่าระดับ (AI0) จะถึง 2000 หน่วย เมื่อเต็มแล้ววาล์วเติมสารปิดและมอเตอร์กวนผสม (Q1) เริ่มทำงานทันที ค้างกวนผสมไว้ 0.8 วินาที (Timer preset = 8) จากนั้นหยุดกวนผสมและเปิดวาล์วระบาย (Q2) จนกว่าระดับจะลดลงต่ำกว่า 200 หน่วย (เกือบว่าง) จึงปิดวาล์วระบาย ห้ามเปิดวาล์วเติมสารและมอเตอร์กวนผสมพร้อมกัน และห้ามเปิดมอเตอร์กวนผสมและวาล์วระบายพร้อมกันเช่นกัน",
+    "description": "กด Start (X0) เพื่อเริ่มเติมสาร (Y0) จนกว่าระดับ (AI0) จะถึง 2000 หน่วย เมื่อเต็มแล้ววาล์วเติมสารปิดและมอเตอร์กวนผสม (Y1) เริ่มทำงานทันที ค้างกวนผสมไว้ 0.8 วินาที (Timer preset = 8) จากนั้นหยุดกวนผสมและเปิดวาล์วระบาย (Y2) จนกว่าระดับจะลดลงต่ำกว่า 200 หน่วย (เกือบว่าง) จึงปิดวาล์วระบาย ห้ามเปิดวาล์วเติมสารและมอเตอร์กวนผสมพร้อมกัน และห้ามเปิดมอเตอร์กวนผสมและวาล์วระบายพร้อมกันเช่นกัน",
     "hints": [
-      "วาล์วเติมสาร (Q0): SET เมื่อ Start และยังไม่เต็ม (AI0 < 2000), RESET เมื่อเต็ม (AI0 >= 2000)",
-      "มอเตอร์กวนผสม (Q1): SET เมื่อ AI0 >= 2000 (เต็มแล้ว), TON เริ่มนับเมื่อ Q1 ทำงาน, RESET เมื่อ T0.DN",
-      "วาล์วระบาย (Q2): SET เมื่อ T0.DN, RESET เมื่อ AI0 < 200"
+      "วาล์วเติมสาร (Y0): SET เมื่อ Start และยังไม่เต็ม (AI0 < 2000), RESET เมื่อเต็ม (AI0 >= 2000)",
+      "มอเตอร์กวนผสม (Y1): SET เมื่อ AI0 >= 2000 (เต็มแล้ว), TON เริ่มนับเมื่อ Y1 ทำงาน, RESET เมื่อ T0.DN",
+      "วาล์วระบาย (Y2): SET เมื่อ T0.DN, RESET เมื่อ AI0 < 200"
     ],
-    "required_competencies": ["ANALOG", "MATH", "TIMER", "INTERLOCK"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "TIMER",
+      "INTERLOCK"
+    ],
     "max_optimal_blocks": 16,
     "stages_json": {
       "testCases": [
@@ -294,16 +641,32 @@
               "id": "fill-and-mix",
               "description": "ห้ามเปิดวาล์วเติมสารและมอเตอร์กวนผสมพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "mix-and-drain",
               "description": "ห้ามเปิดมอเตอร์กวนผสมและวาล์วระบายพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "bit", "address": "Q2", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -311,32 +674,96 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: กด Start ขณะถังว่าง - เริ่มเติมสาร",
-              "frames": [{ "inputs": { "I0": true }, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: ระดับถึง 2000 - ปิดเติมสาร เริ่มกวนผสม",
-              "frames": [{ "inputs": { "I0": false }, "analogInputs": { "AI0": 2100 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": false
+                  },
+                  "analogInputs": {
+                    "AI0": 2100
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: ครบเวลากวนผสม - หยุดกวน เปิดระบาย",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2100 }, "ticks": 9 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2100
+                  },
+                  "ticks": 9
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q1", "expected": false },
-                { "kind": "bit", "address": "Q2", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: ระดับลดลงจนเกือบว่าง - ปิดวาล์วระบาย",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 100 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q2", "expected": false }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 100
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y2",
+                  "expected": false
+                }
+              ]
             }
           ]
         }
@@ -346,13 +773,17 @@
   {
     "challenge_id": 36,
     "title": "ระบบเตือนน้ำหนักเกินพิกัดสายพานพร้อมนับจำนวนครั้ง (Overweight Conveyor Alarm with Event Counter)",
-    "description": "เซนเซอร์ชั่งน้ำหนัก (AI0) ตรวจจับน้ำหนักชิ้นงานบนสายพานตลอดเวลา หากน้ำหนักถึง 3000 หน่วยขึ้นไป (เกินพิกัดโครงสร้างสายพาน) ต้องติดไฟเตือน (Q0) ทันที และหยุดสายพาน (Q1 = false) ทันทีโดยเด็ดขาด ต้องนับจำนวนครั้งที่เกิดเหตุการณ์น้ำหนักเกินสะสมไว้ที่ C0 ด้วย เพื่อใช้วิเคราะห์ปัญหาสายการผลิตย้อนหลัง",
+    "description": "เซนเซอร์ชั่งน้ำหนัก (AI0) ตรวจจับน้ำหนักชิ้นงานบนสายพานตลอดเวลา หากน้ำหนักถึง 3000 หน่วยขึ้นไป (เกินพิกัดโครงสร้างสายพาน) ต้องติดไฟเตือน (Y0) ทันที และหยุดสายพาน (Y1 = false) ทันทีโดยเด็ดขาด ต้องนับจำนวนครั้งที่เกิดเหตุการณ์น้ำหนักเกินสะสมไว้ที่ C0 ด้วย เพื่อใช้วิเคราะห์ปัญหาสายการผลิตย้อนหลัง",
     "hints": [
-      "Q0 (ไฟเตือน) ใช้ COIL ตามเงื่อนไข CMP(AI0 >= 3000) ตรงๆ ได้เลย",
-      "Q1 (สายพานทำงาน) ใช้ COIL ตามเงื่อนไข CMP(AI0 < 3000)",
-      "C0 ใช้ CTU นับทุกครั้งที่ Q0 (ไฟเตือน) เปลี่ยนจากดับเป็นติด (rising edge)"
+      "Y0 (ไฟเตือน) ใช้ COIL ตามเงื่อนไข CMP(AI0 >= 3000) ตรงๆ ได้เลย",
+      "Y1 (สายพานทำงาน) ใช้ COIL ตามเงื่อนไข CMP(AI0 < 3000)",
+      "C0 ใช้ CTU นับทุกครั้งที่ Y0 (ไฟเตือน) เปลี่ยนจากดับเป็นติด (rising edge)"
     ],
-    "required_competencies": ["ANALOG", "MATH", "COUNTER"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "COUNTER"
+    ],
     "max_optimal_blocks": 12,
     "stages_json": {
       "testCases": [
@@ -362,8 +793,16 @@
               "id": "conveyor-while-overweight",
               "description": "ห้ามให้สายพานทำงานขณะสัญญาณเตือนน้ำหนักเกินติดอยู่",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "bit", "address": "Q0", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -371,36 +810,105 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: น้ำหนักปกติ - สายพานทำงาน ไม่มีสัญญาณเตือน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1000 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1000
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: น้ำหนักเกินพิกัดครั้งแรก",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 3500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 3500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 1
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: น้ำหนักกลับสู่ปกติ - สายพานทำงานต่อ นับสะสมยังคงอยู่",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1000 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1000
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 1
+                }
               ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: น้ำหนักเกินพิกัดครั้งที่สอง",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 3200 }, "ticks": 1 }],
-              "expect": [{ "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 2 }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 3200
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 2
+                }
+              ]
             }
           ]
         }
@@ -410,12 +918,16 @@
   {
     "challenge_id": 37,
     "title": "ระบบตรวจสอบสัดส่วนการผสมสีสองสารด้วยการเปรียบเทียบค่าอนาล็อกสองตัว (Two-Component Paint Ratio Monitor)",
-    "description": "เครื่องผสมสีวัดอัตราการไหลของสารสองชนิดพร้อมกัน: สาร A (AI0) และสาร B (AI1) กระบวนการต้องมีอัตราการไหลของสาร A มากกว่าสาร B เสมอ (สัดส่วนถูกต้อง) หากอัตราการไหลของสาร A เท่ากับหรือน้อยกว่าสาร B เมื่อใด แสดงว่าสัดส่วนผิดพลาด ต้องติดไฟเตือนความไม่สมดุล (Q1) และดับไฟสัญญาณสัดส่วนถูกต้อง (Q0) ทันที ทั้งสองสัญญาณต้องไม่ติดพร้อมกันโดยเด็ดขาด",
+    "description": "เครื่องผสมสีวัดอัตราการไหลของสารสองชนิดพร้อมกัน: สาร A (AI0) และสาร B (AI1) กระบวนการต้องมีอัตราการไหลของสาร A มากกว่าสาร B เสมอ (สัดส่วนถูกต้อง) หากอัตราการไหลของสาร A เท่ากับหรือน้อยกว่าสาร B เมื่อใด แสดงว่าสัดส่วนผิดพลาด ต้องติดไฟเตือนความไม่สมดุล (Y1) และดับไฟสัญญาณสัดส่วนถูกต้อง (Y0) ทันที ทั้งสองสัญญาณต้องไม่ติดพร้อมกันโดยเด็ดขาด",
     "hints": [
       "บล็อกเปรียบเทียบ (CMP) เปรียบเทียบค่าจากสองแอดเดรสได้โดยตรง ไม่จำเป็นต้องเทียบกับค่าคงที่เสมอไป - เลือกแอดเดรส AI1 เป็นค่าที่จะเปรียบเทียบ (สถานะ Register) แทนค่าคงที่",
-      "Q0 = CMP(AI0 > AI1), Q1 = CMP(AI0 <= AI1) - สองเงื่อนไขนี้ครอบคลุมทุกกรณีพอดี"
+      "Y0 = CMP(AI0 > AI1), Y1 = CMP(AI0 <= AI1) - สองเงื่อนไขนี้ครอบคลุมทุกกรณีพอดี"
     ],
-    "required_competencies": ["ANALOG", "MATH", "INTERLOCK"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "INTERLOCK"
+    ],
     "max_optimal_blocks": 10,
     "stages_json": {
       "testCases": [
@@ -425,8 +937,16 @@
               "id": "both-signals",
               "description": "ห้ามให้ไฟสัดส่วนถูกต้องและไฟเตือนความไม่สมดุลติดพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -434,28 +954,79 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: สาร A ไหลมากกว่าสาร B - สัดส่วนถูกต้อง",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2000, "AI1": 1000 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2000,
+                    "AI1": 1000
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: สาร A ไหลน้อยกว่าสาร B - สัดส่วนผิดพลาด",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1000, "AI1": 2000 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1000,
+                    "AI1": 2000
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: อัตราการไหลเท่ากันพอดี - ต้องนับเป็นสัดส่วนผิดพลาดเช่นกัน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1500, "AI1": 1500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1500,
+                    "AI1": 1500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             }
           ]
@@ -466,12 +1037,17 @@
   {
     "challenge_id": 38,
     "title": "ระบบควบคุมแรงดันหม้อไอน้ำด้วยฮิสเทอรีซิสพร้อมวาล์วนิรภัย (Boiler Pressure Hysteresis + Unblockable Safety Relief)",
-    "description": "เซนเซอร์วัดแรงดัน (AI0) ควบคุมปั๊มเพิ่มแรงดัน (Q0) แบบฮิสเทอรีซิส: เปิดเมื่อแรงดันต่ำกว่า 1000 หน่วย ปิดเมื่อสูงถึง 2000 หน่วยขึ้นไป นอกจากนี้ยังมีวาล์วนิรภัย (Q1) ที่ต้องเปิดทันทีเมื่อแรงดันถึงจุดวิกฤต 3000 หน่วยขึ้นไป หรือเมื่อผู้ควบคุมกดปุ่มเปิดด้วยมือ (I0) และห้ามถูกปิดกั้นด้วยคำสั่งใดๆ โดยเด็ดขาดเมื่อแรงดันยังอยู่ในระดับวิกฤต",
+    "description": "เซนเซอร์วัดแรงดัน (AI0) ควบคุมปั๊มเพิ่มแรงดัน (Y0) แบบฮิสเทอรีซิส: เปิดเมื่อแรงดันต่ำกว่า 1000 หน่วย ปิดเมื่อสูงถึง 2000 หน่วยขึ้นไป นอกจากนี้ยังมีวาล์วนิรภัย (Y1) ที่ต้องเปิดทันทีเมื่อแรงดันถึงจุดวิกฤต 3000 หน่วยขึ้นไป หรือเมื่อผู้ควบคุมกดปุ่มเปิดด้วยมือ (X0) และห้ามถูกปิดกั้นด้วยคำสั่งใดๆ โดยเด็ดขาดเมื่อแรงดันยังอยู่ในระดับวิกฤต",
     "hints": [
-      "ปั๊มเพิ่มแรงดัน (Q0) ใช้ SET/RESET กับ CMP สองตัวเหมือนด่านที่ 31",
-      "วาล์วนิรภัย (Q1) เปิดจากสองเงื่อนไข OR: CMP(AI0 >= 3000) หรือปุ่มเปิดมือ (I0) - ใช้ Insert Branch Row"
+      "ปั๊มเพิ่มแรงดัน (Y0) ใช้ SET/RESET กับ CMP สองตัวเหมือนด่านที่ 31",
+      "วาล์วนิรภัย (Y1) เปิดจากสองเงื่อนไข OR: CMP(AI0 >= 3000) หรือปุ่มเปิดมือ (X0) - ใช้ Insert Branch Row"
     ],
-    "required_competencies": ["ANALOG", "MATH", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 13,
     "stages_json": {
       "testCases": [
@@ -481,8 +1057,17 @@
               "id": "relief-blocked-at-critical",
               "description": "วาล์วนิรภัยต้องเปิดทันทีเมื่อแรงดันถึงจุดวิกฤต ห้ามถูกปิดกั้น",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": false },
-                { "kind": "numeric", "address": "AI0", "operator": ">=", "value": 3000 }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                },
+                {
+                  "kind": "numeric",
+                  "address": "AI0",
+                  "operator": ">=",
+                  "value": 3000
+                }
               ]
             }
           ],
@@ -490,29 +1075,89 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: แรงดันต่ำ - ปั๊มทำงาน วาล์วนิรภัยปิด",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: แรงดันถึงเกณฑ์บน - ปั๊มหยุด",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2200 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2200
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                }
+              ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: แรงดันพุ่งถึงจุดวิกฤต - วาล์วนิรภัยต้องเปิด",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 3200 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q1", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 3200
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
+              ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: แรงดันกลับสู่ปกติ ผู้ควบคุมเปิดวาล์วนิรภัยเองด้วยมือ",
-              "frames": [{ "inputs": { "I0": true }, "analogInputs": { "AI0": 500 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q1", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {
+                    "X0": true
+                  },
+                  "analogInputs": {
+                    "AI0": 500
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
+              ]
             }
           ]
         }
@@ -522,12 +1167,17 @@
   {
     "challenge_id": 39,
     "title": "ระบบตรวจสอบน้ำหนักบรรจุภัณฑ์ในเกณฑ์พร้อมคัดออกนอกเกณฑ์ (Package Weight Tolerance Band Sort)",
-    "description": "เครื่องชั่งน้ำหนักบรรจุภัณฑ์ (AI0) ต้องตรวจสอบว่าอยู่ในเกณฑ์ที่ยอมรับได้หรือไม่: เกณฑ์ยอมรับคือ 1000 ถึง 1500 หน่วย (รวมค่าขอบเขตทั้งสองด้าน) หากอยู่ในเกณฑ์ ตัวดันเลนรับ (Q0) ต้องทำงาน หากน้ำหนักน้อยกว่า 1000 (บรรจุพร่อง) หรือมากกว่า 1500 (บรรจุเกิน) ตัวดันเลนคัดออก (Q1) ต้องทำงานแทน และนับจำนวนที่คัดออกสะสมไว้ที่ C0 ทั้งสองเลนต้องไม่ทำงานพร้อมกันโดยเด็ดขาด",
+    "description": "เครื่องชั่งน้ำหนักบรรจุภัณฑ์ (AI0) ต้องตรวจสอบว่าอยู่ในเกณฑ์ที่ยอมรับได้หรือไม่: เกณฑ์ยอมรับคือ 1000 ถึง 1500 หน่วย (รวมค่าขอบเขตทั้งสองด้าน) หากอยู่ในเกณฑ์ ตัวดันเลนรับ (Y0) ต้องทำงาน หากน้ำหนักน้อยกว่า 1000 (บรรจุพร่อง) หรือมากกว่า 1500 (บรรจุเกิน) ตัวดันเลนคัดออก (Y1) ต้องทำงานแทน และนับจำนวนที่คัดออกสะสมไว้ที่ C0 ทั้งสองเลนต้องไม่ทำงานพร้อมกันโดยเด็ดขาด",
     "hints": [
-      "Q0 (เลนรับ) ต้องใช้ CMP สองตัวต่ออนุกรม: AI0 >= 1000 และ AI0 <= 1500",
-      "Q1 (เลนคัดออก) ใช้ CMP สองตัวต่อแบบขนาน (OR): AI0 < 1000 หรือ AI0 > 1500"
+      "Y0 (เลนรับ) ต้องใช้ CMP สองตัวต่ออนุกรม: AI0 >= 1000 และ AI0 <= 1500",
+      "Y1 (เลนคัดออก) ใช้ CMP สองตัวต่อแบบขนาน (OR): AI0 < 1000 หรือ AI0 > 1500"
     ],
-    "required_competencies": ["ANALOG", "MATH", "COUNTER", "INTERLOCK"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "COUNTER",
+      "INTERLOCK"
+    ],
     "max_optimal_blocks": 14,
     "stages_json": {
       "testCases": [
@@ -537,8 +1187,16 @@
               "id": "both-lanes",
               "description": "ห้ามให้ตัวดันเลนรับและเลนคัดออกทำงานพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -546,41 +1204,121 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: น้ำหนักอยู่กลางเกณฑ์ - เลนรับทำงาน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1200 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1200
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: น้ำหนักน้อยกว่าเกณฑ์ (บรรจุพร่อง) - เลนคัดออกทำงาน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 800 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 800
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 1 }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 1
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: น้ำหนักมากกว่าเกณฑ์ (บรรจุเกิน) - เลนคัดออกทำงาน",
               "frames": [
-                { "inputs": {}, "analogInputs": { "AI0": 1200 }, "ticks": 1 },
-                { "inputs": {}, "analogInputs": { "AI0": 1800 }, "ticks": 1 }
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1200
+                  },
+                  "ticks": 1
+                },
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1800
+                  },
+                  "ticks": 1
+                }
               ],
-              "expect": [{ "kind": "numeric", "address": "C0.ACC", "operator": "==", "value": 2 }]
+              "expect": [
+                {
+                  "kind": "numeric",
+                  "address": "C0.ACC",
+                  "operator": "==",
+                  "value": 2
+                }
+              ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: ทดสอบขอบเขตพอดี 1000 และ 1500 - ทั้งคู่ต้องอยู่ในเกณฑ์รับ",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1000 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1000
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             },
             {
               "id": "stage5",
               "name": "ขั้นที่ 5: ทดสอบขอบเขตพอดี 1500",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 1500 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 1500
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                }
+              ]
             }
           ]
         }
@@ -590,12 +1328,17 @@
   {
     "challenge_id": 40,
     "title": "สถานีควบคุมกระบวนการผสมและให้ความร้อนครบวงจร (Full Mixing & Heating Process Capstone)",
-    "description": "สถานีสุดท้ายของบทที่ 4 รวมทุกทักษะอนาล็อกเข้าด้วยกัน มีเซนเซอร์ระดับ (AI0) และเซนเซอร์อุณหภูมิ (AI1) แยกกัน: วาล์วเติมสาร (Q0) ควบคุมด้วยฮิสเทอรีซิสจาก AI0 (เปิดต่ำกว่า 1000, ปิดตั้งแต่ 2000) ฮีตเตอร์ (Q1) ควบคุมด้วยฮิสเทอรีซิสจาก AI1 (เปิดต่ำกว่า 1000, ปิดตั้งแต่ 2000) แต่ห้ามให้ความร้อนขณะกำลังเติมสาร (ต้องรอให้เติมเสร็จก่อน) หากอุณหภูมิเคยพุ่งถึง 3000 ขึ้นไป ต้องล็อคฉุกเฉินห้ามฮีตเตอร์ทำงานจนกว่าจะกดปุ่มรีเซ็ต (I1) เท่านั้น เหมือนด่านที่ 34",
+    "description": "สถานีสุดท้ายของบทที่ 4 รวมทุกทักษะอนาล็อกเข้าด้วยกัน มีเซนเซอร์ระดับ (AI0) และเซนเซอร์อุณหภูมิ (AI1) แยกกัน: วาล์วเติมสาร (Y0) ควบคุมด้วยฮิสเทอรีซิสจาก AI0 (เปิดต่ำกว่า 1000, ปิดตั้งแต่ 2000) ฮีตเตอร์ (Y1) ควบคุมด้วยฮิสเทอรีซิสจาก AI1 (เปิดต่ำกว่า 1000, ปิดตั้งแต่ 2000) แต่ห้ามให้ความร้อนขณะกำลังเติมสาร (ต้องรอให้เติมเสร็จก่อน) หากอุณหภูมิเคยพุ่งถึง 3000 ขึ้นไป ต้องล็อคฉุกเฉินห้ามฮีตเตอร์ทำงานจนกว่าจะกดปุ่มรีเซ็ต (X1) เท่านั้น เหมือนด่านที่ 34",
     "hints": [
-      "แยกทำทีละส่วน: วาล์วเติมสาร (เหมือนด่านที่ 31), ฮีตเตอร์พร้อมล็อคฉุกเฉิน (เหมือนด่านที่ 34) แล้วเพิ่มเงื่อนไข NC(Q0) เข้าไปในเงื่อนไข SET ของฮีตเตอร์",
+      "แยกทำทีละส่วน: วาล์วเติมสาร (เหมือนด่านที่ 31), ฮีตเตอร์พร้อมล็อคฉุกเฉิน (เหมือนด่านที่ 34) แล้วเพิ่มเงื่อนไข NC(Y0) เข้าไปในเงื่อนไข SET ของฮีตเตอร์",
       "ใช้ตัวแปรภายใน M0 เป็นตัวล็อคฉุกเฉินเหมือนด่านที่ 34 ทุกประการ"
     ],
-    "required_competencies": ["ANALOG", "MATH", "INTERLOCK", "NO_NC"],
+    "required_competencies": [
+      "ANALOG",
+      "MATH",
+      "INTERLOCK",
+      "NO_NC"
+    ],
     "max_optimal_blocks": 18,
     "stages_json": {
       "testCases": [
@@ -605,24 +1348,49 @@
               "id": "fill-and-heat",
               "description": "ห้ามเติมสารและให้ความร้อนพร้อมกัน",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "heat-at-critical-temp",
               "description": "ห้ามให้ความร้อนขณะอุณหภูมิถึงจุดวิกฤต (3000 ขึ้นไป)",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "numeric", "address": "AI1", "operator": ">=", "value": 3000 }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "numeric",
+                  "address": "AI1",
+                  "operator": ">=",
+                  "value": 3000
+                }
               ]
             },
             {
               "id": "heat-while-locked",
               "description": "ห้ามให้ความร้อนขณะล็อคฉุกเฉินยังค้างอยู่",
               "violatingWhen": [
-                { "kind": "bit", "address": "Q1", "expected": true },
-                { "kind": "bit", "address": "M0", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "M0",
+                  "expected": true
+                }
               ]
             }
           ],
@@ -630,46 +1398,138 @@
             {
               "id": "stage1",
               "name": "ขั้นที่ 1: ถังว่างและเย็น - เติมสารก่อน ห้ามให้ความร้อน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 500, "AI1": 500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 500,
+                    "AI1": 500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": true },
-                { "kind": "bit", "address": "Q1", "expected": false }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": true
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
               ]
             },
             {
               "id": "stage2",
               "name": "ขั้นที่ 2: เติมเสร็จแล้ว (ยังเย็นอยู่) - เริ่มให้ความร้อนได้",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2100, "AI1": 500 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2100,
+                    "AI1": 500
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage3",
               "name": "ขั้นที่ 3: อุณหภูมิพุ่งถึงจุดวิกฤต - ล็อคฉุกเฉิน ฮีตเตอร์ดับ",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2100, "AI1": 3200 }, "ticks": 1 }],
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2100,
+                    "AI1": 3200
+                  },
+                  "ticks": 1
+                }
+              ],
               "expect": [
-                { "kind": "bit", "address": "Q1", "expected": false },
-                { "kind": "bit", "address": "M0", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "M0",
+                  "expected": true
+                }
               ]
             },
             {
               "id": "stage4",
               "name": "ขั้นที่ 4: อุณหภูมิลดลงแล้ว แต่ยังไม่รีเซ็ต - ฮีตเตอร์ต้องยังไม่ทำงาน",
-              "frames": [{ "inputs": {}, "analogInputs": { "AI0": 2100, "AI1": 500 }, "ticks": 1 }],
-              "expect": [{ "kind": "bit", "address": "Q1", "expected": false }]
+              "frames": [
+                {
+                  "inputs": {},
+                  "analogInputs": {
+                    "AI0": 2100,
+                    "AI1": 500
+                  },
+                  "ticks": 1
+                }
+              ],
+              "expect": [
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": false
+                }
+              ]
             },
             {
               "id": "stage5",
               "name": "ขั้นที่ 5: กดปุ่มรีเซ็ต - ฮีตเตอร์กลับมาทำงานได้",
               "frames": [
-                { "inputs": { "I1": true }, "analogInputs": { "AI0": 2100, "AI1": 500 }, "ticks": 1 },
-                { "inputs": { "I1": false }, "analogInputs": { "AI0": 2100, "AI1": 500 }, "ticks": 1 }
+                {
+                  "inputs": {
+                    "X1": true
+                  },
+                  "analogInputs": {
+                    "AI0": 2100,
+                    "AI1": 500
+                  },
+                  "ticks": 1
+                },
+                {
+                  "inputs": {
+                    "X1": false
+                  },
+                  "analogInputs": {
+                    "AI0": 2100,
+                    "AI1": 500
+                  },
+                  "ticks": 1
+                }
               ],
               "expect": [
-                { "kind": "bit", "address": "M0", "expected": false },
-                { "kind": "bit", "address": "Q1", "expected": true }
+                {
+                  "kind": "bit",
+                  "address": "M0",
+                  "expected": false
+                },
+                {
+                  "kind": "bit",
+                  "address": "Y1",
+                  "expected": true
+                }
               ]
             }
           ]

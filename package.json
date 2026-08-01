@@ -9,7 +9,9 @@
     "lint": "eslint",
     "seed": "tsx scripts/seed.ts",
     "generate:levels": "tsx scripts/level-gen/generate.ts",
+    "generate:efficiency": "tsx scripts/level-gen/generate-efficiency.ts",
     "seed:levels": "tsx scripts/seed-levels.ts",
+    "seed:efficiency": "tsx scripts/seed-efficiency-levels.ts",
     "seed:challenges": "tsx scripts/seed-challenges.ts"
   },
   "dependencies": {

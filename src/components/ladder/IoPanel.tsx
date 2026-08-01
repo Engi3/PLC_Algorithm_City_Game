@@ -26,7 +26,7 @@ function AddressLabel({ addr, label }: { addr: string; label?: string }) {
  * be changed directly on the input button - not just read. Previously the
  * only control for this (VariablePoolDrawer's Toggle/Momentary buttons)
  * only rendered for variables explicitly added to the custom pool, so the
- * built-in I0-I7 addresses everyone actually clicks in the simulator had no
+ * built-in X0-X7 addresses everyone actually clicks in the simulator had no
  * way to change their switch type at all, even though the engine already
  * fully supported it. "L" for Latching (the SwitchType value is still
  * "toggle" internally - unchanged to avoid touching every call site - but
@@ -126,7 +126,7 @@ export default function IoPanel({
   onSetInputValue?: (address: string, value: boolean) => void;
   customVariables?: DeclaredVariable[];
   getSwitchType?: (address: string) => SwitchType;
-  /** UX/UI fix: when provided, every input button (built-in I0-I7 included, not just custom X/Y/M variables) gets a small corner badge to change its switch type directly - see SwitchTypeBadge. */
+  /** UX/UI fix: when provided, every input button (built-in X0-X7 included, not just custom X/Y/M variables) gets a small corner badge to change its switch type directly - see SwitchTypeBadge. */
   onSetSwitchType?: (address: string, type: SwitchType) => void;
 }) {
   const customInputs = customVariables.filter((v) => v.kind === "input").map((v) => v.address);

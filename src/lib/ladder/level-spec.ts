@@ -15,7 +15,7 @@ export type LevelFrame = {
 
 export type LevelTestCase = {
   frames: LevelFrame[];
-  /** Checked after the last frame. Keys are coil addresses or timer/counter done-bit addresses (e.g. "Q0", "T0.DN"). */
+  /** Checked after the last frame. Keys are coil addresses or timer/counter done-bit addresses (e.g. "Y0", "T0.DN"). */
   expect: Record<string, boolean>;
 };
 
