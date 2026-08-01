@@ -73,6 +73,25 @@ export type ChallengeTestCase = {
 /** Free-text competency tags for the teacher-facing curriculum browser (Task 3) - not consumed by the evaluator itself. */
 export type RequiredCompetency = "NO_NC" | "TIMER" | "COUNTER" | "ANALOG" | "INTERLOCK" | "MATH";
 
+/** Task 5.1: display labels/badge colors for competency tags on the Challenge Browser - same palette convention as level-spec.ts's SKILL_LABELS/SKILL_BADGE_CLASSES, picking colors distinct from that 5-skill set so the two badge systems don't visually blur together. */
+export const COMPETENCY_TAG_LABELS: Record<RequiredCompetency, string> = {
+  NO_NC: "NO/NC",
+  TIMER: "Timer",
+  COUNTER: "Counter",
+  ANALOG: "Analog",
+  INTERLOCK: "Interlock",
+  MATH: "CMP/Math",
+};
+
+export const COMPETENCY_TAG_BADGE_CLASSES: Record<RequiredCompetency, string> = {
+  NO_NC: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
+  TIMER: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
+  COUNTER: "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400",
+  ANALOG: "bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400",
+  INTERLOCK: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400",
+  MATH: "bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-400",
+};
+
 /**
  * Task 3: the 50-challenge curriculum's chapter architecture - see
  * CHALLENGE_CURRICULUM.md for the full design rationale and the

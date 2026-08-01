@@ -14,6 +14,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
       return [
         { href: "/dashboard", label: "Overview" },
         { href: "/dashboard/play", label: "Test Play Levels" },
+        { href: "/dashboard/challenges", label: "Challenge Mode" },
         { href: "/dashboard/play/sandbox", label: "Ladder Sandbox" },
         { href: "/dashboard/levels", label: "Levels" },
         { href: "/dashboard/students", label: "Manage Users" },
@@ -27,6 +28,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
       return [
         { href: "/dashboard", label: "Home" },
         { href: "/dashboard/play", label: "Play" },
+        { href: "/dashboard/challenges", label: "Challenge Mode" },
         { href: "/dashboard/play/sandbox", label: "Sandbox" },
         { href: "/dashboard/progress", label: "My Progress" },
         { href: "/dashboard/shop", label: "Shop" },
@@ -37,6 +39,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
       return [
         { href: "/dashboard", label: "Home" },
         { href: "/dashboard/play", label: "Play (Trial)" },
+        { href: "/dashboard/challenges", label: "Challenge Mode" },
         { href: "/dashboard/play/sandbox", label: "Sandbox" },
         { href: "/dashboard/shop", label: "Shop" },
         { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
