@@ -1,0 +1,553 @@
+[
+  {
+    "challenge_id": 1,
+    "title": "มอเตอร์สายพานลำเลียงหมุนกลับทาง (Forward/Reverse Interlock)",
+    "description": "มอเตอร์ 3 เฟสขับสายพานลำเลียงต้องหมุนได้ทั้งสองทิศทางผ่านคอนแทคเตอร์ 2 ตัว: K1 (Q0) สำหรับหมุนไปข้างหน้า (Forward) และ K2 (Q1) สำหรับหมุนถอยหลัง (Reverse) ผู้ควบคุมกดปุ่ม I0 (Forward) หรือ I1 (Reverse) ค้างไว้เพื่อสั่งงานแบบ Jog (ปล่อยแล้วหยุดทันที) ข้อกำหนดด้านความปลอดภัยที่เข้มงวดที่สุดคือ ห้ามให้ K1 และ K2 ทำงานพร้อมกันโดยเด็ดขาด เพราะจะทำให้เกิดไฟฟ้าลัดวงจรข้ามเฟสในขดลวดมอเตอร์ทันที แม้ผู้ควบคุมจะกดปุ่มทั้งสองพร้อมกันโดยไม่ได้ตั้งใจ วงจรก็ต้องป้องกันไม่ให้เกิดเหตุการณ์นี้ได้เสมอ",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ของคอยล์อีกฝั่งเป็นเงื่อนไขอนุกรมในแต่ละรัง เพื่อล็อคไม่ให้อีกฝั่งทำงานพร้อมกัน",
+      "ไม่จำเป็นต้องใช้ SET/RESET ในด่านนี้ - ใช้ COIL ธรรมดาแบบ Jog ได้เลย",
+      "ลองกดทั้งสองปุ่มพร้อมกันใน Simulator เพื่อตรวจสอบว่า K1 และ K2 ไม่ติดพร้อมกันจริง"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 9,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "both-directions",
+              "description": "ห้ามให้คอนแทคเตอร์ Forward (K1) และ Reverse (K2) ทำงานพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กดปุ่ม Forward เพียงอย่างเดียว",
+              "frames": [{ "inputs": { "I0": true, "I1": false }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ปล่อย Forward แล้วกดปุ่ม Reverse เพียงอย่างเดียว",
+              "frames": [{ "inputs": { "I0": false, "I1": true }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ทดสอบความปลอดภัย - กดทั้งสองปุ่มพร้อมกัน",
+              "frames": [{ "inputs": { "I0": true, "I1": true }, "ticks": 1 }],
+              "expect": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 2,
+    "title": "วงจรกดสองมือเพื่อความปลอดภัยของเครื่องปั๊มขึ้นรูป (Two-Hand Safety Press)",
+    "description": "เครื่องปั๊มขึ้นรูปโลหะมีปุ่มกด 2 ปุ่ม (I0 = ปุ่มมือซ้าย, I1 = ปุ่มมือขวา) ติดตั้งห่างกันเพื่อบังคับให้ผู้ควบคุมใช้มือทั้งสองข้างพร้อมกัน ป้องกันไม่ให้มือข้างใดข้างหนึ่งอยู่ในพื้นที่อันตรายขณะแท่นปั๊ม (Q0) ทำงาน หัวปั๊มจะเคลื่อนที่ลงก็ต่อเมื่อกดปุ่มทั้งสองพร้อมกันเท่านั้น และต้องหยุดทำงานทันทีที่ปล่อยมือข้างใดข้างหนึ่ง (ไม่มีการค้างสถานะ)",
+    "hints": [
+      "ใช้ AND ธรรมดา (หน้าสัมผัส NO สองตัวต่ออนุกรม) ก็เพียงพอสำหรับด่านนี้",
+      "ห้ามใช้ SET เพราะหัวปั๊มต้องหยุดทันทีเมื่อปล่อยมือ ไม่ใช่ค้างสถานะ"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 8,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "missing-left-hand",
+              "description": "ห้ามให้แท่นปั๊มทำงานถ้าไม่มีมือซ้ายกดปุ่ม",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I0", "expected": false }
+              ]
+            },
+            {
+              "id": "missing-right-hand",
+              "description": "ห้ามให้แท่นปั๊มทำงานถ้าไม่มีมือขวากดปุ่ม",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กดมือทั้งสองข้างพร้อมกัน",
+              "frames": [{ "inputs": { "I0": true, "I1": true }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ปล่อยมือซ้าย (มือขวายังกดอยู่)",
+              "frames": [{ "inputs": { "I0": false, "I1": true }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 3,
+    "title": "สายพานลำเลียงพร้อมประตูนิรภัย (Conveyor with Safety Gate Interlock)",
+    "description": "สายพานลำเลียง (Q0) เริ่มทำงานเมื่อกดปุ่ม Start (I0) และประตูนิรภัยของพื้นที่ทำงานปิดสนิท (I1 = true คือประตูปิด) หลังจากเริ่มทำงานแล้ว สายพานต้องค้างทำงานต่อเนื่องแม้ปล่อยปุ่ม Start (ใช้การค้างสถานะแบบ Latch) จนกว่าจะมีการกดปุ่ม Stop (I2) หรือมีการเปิดประตูนิรภัยระหว่างทำงาน (I1 กลับเป็น false) ซึ่งทั้งสองกรณีต้องทำให้สายพานหยุดทันที โดยเฉพาะกรณีประตูเปิดถือเป็นเหตุฉุกเฉินด้านความปลอดภัยที่ต้องหยุดทันทีไม่มีข้อยกเว้น",
+    "hints": [
+      "ใช้ SET เมื่อกด Start และประตูปิดอยู่ ใช้ RESET เมื่อกด Stop หรือประตูเปิด (ลองใช้ Insert Branch Row เพื่อรวมสองเงื่อนไข RESET เป็น OR)",
+      "แยกเงื่อนไข Start (ต้องเช็คว่าประตูปิดก่อนจะเริ่ม) ออกจากเงื่อนไข Reset (ต้องเช็คตลอดเวลาว่าประตูยังปิดอยู่ไหม)"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 9,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "gate-open-while-running",
+              "description": "ห้ามให้สายพานทำงานขณะประตูนิรภัยเปิดอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start ขณะประตูปิดอยู่",
+              "frames": [{ "inputs": { "I0": true, "I1": true, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ปล่อยปุ่ม Start (ประตูยังปิดอยู่ ไม่ได้กด Stop)",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ประตูนิรภัยถูกเปิดระหว่างทำงาน",
+              "frames": [{ "inputs": { "I0": false, "I1": false, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 4,
+    "title": "สายฉุกเฉินหยุดเครื่องจักรพร้อมรีเซ็ตด้วยมือ (E-Stop Chain with Manual Reset)",
+    "description": "เครื่องจักร (Q0) เริ่มทำงานด้วยปุ่ม Start (I0) และค้างสถานะทำงานต่อเนื่อง เมื่อกดปุ่มหยุดฉุกเฉิน E-Stop (I1 = true คือกำลังกดอยู่) เครื่องต้องหยุดทันที และ ห้ามกลับมาทำงานเองอัตโนมัติ แม้จะปล่อยปุ่ม E-Stop และปุ่ม Start ยังถูกกดค้างอยู่ก็ตาม เครื่องจะกลับมาทำงานได้อีกครั้งก็ต่อเมื่อผู้ควบคุมกดปุ่ม Reset (I2) เพื่อรับทราบและยืนยันความปลอดภัยก่อน แล้วจึงกดปุ่ม Start ใหม่อีกครั้ง นี่คือมาตรฐานความปลอดภัยของเครื่องจักรอุตสาหกรรมทุกประเภทที่มีปุ่มหยุดฉุกเฉิน",
+    "hints": [
+      "ปัญหาคือถ้าใช้แค่ SET/RESET สองรังธรรมดา เครื่องจะ 'สตาร์ทเองอัตโนมัติ' ทันทีที่ปล่อย E-Stop ถ้ายังกด Start ค้างอยู่ - ต้องหาวิธีป้องกัน",
+      "ลองประกาศตัวแปรภายใน (Internal Relay, M) เพิ่ม 1 ตัว เพื่อเก็บสถานะ 'ล็อคข้อผิดพลาดค้างอยู่' (Fault Latch) - ให้ E-Stop เป็นตัว SET ค่านี้ และปุ่ม Reset เป็นตัว RESET ค่านี้",
+      "เงื่อนไข SET ของเครื่องจักรควรจะเป็น Start AND NC(สถานะล็อคข้อผิดพลาด) เพื่อให้เริ่มทำงานได้ตามปกติถ้ายังไม่เคยเกิด E-Stop มาก่อน แต่ถูกล็อคไว้หลังเกิด E-Stop จนกว่าจะกด Reset"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 12,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "running-during-estop",
+              "description": "ห้ามให้เครื่องจักรทำงานขณะกดปุ่ม E-Stop ค้างอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: กด Start เริ่มทำงานปกติ",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: กดปุ่ม E-Stop",
+              "frames": [{ "inputs": { "I0": true, "I1": true, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ปล่อย E-Stop แล้ว แต่ยังไม่ได้กด Reset (Start ยังค้างอยู่)",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: กด Reset แล้วกด Start ใหม่",
+              "frames": [
+                { "inputs": { "I0": false, "I1": false, "I2": true }, "ticks": 1 },
+                { "inputs": { "I0": true, "I1": false, "I2": false }, "ticks": 1 }
+              ],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 5,
+    "title": "ล็อคป้องกันกระบอกลมช่วงชักตรงข้าม (Opposing Pneumatic Cylinder Lockout)",
+    "description": "สถานีประกอบชิ้นงานมีกระบอกสูบลม 2 ตัวทำงานในพื้นที่ร่วมกัน: กระบอก A ควบคุมด้วยวาล์ว Q0 และกระบอก B ควบคุมด้วยวาล์ว Q1 หากกระบอกทั้งสองยืดออก (Extend) พร้อมกันจะชนกันเสียหาย กระบอก A จะยืดออกได้ (สั่งด้วย I0) ก็ต่อเมื่อกระบอก B หดกลับสุดเท่านั้น (เซนเซอร์ลิมิตสวิตช์ I3 = true คือ B หดกลับสุด) และในทางกลับกัน กระบอก B จะยืดออกได้ (สั่งด้วย I1) ก็ต่อเมื่อกระบอก A หดกลับสุดเท่านั้น (เซนเซอร์ I2 = true คือ A หดกลับสุด)",
+    "hints": [
+      "แต่ละรังต้องเช็ค 2 เงื่อนไขแบบ AND: ปุ่มสั่งยืด และเซนเซอร์ลิมิตสวิตช์ของกระบอกอีกตัวว่าหดกลับสุดแล้ว",
+      "ไม่ต้องใช้ SET/RESET หรือ NC ในด่านนี้ - ใช้ NO ต่ออนุกรมสองตัวต่อรังก็เพียงพอ"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 9,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "both-extended",
+              "description": "ห้ามให้กระบอกสูบ A และ B ยืดออกพร้อมกัน (ชนกันในพื้นที่ทำงานร่วม)",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: A และ B หดกลับสุดทั้งคู่ สั่งยืด A",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": true, "I3": true }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: A ยืดออกอยู่ (ยังไม่หดกลับ) พยายามสั่งยืด B",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false, "I3": true }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": false }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: A หดกลับสุดแล้ว สั่งยืด B ใหม่",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true, "I3": true }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": true }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 6,
+    "title": "ระบบสลับปั๊มสำรอง Duty/Standby พร้อมสวิตช์ System Enable (Duty/Standby Pump Interlock)",
+    "description": "ระบบสูบจ่ายน้ำมีปั๊ม 2 ตัวต่อท่อร่วมกัน ห้ามทำงานพร้อมกันเด็ดขาดเพราะจะทำให้แรงดันในท่อสูงเกินพิกัด ผู้ควบคุมเลือกปั๊มที่จะใช้งานผ่านปุ่มเลือก I0 (เลือกปั๊ม 1 / Q0) หรือ I1 (เลือกปั๊ม 2 / Q1) แต่ปั๊มจะทำงานได้ก็ต่อเมื่อสวิตช์ System Enable (I2) เปิดอยู่เท่านั้น หากปิดสวิตช์ System Enable ไม่ว่าจะเลือกปั๊มใดไว้ ปั๊มทั้งสองต้องหยุดทำงานทันที",
+    "hints": [
+      "แต่ละรังต้องมี 3 เงื่อนไขอนุกรม: ปุ่มเลือกปั๊มนี้ (NO), System Enable (NO), และ NC ของปั๊มอีกตัวเพื่อกันชนกัน",
+      "System Enable ต้องเป็นเงื่อนไขร่วมของทั้งสองรัง ไม่ใช่แค่รังใดรังหนึ่ง"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 11,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "both-pumps",
+              "description": "ห้ามให้ปั๊มทั้งสองทำงานพร้อมกัน (แรงดันท่อเกินพิกัด)",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "pump1-without-enable",
+              "description": "ห้ามให้ปั๊ม 1 ทำงานขณะสวิตช์ System Enable ปิดอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I2", "expected": false }
+              ]
+            },
+            {
+              "id": "pump2-without-enable",
+              "description": "ห้ามให้ปั๊ม 2 ทำงานขณะสวิตช์ System Enable ปิดอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "I2", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: เปิด System Enable เลือกปั๊ม 1",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": true }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: สลับไปเลือกปั๊ม 2 (System Enable ยังเปิดอยู่)",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ปิด System Enable ขณะเลือกปั๊ม 1 ไว้",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 7,
+    "title": "วาล์วระบายความดันฉุกเฉินต้องไม่ถูกปิดกั้น (Emergency Pressure Relief Valve Lockout)",
+    "description": "ถังปฏิกรณ์แรงดันสูงติดตั้งวาล์วระบายความดันฉุกเฉิน (Q0) ควบคุมด้วยเซนเซอร์ตรวจจับความดันเกิน (I1 = true คือกำลังเกิดภาวะความดันเกิน) วาล์วต้องเปิดทันทีเมื่อตรวจพบความดันเกิน และ ห้ามถูกปิดกั้นด้วยคำสั่งจากผู้ควบคุมโดยเด็ดขาดไม่ว่ากรณีใด แม้ผู้ควบคุมจะกดปุ่ม Manual Block (I2) เพื่อพยายามปิดกั้นวาล์วขณะกำลังบำรุงรักษาก็ตาม นอกจากนี้ผู้ควบคุมยังสามารถเปิดวาล์วด้วยตนเองผ่านปุ่ม Manual Open (I0) ได้ในกรณีที่ความดันปกติ",
+    "hints": [
+      "วาล์วเปิดจากสองเงื่อนไข OR: ความดันเกิน หรือ Manual Open - ลองใช้ Insert Branch Row เพื่อสร้างเงื่อนไข OR",
+      "อย่าต่อปุ่ม Manual Block (I2) เข้ากับวงจรเลย เพราะการ 'ไม่ทำอะไร' กับสัญญาณนี้คือคำตอบที่ปลอดภัยที่สุด"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 8,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "valve-closed-during-overpressure",
+              "description": "วาล์วระบายความดันต้องเปิดทันทีเมื่อตรวจพบความดันเกิน ห้ามถูกปิดกั้น",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": false },
+                { "kind": "bit", "address": "I1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: ตรวจพบความดันเกิน",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ผู้ควบคุมพยายามปิดกั้นวาล์วขณะความดันยังเกินอยู่",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": true }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ความดันกลับสู่ปกติ ผู้ควบคุมเปิดวาล์วเองด้วยมือ",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 8,
+    "title": "ระบบล็อคประตูตู้ควบคุมไฟฟ้าแรงสูง (High-Voltage Cabinet Door Interlock)",
+    "description": "เบรกเกอร์หลัก (Q0) ของตู้ควบคุมไฟฟ้าแรงสูงเริ่มทำงานด้วยปุ่ม Start (I1) และค้างสถานะทำงานต่อเนื่องจนกว่าจะกดปุ่ม Stop (I2) เพื่อความปลอดภัยของช่างเทคนิค ประตูตู้ควบคุม (เซนเซอร์ I0 = true คือประตูเปิดอยู่) ต้องล็อคไม่ให้เบรกเกอร์ทำงานได้เลยหากประตูเปิดอยู่ และหากประตูถูกเปิดขณะเบรกเกอร์กำลังทำงานอยู่ ต้องตัดวงจรทันทีโดยไม่มีข้อยกเว้น ไม่ว่าปุ่ม Start จะถูกกดค้างอยู่หรือไม่ก็ตาม",
+    "hints": [
+      "โครงสร้างเหมือนด่านสายพานลำเลียงประตูนิรภัย (ด่านที่ 3) - ใช้ SET เมื่อ Start และประตูปิด ใช้ RESET เมื่อ Stop หรือประตูเปิด",
+      "ระวัง: ต้องเช็คสถานะประตูอย่างต่อเนื่องทุกสแกน ไม่ใช่แค่ตอนกด Start เท่านั้น"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 9,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "breaker-with-door-open",
+              "description": "ห้ามให้เบรกเกอร์ทำงานขณะประตูตู้ควบคุมเปิดอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I0", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: ประตูปิด กด Start",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ปล่อยปุ่ม Start (ประตูยังปิด ไม่ได้กด Stop)",
+              "frames": [{ "inputs": { "I0": false, "I1": false, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: ประตูถูกเปิดขณะเบรกเกอร์กำลังทำงาน",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 9,
+    "title": "ลิมิตสวิตช์ป้องกันการเคลื่อนที่เกินขอบเขตของแกนกันทร (Axis Overtravel Protection)",
+    "description": "แกนกันทร (Gantry Axis) เคลื่อนที่ซ้าย-ขวาด้วยมอเตอร์ขับ 2 ทิศทาง: Q0 ขับไปทางซ้าย สั่งด้วยปุ่ม Jog ซ้าย (I2) และ Q1 ขับไปทางขวา สั่งด้วยปุ่ม Jog ขวา (I3) แกนมีลิมิตสวิตช์ปลายทางทั้งสองด้าน: I0 = true คือถึงลิมิตซ้ายสุดแล้ว, I1 = true คือถึงลิมิตขวาสุดแล้ว ต้องห้ามขับเคลื่อนไปทางที่ถึงลิมิตแล้วโดยเด็ดขาด (เช่น ห้ามขับซ้ายต่อถ้าถึงลิมิตซ้ายแล้ว) และห้ามขับเคลื่อนสองทิศทางพร้อมกันไม่ว่ากรณีใด",
+    "hints": [
+      "แต่ละรังต้องเช็ค 3 เงื่อนไข: ปุ่ม Jog ทิศทางนั้น (NO), ยังไม่ถึงลิมิตทิศทางนั้น (NC), และอีกทิศทางไม่ได้ทำงานอยู่ (NC ของคอยล์อีกฝั่ง)",
+      "ปุ่ม Jog ซ้าย (I2) คู่กับลิมิตซ้าย (I0) และคอยล์ Q0, ปุ่ม Jog ขวา (I3) คู่กับลิมิตขวา (I1) และคอยล์ Q1"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 11,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "left-overtravel",
+              "description": "ห้ามขับเคลื่อนไปทางซ้ายเมื่อถึงลิมิตซ้ายแล้ว",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "I0", "expected": true }
+              ]
+            },
+            {
+              "id": "right-overtravel",
+              "description": "ห้ามขับเคลื่อนไปทางขวาเมื่อถึงลิมิตขวาแล้ว",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "I1", "expected": true }
+              ]
+            },
+            {
+              "id": "both-directions",
+              "description": "ห้ามขับเคลื่อนสองทิศทางพร้อมกัน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": true }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: Jog ซ้าย ขณะยังไม่ถึงลิมิตใด",
+              "frames": [{ "inputs": { "I0": false, "I1": false, "I2": true, "I3": false }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q1", "expected": false }
+              ]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: ถึงลิมิตซ้ายแล้ว แต่ยังกด Jog ซ้ายค้างอยู่",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": true, "I3": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: จากลิมิตซ้าย สั่ง Jog ขวากลับ",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false, "I3": true }, "ticks": 1 }],
+              "expect": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "Q0", "expected": false }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "challenge_id": 10,
+    "title": "ระบบล็อคลำดับการสตาร์ทสายพานลำเลียง 3 ตัวต่อเนื่อง (Multi-Conveyor Start Sequence Interlock)",
+    "description": "สายการผลิตมีสายพานลำเลียง 3 ตัวต่อเนื่องกัน: สายพาน 1 (Q0, ต้นทาง) ป้อนวัสดุให้สายพาน 2 (Q1, กลาง) ซึ่งป้อนต่อให้สายพาน 3 (Q2, ปลายทาง/ทางออก) เพื่อป้องกันวัสดุกองพะเนินสะสมค้างบนสายพาน กฎความปลอดภัยกำหนดว่าต้องสตาร์ทสายพานจากปลายทางย้อนกลับมาต้นทางเสมอ กล่าวคือ สายพาน 3 ต้องทำงานอยู่ก่อน จึงจะอนุญาตให้สตาร์ทสายพาน 2 ได้ (สั่งด้วย I1) และสายพาน 2 ต้องทำงานอยู่ก่อน จึงจะอนุญาตให้สตาร์ทสายพาน 1 ได้ (สั่งด้วย I0) สายพาน 3 สตาร์ทได้อิสระด้วยปุ่ม I2 ปุ่ม Stop (I3) หยุดสายพานทั้ง 3 ตัวพร้อมกันทันที",
+    "hints": [
+      "ทุกสายพานใช้ SET/RESET แบบค้างสถานะ (Latch) - RESET ทั้งสามตัวผูกกับปุ่ม Stop (I3) ตัวเดียวกัน",
+      "เงื่อนไข SET ของสายพาน 1 และ 2 ต้องเพิ่มเงื่อนไขว่าสายพานถัดไป (ปลายทางกว่า) กำลังทำงานอยู่ (NO ของคอยล์นั้น) เข้าไปด้วย",
+      "เริ่มสร้างจากสายพาน 3 ก่อน เพราะไม่มีเงื่อนไขล็อคจากภายนอก"
+    ],
+    "required_competencies": ["NO_NC", "INTERLOCK"],
+    "max_optimal_blocks": 15,
+    "stages_json": {
+      "testCases": [
+        {
+          "safetyConstraints": [
+            {
+              "id": "conveyor1-without-conveyor3",
+              "description": "ห้ามให้สายพาน 1 ทำงานขณะสายพาน 3 (ปลายทาง) หยุดอยู่ - วัสดุจะกองพะเนิน",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q0", "expected": true },
+                { "kind": "bit", "address": "Q2", "expected": false }
+              ]
+            },
+            {
+              "id": "conveyor2-without-conveyor3",
+              "description": "ห้ามให้สายพาน 2 ทำงานขณะสายพาน 3 (ปลายทาง) หยุดอยู่",
+              "violatingWhen": [
+                { "kind": "bit", "address": "Q1", "expected": true },
+                { "kind": "bit", "address": "Q2", "expected": false }
+              ]
+            }
+          ],
+          "stages": [
+            {
+              "id": "stage1",
+              "name": "ขั้นที่ 1: สตาร์ทสายพาน 3 (ปลายทาง)",
+              "frames": [{ "inputs": { "I0": false, "I1": false, "I2": true, "I3": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q2", "expected": true }]
+            },
+            {
+              "id": "stage2",
+              "name": "ขั้นที่ 2: พยายามสตาร์ทสายพาน 1 โดยตรงขณะสายพาน 2 ยังไม่ทำงาน",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false, "I3": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": false }]
+            },
+            {
+              "id": "stage3",
+              "name": "ขั้นที่ 3: สตาร์ทสายพาน 2 (สายพาน 3 ทำงานอยู่แล้ว จึงอนุญาต)",
+              "frames": [{ "inputs": { "I0": false, "I1": true, "I2": false, "I3": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q1", "expected": true }]
+            },
+            {
+              "id": "stage4",
+              "name": "ขั้นที่ 4: สตาร์ทสายพาน 1 (สายพาน 2 ทำงานอยู่แล้ว จึงอนุญาต)",
+              "frames": [{ "inputs": { "I0": true, "I1": false, "I2": false, "I3": false }, "ticks": 1 }],
+              "expect": [{ "kind": "bit", "address": "Q0", "expected": true }]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
