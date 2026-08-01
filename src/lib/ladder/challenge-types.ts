@@ -212,6 +212,69 @@ export type ChallengeLevelRow = {
  * for a row whose stages_json is malformed, so a caller can skip/report a
  * broken challenge instead of crashing on it.
  */
+export type ProcessAddressGroups = {
+  digitalInputs: string[];
+  analogInputs: string[];
+  actuators: string[];
+  timers: string[];
+  counters: string[];
+};
+
+/**
+ * Task 5.2: derives the Process Visualization Panel's address inventory
+ * straight from real data instead of new per-challenge authoring - which
+ * sensor/button addresses the script drives (every frame lists the complete
+ * digital state, so the union of its keys across all frames IS exactly the
+ * process's sensor/button inventory) plus which actuator/timer/counter
+ * addresses the student has actually wired into their own live GridProgram.
+ */
+export function collectProcessAddresses(testCase: ChallengeTestCase, program: GridProgram): ProcessAddressGroups {
+  const digitalInputs = new Set<string>();
+  const analogInputs = new Set<string>();
+
+  for (const stage of testCase.stages) {
+    for (const frame of stage.frames) {
+      for (const addr of Object.keys(frame.inputs)) digitalInputs.add(addr);
+      for (const addr of Object.keys(frame.analogInputs ?? {})) analogInputs.add(addr);
+    }
+    for (const exp of stage.expect) {
+      if (exp.kind === "numeric" && exp.address.startsWith("AI")) analogInputs.add(exp.address);
+    }
+  }
+  for (const constraint of testCase.safetyConstraints ?? []) {
+    for (const exp of constraint.violatingWhen) {
+      if (exp.kind === "numeric" && exp.address.startsWith("AI")) analogInputs.add(exp.address);
+    }
+  }
+
+  const actuators = new Set<string>();
+  const timers = new Set<string>();
+  const counters = new Set<string>();
+  for (const grid of program.grids) {
+    for (const row of grid.cells) {
+      for (const cell of row) {
+        const node = cell.node;
+        if (!node) continue;
+        if (node.kind === "COIL" || node.kind === "SET" || node.kind === "RESET") {
+          if (node.address) actuators.add(node.address);
+        } else if (node.kind === "TIMER") {
+          if (node.address) timers.add(node.address);
+        } else if (node.kind === "COUNTER") {
+          if (node.address) counters.add(node.address);
+        }
+      }
+    }
+  }
+
+  return {
+    digitalInputs: [...digitalInputs].sort(),
+    analogInputs: [...analogInputs].sort(),
+    actuators: [...actuators].sort(),
+    timers: [...timers].sort(),
+    counters: [...counters].sort(),
+  };
+}
+
 export function challengeRowToSpec(row: ChallengeLevelRow): ChallengeSpec | null {
   if (!isChallengeStagesJson(row.stages_json)) return null;
   return {

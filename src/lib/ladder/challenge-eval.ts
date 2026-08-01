@@ -2,9 +2,10 @@ import { readBit, readNumeric } from "./engine";
 import { runGridScan } from "./grid-engine";
 import type { GridProgram } from "./grid-types";
 import { createEmptyMemory, type AnalogInputs, type Inputs, type SimMemory } from "./types";
-import type { ChallengeSpec, ChallengeTestCase, StageExpectation } from "./challenge-types";
+import type { ChallengeSpec, ChallengeTestCase, SafetyConstraint, StageExpectation } from "./challenge-types";
 
-function checkExpectation(
+/** Exported so the live Challenge Play engine (Task 5.2) can check the exact same checkpoint/safety logic frame-by-frame as this batch evaluator checks after-the-fact - keeping live preview and official grading from ever drifting apart. */
+export function checkExpectation(
   exp: StageExpectation,
   inputs: Inputs,
   memory: SimMemory,
@@ -26,8 +27,18 @@ function checkExpectation(
   }
 }
 
-function checkAll(exps: StageExpectation[], inputs: Inputs, memory: SimMemory, analogInputs: AnalogInputs): boolean {
+export function checkAll(exps: StageExpectation[], inputs: Inputs, memory: SimMemory, analogInputs: AnalogInputs): boolean {
   return exps.every((exp) => checkExpectation(exp, inputs, memory, analogInputs));
+}
+
+/** Which (if any) safety constraint is currently violated - null when none is. Shared by the batch evaluator below and the live Challenge Play engine so both halt on the exact same condition. */
+export function findSafetyViolation(
+  constraints: SafetyConstraint[],
+  inputs: Inputs,
+  memory: SimMemory,
+  analogInputs: AnalogInputs
+): SafetyConstraint | null {
+  return constraints.find((c) => checkAll(c.violatingWhen, inputs, memory, analogInputs)) ?? null;
 }
 
 export type StageResult = { stageId: string; stageName: string; passed: boolean };
@@ -68,7 +79,7 @@ function runChallengeTestCase(program: GridProgram, testCase: ChallengeTestCase)
   const safetyConstraints = testCase.safetyConstraints ?? [];
 
   function checkSafety(stageId: string): boolean {
-    const violated = safetyConstraints.find((c) => checkAll(c.violatingWhen, inputs, memory, analogInputs));
+    const violated = findSafetyViolation(safetyConstraints, inputs, memory, analogInputs);
     if (!violated) return false;
     fault = { constraintId: violated.id, description: violated.description, atStageId: stageId };
     return true;

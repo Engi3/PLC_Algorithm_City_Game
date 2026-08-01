@@ -10,6 +10,7 @@ import {
   type ChallengeLevelRow,
   type RequiredCompetency,
 } from "@/lib/ladder/challenge-types";
+import ChallengePlayClient from "@/components/ladder/ChallengePlayClient";
 
 export default async function ChallengeDetailPage({
   params,
@@ -137,14 +138,15 @@ export default async function ChallengeDetailPage({
         </div>
       )}
 
-      <div className="rounded-lg border border-dashed border-amber-400 bg-amber-50 p-5 text-center dark:border-amber-700 dark:bg-amber-950">
-        <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-          🚧 ระบบเล่นด่านแบบอินเทอร์แอคทีฟพร้อมภาพจำลองโรงงานกำลังจะมาเร็วๆ นี้
-        </p>
-        <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
-          ตอนนี้สามารถดูรายละเอียดโจทย์และคำใบ้ล่วงหน้าได้ก่อน
-        </p>
-      </div>
+      {spec ? (
+        <ChallengePlayClient challengeLevelId={row.id} spec={spec} />
+      ) : (
+        <div className="rounded-lg border border-dashed border-red-400 bg-red-50 p-5 text-center dark:border-red-700 dark:bg-red-950">
+          <p className="text-sm font-medium text-red-800 dark:text-red-300">
+            ⚠️ ภารกิจนี้มีข้อมูลไม่ถูกต้อง กรุณาแจ้งอาจารย์ผู้สอน
+          </p>
+        </div>
+      )}
     </div>
   );
 }
