@@ -55,11 +55,22 @@ function computeLadderProgramming(logs: PlayLogLite[], totalLevels: number): num
   return clamp0to100(completionFraction * avgScore);
 }
 
-/** Distinct levels passed / total submit attempts - rewards not burning through attempts trial-and-error style. */
-function computeProblemSolving(logs: PlayLogLite[]): number {
-  if (logs.length === 0) return 0;
+/**
+ * Completion rate (against ALL levels in the system, not just attempted
+ * ones) x attempt efficiency (distinct levels passed / total submit
+ * attempts, rewarding not burning through attempts trial-and-error style).
+ * Mirrors computeLadderProgramming's completionFraction factor so passing a
+ * handful of levels on the first try can't alone read as high mastery, and
+ * so the score dilutes automatically as new levels are added until the
+ * student catches up on them too.
+ */
+function computeProblemSolving(logs: PlayLogLite[], totalLevels: number): number {
+  if (totalLevels <= 0 || logs.length === 0) return 0;
   const passedLevels = new Set(logs.filter((l) => l.is_success).map((l) => l.level_id)).size;
-  return clamp0to100((passedLevels / logs.length) * 100);
+  if (passedLevels === 0) return 0;
+  const completionFraction = passedLevels / totalLevels;
+  const attemptEfficiency = passedLevels / logs.length;
+  return clamp0to100(completionFraction * attemptEfficiency * 100);
 }
 
 /**
@@ -67,9 +78,13 @@ function computeProblemSolving(logs: PlayLogLite[]): number {
  * among levels whose first-ever attempt failed, what fraction did the
  * student eventually pass? A proxy for "can recover from a bug", using
  * created_at to find the true first attempt (row order from a query is not
- * guaranteed without an explicit ORDER BY).
+ * guaranteed without an explicit ORDER BY). Scaled by completion rate
+ * against ALL levels in the system (same reasoning as computeProblemSolving)
+ * so recovering from a couple of self-inflicted bugs alone can't read as
+ * high debugging mastery.
  */
-function computeDebuggingAuto(logs: PlayLogLite[]): number {
+function computeDebuggingAuto(logs: PlayLogLite[], totalLevels: number): number {
+  if (totalLevels <= 0) return 0;
   const byLevel = new Map<string, PlayLogLite[]>();
   for (const log of logs) {
     const arr = byLevel.get(log.level_id) ?? [];
@@ -89,7 +104,10 @@ function computeDebuggingAuto(logs: PlayLogLite[]): number {
   }
 
   if (firstAttemptFailed === 0) return 0;
-  return clamp0to100((recovered / firstAttemptFailed) * 100);
+  const recoveryRatio = recovered / firstAttemptFailed;
+  const passedLevels = new Set(logs.filter((l) => l.is_success).map((l) => l.level_id)).size;
+  const completionFraction = passedLevels / totalLevels;
+  return clamp0to100(recoveryRatio * completionFraction * 100);
 }
 
 /**
@@ -122,8 +140,10 @@ export function computeCompetencyScores(
     ladder_programming: computeLadderProgramming(logs, totalLevels),
     wiring_skills: manual.wiring_skills !== null ? clamp0to100(manual.wiring_skills) : 0,
     debugging_testing:
-      manual.debugging_testing !== null ? clamp0to100(manual.debugging_testing) : computeDebuggingAuto(logs),
-    problem_solving: computeProblemSolving(logs),
+      manual.debugging_testing !== null
+        ? clamp0to100(manual.debugging_testing)
+        : computeDebuggingAuto(logs, totalLevels),
+    problem_solving: computeProblemSolving(logs, totalLevels),
     advanced_challenge: manual.advanced_challenge !== null ? clamp0to100(manual.advanced_challenge) : 0,
     system_control: manual.system_control !== null ? clamp0to100(manual.system_control) : 0,
   };

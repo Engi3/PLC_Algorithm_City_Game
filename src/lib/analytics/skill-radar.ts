@@ -13,10 +13,15 @@ export type PlayLogLite = { level_id: string; score: number | null; is_success: 
 export type SkillScores = Record<SkillCategory, number>;
 
 /**
- * Best score per level (passed attempts only), averaged per skill category.
- * A category with no passed levels scores 0, not "missing" - keeps the
- * radar chart's shape meaningful even for a student who hasn't tried a
- * category yet.
+ * Best score per passed level, summed per skill category and divided by the
+ * TOTAL number of levels that exist in that category system-wide (not just
+ * the ones attempted) - so passing a couple of levels in a category doesn't
+ * alone read as high mastery of it, and the score dilutes automatically as
+ * more levels are added to a category until the student catches up on
+ * those too. `levelSkills` already covers every level in the system (see
+ * load-class-data.ts/progress page's queries), so counting its keys per
+ * category gives the true denominator. A category with zero levels defined
+ * scores 0 rather than dividing by zero.
  */
 export function computeSkillScores(logs: PlayLogLite[], levelSkills: LevelSkillMap): SkillScores {
   const bestByLevel = new Map<string, number>();
@@ -26,22 +31,27 @@ export function computeSkillScores(logs: PlayLogLite[], levelSkills: LevelSkillM
     bestByLevel.set(log.level_id, Math.max(prev, log.score ?? 0));
   }
 
-  const sums = new Map<SkillCategory, { total: number; count: number }>(
-    ALL_SKILLS.map((s) => [s, { total: 0, count: 0 }])
+  const sums = new Map<SkillCategory, { achieved: number; totalLevels: number }>(
+    ALL_SKILLS.map((s) => [s, { achieved: 0, totalLevels: 0 }])
   );
+
+  for (const skill of Object.values(levelSkills)) {
+    const bucket = sums.get(skill);
+    if (bucket) bucket.totalLevels += 1;
+  }
 
   for (const [levelId, score] of bestByLevel) {
     const skill = levelSkills[levelId];
     if (!skill) continue;
     const bucket = sums.get(skill)!;
-    bucket.total += score;
-    bucket.count += 1;
+    bucket.achieved += score;
   }
 
   return Object.fromEntries(
     ALL_SKILLS.map((s) => {
       const bucket = sums.get(s)!;
-      return [s, bucket.count > 0 ? Math.round(bucket.total / bucket.count) : 0];
+      const pct = bucket.totalLevels > 0 ? bucket.achieved / bucket.totalLevels : 0;
+      return [s, Math.max(0, Math.min(100, Math.round(pct)))];
     })
   ) as SkillScores;
 }
