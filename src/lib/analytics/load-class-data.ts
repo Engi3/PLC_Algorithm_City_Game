@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { isLevelSpec } from "@/lib/ladder/level-spec";
+import type { ChallengePlayLogLite } from "./competency";
 import type { LevelSkillMap, PlayLogLite } from "./skill-radar";
 
 export type ClassStudent = {
@@ -17,6 +18,7 @@ export type ClassStudent = {
   systemControl: number | null;
   levelsPassed: number;
   logs: PlayLogLite[];
+  challengeLogs: ChallengePlayLogLite[];
 };
 
 export type ClassData = {
@@ -24,6 +26,9 @@ export type ClassData = {
   levelSkills: LevelSkillMap;
   levelTitles: Record<string, string>;
   levelCount: number;
+  /** challenge_levels.id -> challenge_id (1-50), so per-student challengeLogs (keyed by the UUID) can be bucketed into the 5 curriculum chapters (see CHALLENGE_CHAPTERS in challenge-types.ts) without a second per-page query. */
+  challengeIdByLevelId: Record<string, number>;
+  challengeCount: number;
 };
 
 /** Shared by the analytics dashboard and the AI insights action, so both always see the same live snapshot. */
@@ -33,6 +38,8 @@ export async function loadClassData(): Promise<ClassData> {
   const levelTitles: Record<string, string> = {};
   let levelCount = 0;
   let students: ClassStudent[] = [];
+  const challengeIdByLevelId: Record<string, number> = {};
+  let challengeCount = 0;
 
   const { data: levels, error: levelsError } = await supabase
     .from("levels")
@@ -45,6 +52,16 @@ export async function loadClassData(): Promise<ClassData> {
       levelTitles[l.id] = l.title ?? `Level ${l.level_number}`;
       if (isLevelSpec(l.map_layout_json)) levelSkills[l.id] = l.map_layout_json.skill;
     }
+  }
+
+  const { data: challengeLevels, error: challengeLevelsError } = await supabase
+    .from("challenge_levels")
+    .select("id, challenge_id");
+  if (challengeLevelsError) {
+    console.error("loadClassData: failed to load challenge_levels", challengeLevelsError);
+  } else {
+    challengeCount = challengeLevels?.length ?? 0;
+    for (const c of challengeLevels ?? []) challengeIdByLevelId[c.id] = c.challenge_id;
   }
 
   const { data: studentUsers, error: usersError } = await supabase
@@ -91,6 +108,18 @@ export async function loadClassData(): Promise<ClassData> {
       logsByUser.set(log.user_id, arr);
     }
 
+    const { data: challengeLogs, error: challengeLogsError } = await supabase
+      .from("challenge_play_logs")
+      .select("user_id, challenge_level_id, is_success")
+      .in("user_id", studentIds);
+    if (challengeLogsError) console.error("loadClassData: failed to load challenge play logs", challengeLogsError);
+    const challengeLogsByUser = new Map<string, ChallengePlayLogLite[]>();
+    for (const log of challengeLogs ?? []) {
+      const arr = challengeLogsByUser.get(log.user_id) ?? [];
+      arr.push(log);
+      challengeLogsByUser.set(log.user_id, arr);
+    }
+
     students = studentUsers.map((u) => {
       const score = scoreByUser.get(u.id);
       const competencyScore = competencyByUser.get(u.id);
@@ -110,9 +139,10 @@ export async function loadClassData(): Promise<ClassData> {
         systemControl: competencyScore?.system_control ?? null,
         levelsPassed,
         logs: userLogs,
+        challengeLogs: challengeLogsByUser.get(u.id) ?? [],
       };
     });
   }
 
-  return { students, levelSkills, levelTitles, levelCount };
+  return { students, levelSkills, levelTitles, levelCount, challengeIdByLevelId, challengeCount };
 }

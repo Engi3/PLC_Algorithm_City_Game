@@ -9,6 +9,7 @@ import {
   computeAllLevelsAverage,
   ALL_COMPETENCY_AXES,
   type ManualCompetencyScores,
+  type ChallengePlayLogLite,
 } from "@/lib/analytics/competency";
 import SkillRadarChart from "@/components/analytics/SkillRadarChart";
 import CompetencyRadarChart from "@/components/analytics/CompetencyRadarChart";
@@ -36,9 +37,30 @@ export default async function ProgressPage() {
     advanced_challenge: null,
     system_control: null,
   };
+  let challengeLogs: ChallengePlayLogLite[] = [];
+  let challengeCount = 0;
 
   try {
     const supabase = await createClient();
+
+    const { count: challengeCountResult, error: challengeCountError } = await supabase
+      .from("challenge_levels")
+      .select("*", { count: "exact", head: true });
+    if (challengeCountError) {
+      console.error("ProgressPage: failed to count challenge_levels", challengeCountError);
+    } else {
+      challengeCount = challengeCountResult ?? 0;
+    }
+
+    const { data: challengePlayLogs, error: challengeLogsError } = await supabase
+      .from("challenge_play_logs")
+      .select("challenge_level_id, is_success")
+      .eq("user_id", profile.id);
+    if (challengeLogsError) {
+      console.error("ProgressPage: failed to load challenge play logs", challengeLogsError);
+    } else {
+      challengeLogs = challengePlayLogs ?? [];
+    }
 
     const { data: levels, error: levelsError } = await supabase
       .from("levels")
@@ -101,7 +123,10 @@ export default async function ProgressPage() {
   }
 
   const skillScores = computeSkillScores(logs, levelSkills);
-  const competencyScores = computeCompetencyScores(logs, levelCount, manualCompetency);
+  const competencyScores = computeCompetencyScores(logs, levelCount, manualCompetency, {
+    logs: challengeLogs,
+    totalChallenges: challengeCount,
+  });
   const allLevelsAverage = computeAllLevelsAverage(logs, levelCount);
   const passedLevelIds = new Set(logs.filter((l) => l.is_success).map((l) => l.level_id));
   const studentName =

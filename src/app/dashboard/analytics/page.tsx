@@ -11,12 +11,16 @@ export default async function AnalyticsPage() {
   let students: StudentRow[] = [];
   let levelSkills: LevelSkillMap = {};
   let levelCount = 0;
+  let challengeIdByLevelId: Record<string, number> = {};
+  let challengeCount = 0;
 
   try {
     const data = await loadClassData();
     students = data.students;
     levelSkills = data.levelSkills;
     levelCount = data.levelCount;
+    challengeIdByLevelId = data.challengeIdByLevelId;
+    challengeCount = data.challengeCount;
   } catch (err) {
     console.error("AnalyticsPage crashed:", err);
   }
@@ -32,7 +36,13 @@ export default async function AnalyticsPage() {
           {levelCount === 1 ? "" : "s"}
         </p>
       </div>
-      <AnalyticsClient students={students} levelSkills={levelSkills} levelCount={levelCount} />
+      <AnalyticsClient
+        students={students}
+        levelSkills={levelSkills}
+        levelCount={levelCount}
+        challengeIdByLevelId={challengeIdByLevelId}
+        challengeCount={challengeCount}
+      />
     </div>
   );
 }

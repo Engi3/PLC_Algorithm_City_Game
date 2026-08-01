@@ -13,7 +13,9 @@ import {
   averageCompetencyScores,
   ALL_COMPETENCY_AXES,
   type CompetencyScores,
+  type ChallengePlayLogLite,
 } from "@/lib/analytics/competency";
+import { CHALLENGE_CHAPTERS } from "@/lib/ladder/challenge-types";
 import { toCsv, downloadCsv } from "@/lib/analytics/csv";
 import {
   updatePracticalScoreAction,
@@ -40,6 +42,7 @@ export type StudentRow = {
   systemControl: number | null;
   levelsPassed: number;
   logs: PlayLogLite[];
+  challengeLogs: ChallengePlayLogLite[];
 };
 
 const initialState: ActionState = { error: null };
@@ -219,10 +222,12 @@ function EvaluationCard({ evaluation }: { evaluation: StudentAiEvaluation }) {
 function StudentDrillDownModal({
   student,
   competencyScores,
+  challengeIdByLevelId,
   onClose,
 }: {
   student: StudentRow;
   competencyScores: CompetencyScores;
+  challengeIdByLevelId: Record<string, number>;
   onClose: () => void;
 }) {
   const [evaluations, setEvaluations] = useState<StudentAiEvaluation[] | null>(null);
@@ -312,6 +317,41 @@ function StudentDrillDownModal({
 
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            Challenge Mode - ความก้าวหน้าตามบท
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {CHALLENGE_CHAPTERS.map((chapter) => {
+              const [minId, maxId] = chapter.idRange;
+              const challengesInChapter = maxId - minId + 1;
+              const passedIds = new Set(student.challengeLogs.filter((l) => l.is_success).map((l) => l.challenge_level_id));
+              let passedInChapter = 0;
+              for (const levelId of passedIds) {
+                const challengeId = challengeIdByLevelId[levelId];
+                if (challengeId !== undefined && challengeId >= minId && challengeId <= maxId) passedInChapter += 1;
+              }
+              const pct = challengesInChapter > 0 ? Math.round((passedInChapter / challengesInChapter) * 100) : 0;
+              return (
+                <div key={chapter.chapterNumber} className="flex items-center gap-2 text-xs">
+                  <span className="w-14 shrink-0 font-mono font-semibold text-zinc-500 dark:text-zinc-400">
+                    CH-{String(chapter.chapterNumber).padStart(2, "0")}
+                  </span>
+                  <span className="w-36 shrink-0 truncate text-zinc-700 dark:text-zinc-300" title={chapter.titleTh}>
+                    {chapter.titleTh}
+                  </span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-900">
+                    <div className="h-full bg-amber-500" style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="w-14 shrink-0 text-right font-mono text-zinc-500 dark:text-zinc-400">
+                    {passedInChapter}/{challengesInChapter}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             ประวัติการประเมินจาก AI (AI Evaluation Logs)
           </p>
           {loadingEvals && <p className="text-xs text-zinc-400">กำลังโหลด...</p>}
@@ -332,14 +372,69 @@ function StudentDrillDownModal({
   );
 }
 
+/** Bucket every student's passed challenge_level_id UUIDs into the 5 curriculum chapters via challengeIdByLevelId, then show class-wide completion per chapter - Task 5.3's "monitor progress specifically for these 50 challenges" requirement. */
+function ChallengeChapterOverview({
+  students,
+  challengeIdByLevelId,
+}: {
+  students: StudentRow[];
+  challengeIdByLevelId: Record<string, number>;
+}) {
+  const chapterStats = CHALLENGE_CHAPTERS.map((chapter) => {
+    const [minId, maxId] = chapter.idRange;
+    const challengesInChapter = maxId - minId + 1;
+    let totalPassed = 0;
+    for (const s of students) {
+      const passedIds = new Set(s.challengeLogs.filter((l) => l.is_success).map((l) => l.challenge_level_id));
+      for (const levelId of passedIds) {
+        const challengeId = challengeIdByLevelId[levelId];
+        if (challengeId !== undefined && challengeId >= minId && challengeId <= maxId) totalPassed += 1;
+      }
+    }
+    const denominator = students.length * challengesInChapter;
+    const pct = denominator > 0 ? Math.round((totalPassed / denominator) * 100) : 0;
+    return { chapter, totalPassed, denominator, pct };
+  });
+
+  return (
+    <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+      <h2 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+        Challenge Mode - ความก้าวหน้าตามบท (Class-wide by Chapter)
+      </h2>
+      <div className="flex flex-col gap-2">
+        {chapterStats.map(({ chapter, totalPassed, denominator, pct }) => (
+          <div key={chapter.chapterNumber} className="flex items-center gap-3">
+            <span className="w-16 shrink-0 font-mono text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+              CH-{String(chapter.chapterNumber).padStart(2, "0")}
+            </span>
+            <span className="w-48 shrink-0 truncate text-xs text-zinc-700 dark:text-zinc-300" title={chapter.titleTh}>
+              {chapter.titleTh}
+            </span>
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-900">
+              <div className="h-full bg-amber-500" style={{ width: `${pct}%` }} />
+            </div>
+            <span className="w-24 shrink-0 text-right font-mono text-xs text-zinc-500 dark:text-zinc-400">
+              {totalPassed}/{denominator} ({pct}%)
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AnalyticsClient({
   students,
   levelSkills,
   levelCount,
+  challengeIdByLevelId,
+  challengeCount,
 }: {
   students: StudentRow[];
   levelSkills: LevelSkillMap;
   levelCount: number;
+  challengeIdByLevelId: Record<string, number>;
+  challengeCount: number;
 }) {
   const [selected, setSelected] = useState<string>("class-average");
   const [drillDownId, setDrillDownId] = useState<string | null>(null);
@@ -352,15 +447,30 @@ export default function AnalyticsClient({
   const perStudentCompetency = useMemo(
     () =>
       students.map((s) =>
-        computeCompetencyScores(s.logs, levelCount, {
-          wiring_skills: s.wiringSkills,
-          debugging_testing: s.debuggingTesting,
-          advanced_challenge: s.advancedChallenge,
-          system_control: s.systemControl,
-        })
+        computeCompetencyScores(
+          s.logs,
+          levelCount,
+          {
+            wiring_skills: s.wiringSkills,
+            debugging_testing: s.debuggingTesting,
+            advanced_challenge: s.advancedChallenge,
+            system_control: s.systemControl,
+          },
+          { logs: s.challengeLogs, totalChallenges: challengeCount }
+        )
       ),
-    [students, levelCount]
+    [students, levelCount, challengeCount]
   );
+
+  const perStudentChallengesPassed = useMemo(
+    () => students.map((s) => new Set(s.challengeLogs.filter((l) => l.is_success).map((l) => l.challenge_level_id)).size),
+    [students]
+  );
+  const classChallengeCompletionRate = useMemo(() => {
+    if (students.length === 0 || challengeCount === 0) return 0;
+    const total = perStudentChallengesPassed.reduce((sum, n) => sum + n, 0);
+    return Math.round((total / (students.length * challengeCount)) * 100);
+  }, [perStudentChallengesPassed, students.length, challengeCount]);
   const classAverageCompetency = useMemo(
     () => averageCompetencyScores(perStudentCompetency),
     [perStudentCompetency]
@@ -400,7 +510,7 @@ export default function AnalyticsClient({
     selectedIndex >= 0 ? perStudentCompetency[selectedIndex] : classAverageCompetency;
 
   function exportCsv() {
-    const rows = students.map((s) => ({
+    const rows = students.map((s, i) => ({
       Username: s.username,
       "First name": s.firstName ?? "",
       "Last name": s.lastName ?? "",
@@ -412,6 +522,7 @@ export default function AnalyticsClient({
       "Advanced challenge": s.advancedChallenge ?? "",
       "System control": s.systemControl ?? "",
       "Levels passed": s.levelsPassed,
+      "Challenges passed": `${perStudentChallengesPassed[i]}/${challengeCount}`,
     }));
     downloadCsv(`student-status-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows));
   }
@@ -420,7 +531,7 @@ export default function AnalyticsClient({
     <div className="flex flex-col gap-6">
       <AiInsightsPanel />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <div className="rounded-lg border border-zinc-200 bg-white p-3 text-center dark:border-zinc-800 dark:bg-zinc-950">
           <p className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{students.length}</p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">Total Students</p>
@@ -437,7 +548,13 @@ export default function AnalyticsClient({
           <p className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{competencyPassRate}%</p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">Competency Pass Rate (≥{CERTIFICATE_THRESHOLD})</p>
         </div>
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-center dark:border-amber-900 dark:bg-amber-950">
+          <p className="text-2xl font-semibold text-amber-700 dark:text-amber-400">{classChallengeCompletionRate}%</p>
+          <p className="text-xs text-amber-700 dark:text-amber-400">Challenge Mode Completion</p>
+        </div>
       </div>
+
+      <ChallengeChapterOverview students={students} challengeIdByLevelId={challengeIdByLevelId} />
 
       <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mb-3 flex items-center justify-between gap-2">
@@ -505,6 +622,7 @@ export default function AnalyticsClient({
               <th className="whitespace-nowrap px-2 py-2">Username</th>
               <th className="whitespace-nowrap px-2 py-2">Student ID</th>
               <th className="whitespace-nowrap px-2 py-2">Levels</th>
+              <th className="whitespace-nowrap px-2 py-2">Challenges</th>
               <th className="whitespace-nowrap px-2 py-2">Game score</th>
               <th className="whitespace-nowrap px-2 py-2">Practical</th>
               <th className="whitespace-nowrap px-2 py-2">Wiring</th>
@@ -515,7 +633,7 @@ export default function AnalyticsClient({
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-            {students.map((s) => (
+            {students.map((s, i) => (
               <tr key={s.id}>
                 <td className="whitespace-nowrap px-2 py-2">
                   <button
@@ -532,6 +650,9 @@ export default function AnalyticsClient({
                 </td>
                 <td className="whitespace-nowrap px-2 py-2 text-zinc-600 dark:text-zinc-400">{s.studentId ?? "-"}</td>
                 <td className="whitespace-nowrap px-2 py-2 text-zinc-600 dark:text-zinc-400">{s.levelsPassed}</td>
+                <td className="whitespace-nowrap px-2 py-2 text-zinc-600 dark:text-zinc-400">
+                  {perStudentChallengesPassed[i]}/{challengeCount}
+                </td>
                 <td className="whitespace-nowrap px-2 py-2 text-zinc-600 dark:text-zinc-400">{s.gameLogicScore}</td>
                 <td className="px-2 py-2">
                   <PracticalScoreForm studentId={s.id} current={s.onsitePracticalScore} />
@@ -555,7 +676,7 @@ export default function AnalyticsClient({
             ))}
             {students.length === 0 && (
               <tr>
-                <td colSpan={11} className="px-3 py-6 text-center text-zinc-400">
+                <td colSpan={12} className="px-3 py-6 text-center text-zinc-400">
                   No approved students yet.
                 </td>
               </tr>
@@ -568,6 +689,7 @@ export default function AnalyticsClient({
         <StudentDrillDownModal
           student={drillDownStudent}
           competencyScores={perStudentCompetency[drillDownIndex]}
+          challengeIdByLevelId={challengeIdByLevelId}
           onClose={() => setDrillDownId(null)}
         />
       )}

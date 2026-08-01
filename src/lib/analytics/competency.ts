@@ -28,13 +28,16 @@ export const COMPETENCY_LABELS_TH: Record<CompetencyAxis, string> = {
   system_control: "การควบคุมระบบ",
 };
 
-/** The 4 axes with no other data source - a teacher sets these directly (like the existing onsite_practical_score). */
+/** The 4 axes a teacher can set directly (like the existing onsite_practical_score) - wiring_skills/system_control have no other data source at all; debugging_testing and advanced_challenge fall back to an auto-computed value below when left ungraded. */
 export type ManualCompetencyScores = {
   wiring_skills: number | null;
   debugging_testing: number | null;
   advanced_challenge: number | null;
   system_control: number | null;
 };
+
+/** Shape of a public.challenge_play_logs row this module needs - see challenge_play_logs's migration (no score column, unlike play_logs, since Challenge Mode isn't scored, only pass/fail). */
+export type ChallengePlayLogLite = { challenge_level_id: string; is_success: boolean };
 
 function clamp0to100(n: number): number {
   return Math.max(0, Math.min(100, Math.round(n)));
@@ -111,6 +114,21 @@ function computeDebuggingAuto(logs: PlayLogLite[], totalLevels: number): number 
 }
 
 /**
+ * Auto fallback for advanced_challenge when a teacher hasn't graded it:
+ * plain completion fraction across all 50 (or however many exist)
+ * challenges. Unlike computeLadderProgramming there's no per-attempt score
+ * to also weight in - challenge_play_logs only tracks pass/fail, not a
+ * score, since Challenge Mode is graded pass/fail on a much harder,
+ * multi-stage/safety-gated bar than a regular level - so breadth of
+ * completion alone is the fairest proxy for mastery here.
+ */
+function computeAdvancedChallengeAuto(challengeLogs: ChallengePlayLogLite[], totalChallenges: number): number {
+  if (totalChallenges <= 0) return 0;
+  const passed = new Set(challengeLogs.filter((l) => l.is_success).map((l) => l.challenge_level_id)).size;
+  return clamp0to100((passed / totalChallenges) * 100);
+}
+
+/**
  * Certificate gate (Phase 5): best passing score per level, averaged across
  * every level in the system (0 for never-passed/unattempted levels) - unlike
  * computeLadderProgramming this isn't weighted by completion fraction, since
@@ -134,7 +152,8 @@ export function computeAllLevelsAverage(logs: PlayLogLite[], totalLevels: number
 export function computeCompetencyScores(
   logs: PlayLogLite[],
   totalLevels: number,
-  manual: ManualCompetencyScores
+  manual: ManualCompetencyScores,
+  challengeData: { logs: ChallengePlayLogLite[]; totalChallenges: number }
 ): CompetencyScores {
   return {
     ladder_programming: computeLadderProgramming(logs, totalLevels),
@@ -144,7 +163,10 @@ export function computeCompetencyScores(
         ? clamp0to100(manual.debugging_testing)
         : computeDebuggingAuto(logs, totalLevels),
     problem_solving: computeProblemSolving(logs, totalLevels),
-    advanced_challenge: manual.advanced_challenge !== null ? clamp0to100(manual.advanced_challenge) : 0,
+    advanced_challenge:
+      manual.advanced_challenge !== null
+        ? clamp0to100(manual.advanced_challenge)
+        : computeAdvancedChallengeAuto(challengeData.logs, challengeData.totalChallenges),
     system_control: manual.system_control !== null ? clamp0to100(manual.system_control) : 0,
   };
 }

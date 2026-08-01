@@ -6,6 +6,7 @@ import {
   COMPETENCY_LABELS_TH,
   type CompetencyAxis,
   type ManualCompetencyScores,
+  type ChallengePlayLogLite,
 } from "@/lib/analytics/competency";
 import { CERTIFICATE_THRESHOLD } from "@/lib/certificate/threshold";
 import type { PlayLogLite } from "@/lib/analytics/skill-radar";
@@ -52,6 +53,12 @@ export default async function VerifyCertificatePage({
   const logs: PlayLogLite[] = playLogs ?? [];
 
   const { count: levelCount } = await admin.from("levels").select("*", { count: "exact", head: true });
+  const { count: challengeCount } = await admin.from("challenge_levels").select("*", { count: "exact", head: true });
+  const { data: challengePlayLogs } = await admin
+    .from("challenge_play_logs")
+    .select("challenge_level_id, is_success")
+    .eq("user_id", userId);
+  const challengeLogs: ChallengePlayLogLite[] = challengePlayLogs ?? [];
 
   let manual: ManualCompetencyScores = {
     wiring_skills: null,
@@ -73,7 +80,10 @@ export default async function VerifyCertificatePage({
     };
   }
 
-  const scores = computeCompetencyScores(logs, levelCount ?? 0, manual);
+  const scores = computeCompetencyScores(logs, levelCount ?? 0, manual, {
+    logs: challengeLogs,
+    totalChallenges: challengeCount ?? 0,
+  });
   const score = scores[axis];
   // Phase 5: ladder_programming/problem_solving also require ≥80% average
   // across every level in the system - re-derived live here too, same as

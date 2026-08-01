@@ -12,6 +12,7 @@ import {
   type ManualCompetencyScores,
   type CompetencyAxis,
   type CompetencyScores,
+  type ChallengePlayLogLite,
 } from "@/lib/analytics/competency";
 import { CERTIFICATE_THRESHOLD } from "@/lib/certificate/threshold";
 import { loadClassData } from "@/lib/analytics/load-class-data";
@@ -104,6 +105,8 @@ function StatCard({ label, value }: { label: string; value: React.ReactNode }) {
 async function StudentSummary({ userId, username }: { userId: string; username: string }) {
   let logs: PlayLogLite[] = [];
   let levelCount = 0;
+  let challengeLogs: ChallengePlayLogLite[] = [];
+  let challengeCount = 0;
   let manual: ManualCompetencyScores = {
     wiring_skills: null,
     debugging_testing: null,
@@ -118,6 +121,25 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
       console.error("DashboardPage/StudentSummary: failed to load levels", levelsError);
     } else {
       levelCount = levels?.length ?? 0;
+    }
+
+    const { count: challengeCountResult, error: challengeCountError } = await supabase
+      .from("challenge_levels")
+      .select("*", { count: "exact", head: true });
+    if (challengeCountError) {
+      console.error("DashboardPage/StudentSummary: failed to count challenge_levels", challengeCountError);
+    } else {
+      challengeCount = challengeCountResult ?? 0;
+    }
+
+    const { data: challengePlayLogs, error: challengeLogsError } = await supabase
+      .from("challenge_play_logs")
+      .select("challenge_level_id, is_success")
+      .eq("user_id", userId);
+    if (challengeLogsError) {
+      console.error("DashboardPage/StudentSummary: failed to load challenge play logs", challengeLogsError);
+    } else {
+      challengeLogs = challengePlayLogs ?? [];
     }
 
     const { data: playLogs, error: logsError } = await supabase
@@ -149,7 +171,10 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
     console.error("DashboardPage/StudentSummary crashed:", err);
   }
 
-  const competencyScores = computeCompetencyScores(logs, levelCount, manual);
+  const competencyScores = computeCompetencyScores(logs, levelCount, manual, {
+    logs: challengeLogs,
+    totalChallenges: challengeCount,
+  });
   const allLevelsAverage = computeAllLevelsAverage(logs, levelCount);
   const certificatesUnlocked = ALL_COMPETENCY_AXES.filter((axis) =>
     isCertificateUnlocked(axis, competencyScores, allLevelsAverage)
@@ -195,19 +220,24 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
  * insights rather than duplicating those here.
  */
 async function TeacherOverview() {
-  const { students, levelCount } = await loadClassData();
+  const { students, levelCount, challengeCount } = await loadClassData();
 
   const totalStudents = students.length;
   const activeStudents = students.filter((s) => s.logs.length > 0).length;
   const totalSubmissions = students.reduce((sum, s) => sum + s.logs.length, 0);
 
   const perStudentCompetency = students.map((s) =>
-    computeCompetencyScores(s.logs, levelCount, {
-      wiring_skills: s.wiringSkills,
-      debugging_testing: s.debuggingTesting,
-      advanced_challenge: s.advancedChallenge,
-      system_control: s.systemControl,
-    })
+    computeCompetencyScores(
+      s.logs,
+      levelCount,
+      {
+        wiring_skills: s.wiringSkills,
+        debugging_testing: s.debuggingTesting,
+        advanced_challenge: s.advancedChallenge,
+        system_control: s.systemControl,
+      },
+      { logs: s.challengeLogs, totalChallenges: challengeCount }
+    )
   );
   const perStudentAllLevelsAverage = students.map((s) => computeAllLevelsAverage(s.logs, levelCount));
   let passed = 0;
