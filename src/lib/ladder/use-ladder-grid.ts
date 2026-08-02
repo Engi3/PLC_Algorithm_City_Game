@@ -32,28 +32,43 @@ export type CellCoord = { row: number; col: number };
 
 /**
  * GX Works-style UX overhaul, Task 1: the orthogonal (Manhattan) path a
- * drag-to-connect gesture routes between two ports. Horizontal leg first
- * (along `from.row`, from `from.col` to `to.col`), then vertical leg (along
- * `to.col`, from `from.row` to `to.row`) - a deterministic single-elbow
- * route, same convention as most schematic/diagramming tools.
+ * drag-to-connect gesture routes between two ports - a single-elbow route,
+ * same convention as most schematic/diagramming tools. `order` picks which
+ * leg comes first: "h-first" runs horizontally along `from.row` then
+ * vertically along `to.col`; "v-first" runs vertically along `from.col` then
+ * horizontally along `to.row`. connectPorts tries both and uses whichever
+ * one doesn't run through an already-occupied cell (see below) - a single
+ * fixed order previously made OR-branch wiring direction-dependent: routing
+ * horizontally through a row that already has other placed contacts on it
+ * (e.g. dragging from a trunk row's coil back to a branch row's contact,
+ * where the trunk row is fully occupied end to end) always collided with
+ * one of them and silently failed to connect, even though the other
+ * elbow order would have routed around it cleanly.
  */
-export function computeManhattanPath(from: CellCoord, to: CellCoord): CellCoord[] {
+export function computeManhattanPath(from: CellCoord, to: CellCoord, order: "h-first" | "v-first" = "h-first"): CellCoord[] {
   const path: CellCoord[] = [from];
-  if (from.col !== to.col) {
-    const step = from.col < to.col ? 1 : -1;
-    let c = from.col;
-    while (c !== to.col) {
+  function stepCol(row: number, toCol: number, current: number) {
+    const step = current < toCol ? 1 : -1;
+    let c = current;
+    while (c !== toCol) {
       c += step;
-      path.push({ row: from.row, col: c });
+      path.push({ row, col: c });
     }
   }
-  if (from.row !== to.row) {
-    const step = from.row < to.row ? 1 : -1;
-    let r = from.row;
-    while (r !== to.row) {
+  function stepRow(col: number, toRow: number, current: number) {
+    const step = current < toRow ? 1 : -1;
+    let r = current;
+    while (r !== toRow) {
       r += step;
-      path.push({ row: r, col: to.col });
+      path.push({ row: r, col });
     }
+  }
+  if (order === "h-first") {
+    if (from.col !== to.col) stepCol(from.row, to.col, from.col);
+    if (from.row !== to.row) stepRow(to.col, to.row, from.row);
+  } else {
+    if (from.row !== to.row) stepRow(from.col, to.row, from.row);
+    if (from.col !== to.col) stepCol(to.row, to.col, from.col);
   }
   return path;
 }
@@ -444,10 +459,19 @@ export function useLadderGrid(initial?: GridProgram) {
     const toCell = grid.cells[to.row][to.col];
     if (!(fromCell.node || cellHasWire(fromCell)) || !(toCell.node || cellHasWire(toCell))) return false;
 
-    const path = computeManhattanPath(from, to);
-    for (let i = 1; i < path.length - 1; i++) {
-      if (grid.cells[path[i].row][path[i].col].node) return false;
+    function pathIsClear(candidate: CellCoord[]): boolean {
+      for (let i = 1; i < candidate.length - 1; i++) {
+        if (grid.cells[candidate[i].row][candidate[i].col].node) return false;
+      }
+      return true;
     }
+    // Try both elbow orders and use whichever one doesn't collide with an
+    // already-placed block - see computeManhattanPath's comment for why a
+    // single fixed order made OR-branch wiring direction-dependent.
+    const hFirst = computeManhattanPath(from, to, "h-first");
+    const vFirst = computeManhattanPath(from, to, "v-first");
+    const path = pathIsClear(hFirst) ? hFirst : pathIsClear(vFirst) ? vFirst : null;
+    if (!path) return false;
 
     updateGridProgram((prev) => ({
       grids: prev.grids.map((g, gi) => {
