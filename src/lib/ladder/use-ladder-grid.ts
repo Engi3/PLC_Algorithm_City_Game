@@ -110,6 +110,43 @@ export function autoCleanupRow(cells: GridCell[][], row: number): void {
 }
 
 /**
+ * UX/UI fix: two placed instructions sitting directly next to each other in
+ * the same row are always wired together, with no way to leave them
+ * touching-but-disconnected. Without this, clicking GridWiringOverlay's "cut
+ * this wire" hit-target on the segment between two already-placed blocks (or
+ * toggling the same connectLeft/connectRight flag any other way) left two
+ * blocks that visually sit side by side but have no power path between
+ * them - and no straightforward way back short of a manual drag/two-tap
+ * reconnect, easy to miss for anyone who didn't already know that gesture
+ * existed. In a ladder rung, two adjacent occupied cells in the same row are
+ * never meant to be independently severable anyway (that's not a
+ * representable branch/interlock pattern, just a broken series contact), so
+ * this is applied unconditionally on every edit rather than only at
+ * placement time - it also self-heals any grid saved before this fix
+ * existed the moment it's next touched.
+ */
+function forceAdjacentBlockWiring(cells: GridCell[][], rowCount: number): void {
+  for (let r = 0; r < rowCount; r++) {
+    for (let c = 0; c < GRID_COLUMNS - 1; c++) {
+      if (cells[r][c].node && cells[r][c + 1].node) {
+        cells[r][c].connectRight = true;
+        cells[r][c + 1].connectLeft = true;
+      }
+    }
+  }
+}
+
+function normalizeGridProgram(program: GridProgram): GridProgram {
+  return {
+    grids: program.grids.map((grid) => {
+      const cells = grid.cells.map((rowCells) => rowCells.map((cell) => ({ ...cell })));
+      forceAdjacentBlockWiring(cells, grid.rowCount);
+      return { ...grid, cells };
+    }),
+  };
+}
+
+/**
  * State management for the industrial grid editor (Task 2/3), mirroring
  * use-ladder-program.ts's shape but operating on the row/column grid model
  * from Task 1 instead of the fixed 4-cell branch model. Kept as a fully
@@ -120,7 +157,7 @@ export function autoCleanupRow(cells: GridCell[][], row: number): void {
  * runGridScan instead of the legacy runScan.
  */
 export function useLadderGrid(initial?: GridProgram) {
-  const [gridProgram, setGridProgram] = useState<GridProgram>(() => initial ?? createEmptyGridProgram());
+  const [gridProgram, setGridProgram] = useState<GridProgram>(() => normalizeGridProgram(initial ?? createEmptyGridProgram()));
   const [inputs, setInputs] = useState<Inputs>({});
   const [analogInputs, setAnalogInputs] = useState<AnalogInputs>({});
   const [memory, setMemory] = useState<SimMemory>(() => createEmptyMemory());
@@ -136,7 +173,7 @@ export function useLadderGrid(initial?: GridProgram) {
 
   /** Applies a program edit and immediately re-evaluates memory (tick: false), same as use-ladder-program's updateProgram. */
   function updateGridProgram(updater: (prev: GridProgram) => GridProgram) {
-    const next = updater(gridProgram);
+    const next = normalizeGridProgram(updater(gridProgram));
     const { memory: newMemory } = runGridScan(next, inputs, memory, { tick: false }, analogInputs);
     setGridProgram(next);
     setMemory(newMemory);

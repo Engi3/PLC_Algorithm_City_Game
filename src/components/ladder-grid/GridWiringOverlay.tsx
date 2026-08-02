@@ -134,10 +134,35 @@ export default function GridWiringOverlay({
         }
       });
 
-      const nextKey = next.map((s) => `${s.key}:${Math.round(s.x1)}:${Math.round(s.y1)}:${Math.round(s.x2)}:${Math.round(s.y2)}:${s.energized}`).join("|");
+      // UX/UI fix: a segment whose endpoint rect was measured mid-layout-race (zoom/pan/insert/delete
+      // landing between this poll and the DOM actually settling) can come out pointing far outside the
+      // grid canvas entirely. Rendered `fixed` at the viewport level with a 14px-wide invisible hit-target
+      // (see below), an errant segment like that silently blocked clicks on whatever real controls happened
+      // to sit along its path (Step/Stop/Reset, IoPanel toggles, etc.) on desktop, mobile, and tablet alike.
+      // Clipping every segment to the actual grid canvas container's box - the "designated box" a wire
+      // should never be able to escape - drops any such stray segment instead of rendering (and blocking
+      // clicks with) a line running clear across the rest of the page.
+      const canvasEl = document.querySelector('[data-grid-canvas-scroll="true"]');
+      const canvasRect = canvasEl ? canvasEl.getBoundingClientRect() : null;
+      const CLIP_TOLERANCE_PX = 4;
+      const clipped = canvasRect
+        ? next.filter(
+            (s) =>
+              s.x1 >= canvasRect.left - CLIP_TOLERANCE_PX &&
+              s.x1 <= canvasRect.right + CLIP_TOLERANCE_PX &&
+              s.x2 >= canvasRect.left - CLIP_TOLERANCE_PX &&
+              s.x2 <= canvasRect.right + CLIP_TOLERANCE_PX &&
+              s.y1 >= canvasRect.top - CLIP_TOLERANCE_PX &&
+              s.y1 <= canvasRect.bottom + CLIP_TOLERANCE_PX &&
+              s.y2 >= canvasRect.top - CLIP_TOLERANCE_PX &&
+              s.y2 <= canvasRect.bottom + CLIP_TOLERANCE_PX
+          )
+        : next;
+
+      const nextKey = clipped.map((s) => `${s.key}:${Math.round(s.x1)}:${Math.round(s.y1)}:${Math.round(s.x2)}:${Math.round(s.y2)}:${s.energized}`).join("|");
       if (nextKey !== lastKeyRef.current) {
         lastKeyRef.current = nextKey;
-        setSegments(next);
+        setSegments(clipped);
       }
     }
 
