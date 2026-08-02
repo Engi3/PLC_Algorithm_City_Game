@@ -15,11 +15,95 @@ type Segment = {
   rungIndex: number;
   row: number;
   col: number;
+  /**
+   * GX Works UX overhaul Task 3: true for an unsplit horizontal segment
+   * through a bare (no instruction), wire-carrying cell - GridCellView gives
+   * that exact case its own "center" mid-wire-tap PortDot (the drop target
+   * for "branch off an existing run", per cellHasWire's doc comment),
+   * sitting at the segment's own midpoint rather than either end. The
+   * PORT_EXCLUSION_PX trim below only protects a segment's two ENDpoints
+   * (where edge ports normally sit) - without also carving out a gap around
+   * the midpoint here, this overlay's own hit-stroke shadowed that center
+   * port exactly like the original Task 2 bug did at segment ends (caught
+   * live via the same elementFromPoint check while building this task).
+   */
+  midGap?: boolean;
 };
+
+/**
+ * GX Works UX overhaul Task 3: a filled "solder dot" marking a genuine wire
+ * T-junction/branch point - a bare (no instruction placed) cell where 3 or 4
+ * of its own connectLeft/Right/Top/Bottom flags are true at once. A plain
+ * straight-through or elbow segment only ever uses 2 (opposite for
+ * straight-through, adjacent for a corner); 3+ only happens where a branch
+ * genuinely splits off - exactly the mid-wire-tap `cellHasWire` center
+ * PortDot case (GridCellView) already using this same cell as its anchor.
+ * Deliberately scoped to bare cells only: an occupied cell's horizontal
+ * stubs already dodge its own symbol (see the segment-building comment
+ * below), so there's no single point within it where 3 lines actually
+ * converge the way there is in an empty cell - the classic GX Works3 look
+ * never draws a solder dot on top of a contact/coil symbol either.
+ */
+type Junction = { key: string; x: number; y: number; energized: boolean };
+
+/** GX Works UX overhaul Task 4: identifies a specific wire segment (by the same flag GridCellView's own wire-bar/toggle controls) - what a click now selects instead of instantly toggling, and what the Delete/Backspace key or floating delete button in GridEditorSurface act on. */
+export type WireKey = { kind: "h" | "v"; rungIndex: number; row: number; col: number };
+
+function sameWire(a: WireKey | null, b: { kind: "h" | "v"; rungIndex: number; row: number; col: number }): boolean {
+  return !!a && a.kind === b.kind && a.rungIndex === b.rungIndex && a.row === b.row && a.col === b.col;
+}
 
 const POLL_MS = 150;
 /** UX/UI fix: the visible line is a precise 3px stroke, too thin to reliably click - each line gets an invisible, wider sibling stroke that actually receives the click. */
 const HIT_STROKE_WIDTH = 14;
+/**
+ * GX Works UX overhaul Task 2: how far (in px) the invisible wide hit-stroke
+ * pulls back from each end of a segment, since every segment's endpoints are
+ * deliberately positioned exactly where a PortDot renders (see the class
+ * comment). Without this, this overlay - rendered `fixed` at the document
+ * root so it always paints above GridCanvas's transformed subtree (see the
+ * class comment on stacking context) - silently won the hit-test over the
+ * PortDot button sitting at that same pixel, swallowing the pointerdown that
+ * should have started a drag-to-connect gesture. Confirmed live via
+ * `elementFromPoint` at a real port's center: it resolved to this overlay's
+ * `<line>`, not the button underneath. Any segment shorter than 2x this
+ * value loses its hit-target entirely rather than rendering an
+ * overlapping/negative-length stroke - acceptable, since a segment that
+ * short only ever occurs directly between two already-placed, adjacent
+ * blocks, and use-ladder-grid's forceAdjacentBlockWiring already makes that
+ * particular connection un-severable anyway (clicking it would no-op).
+ */
+const PORT_EXCLUSION_PX = 12;
+
+type HitPiece = { x1: number; y1: number; x2: number; y2: number };
+
+function pointAt(x1: number, y1: number, x2: number, y2: number, t: number): { x: number; y: number } {
+  return { x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t };
+}
+
+/**
+ * The invisible wide hit-stroke's actual clickable geometry - trimmed
+ * PORT_EXCLUSION_PX in from each end so it never covers the segment's own
+ * edge ports (see the constant comment), and additionally split into two
+ * pieces around the segment's midpoint when `midGap` is set, so it also
+ * never covers a bare cell's center mid-wire-tap port (see the Segment type
+ * comment). Each returned piece is independently long enough to be worth
+ * rendering; a segment can come out with 0, 1, or 2 hit pieces.
+ */
+function computeHitPieces(x1: number, y1: number, x2: number, y2: number, midGap: boolean | undefined): HitPiece[] {
+  const length = Math.hypot(x2 - x1, y2 - y1);
+  if (length <= PORT_EXCLUSION_PX * 2) return [];
+  const start = pointAt(x1, y1, x2, y2, PORT_EXCLUSION_PX / length);
+  const end = pointAt(x1, y1, x2, y2, 1 - PORT_EXCLUSION_PX / length);
+  if (!midGap) return [{ x1: start.x, y1: start.y, x2: end.x, y2: end.y }];
+
+  const midGapStart = pointAt(x1, y1, x2, y2, 0.5 - PORT_EXCLUSION_PX / length);
+  const midGapEnd = pointAt(x1, y1, x2, y2, 0.5 + PORT_EXCLUSION_PX / length);
+  const pieces: HitPiece[] = [];
+  if (Math.hypot(midGapStart.x - start.x, midGapStart.y - start.y) > 4) pieces.push({ x1: start.x, y1: start.y, x2: midGapStart.x, y2: midGapStart.y });
+  if (Math.hypot(end.x - midGapEnd.x, end.y - midGapEnd.y) > 4) pieces.push({ x1: midGapEnd.x, y1: midGapEnd.y, x2: end.x, y2: end.y });
+  return pieces;
+}
 
 /**
  * UX/UI fix: a persistent "connector line" overlay traced over every actual
@@ -74,14 +158,17 @@ const HIT_STROKE_WIDTH = 14;
  */
 export default function GridWiringOverlay({
   gridProgram,
-  onToggleHorizontalWire,
-  onToggleVerticalWire,
+  selectedWire,
+  onSelectWire,
 }: {
   gridProgram: GridProgram;
-  onToggleHorizontalWire: (rungIndex: number, row: number, col: number) => void;
-  onToggleVerticalWire: (rungIndex: number, row: number, col: number) => void;
+  /** GX Works UX overhaul Task 4: the currently-selected wire, if any - GridEditorSurface owns this state (Delete/Backspace and the floating delete button act on it), this component only highlights whichever segment matches. */
+  selectedWire: WireKey | null;
+  /** GX Works UX overhaul Task 4: fired on click instead of instantly deleting - selects the segment and reports its on-screen midpoint, for the floating delete button's position. */
+  onSelectWire: (wire: WireKey, midX: number, midY: number) => void;
 }) {
   const [segments, setSegments] = useState<Segment[]>([]);
+  const [junctions, setJunctions] = useState<Junction[]>([]);
   const lastKeyRef = useRef<string>("");
   const gridProgramRef = useRef(gridProgram);
   gridProgramRef.current = gridProgram;
@@ -96,6 +183,7 @@ export default function GridWiringOverlay({
       vEls.forEach((el) => vMap.set(`${el.getAttribute("data-rung-index")}-${el.getAttribute("data-row")}-${el.getAttribute("data-col")}`, el));
 
       const next: Segment[] = [];
+      const nextJunctions: Junction[] = [];
       gridProgramRef.current.grids.forEach((grid, rungIndex) => {
         for (let r = 0; r < grid.rowCount; r++) {
           for (let c = 0; c < grid.cells[r].length; c++) {
@@ -104,6 +192,18 @@ export default function GridWiringOverlay({
             if (!ownEl) continue;
             const ownRect = ownEl.getBoundingClientRect();
             if (ownRect.width === 0 || ownRect.height === 0) continue;
+
+            if (!cell.node) {
+              const connectCount = [cell.connectLeft, cell.connectRight, cell.connectTop, cell.connectBottom].filter(Boolean).length;
+              if (connectCount >= 3) {
+                nextJunctions.push({
+                  key: `j-${rungIndex}-${r}-${c}`,
+                  x: ownRect.left + ownRect.width / 2,
+                  y: ownRect.top + ownRect.height / 2,
+                  energized: ownEl.getAttribute("data-energized") === "true",
+                });
+              }
+            }
 
             if (cell.connectLeft) {
               const energized = ownEl.getAttribute("data-energized") === "true";
@@ -114,7 +214,7 @@ export default function GridWiringOverlay({
                 next.push({ key: `h-${rungIndex}-${r}-${c}-a`, x1: ownRect.left, y1: y, x2: symbolRect.left, y2: y, energized, kind: "h", rungIndex, row: r, col: c });
                 next.push({ key: `h-${rungIndex}-${r}-${c}-b`, x1: symbolRect.right, y1: y, x2: ownRect.right, y2: y, energized, kind: "h", rungIndex, row: r, col: c });
               } else {
-                next.push({ key: `h-${rungIndex}-${r}-${c}`, x1: ownRect.left, y1: y, x2: ownRect.right, y2: y, energized, kind: "h", rungIndex, row: r, col: c });
+                next.push({ key: `h-${rungIndex}-${r}-${c}`, x1: ownRect.left, y1: y, x2: ownRect.right, y2: y, energized, kind: "h", rungIndex, row: r, col: c, midGap: true });
               }
             }
 
@@ -158,11 +258,20 @@ export default function GridWiringOverlay({
               s.y2 <= canvasRect.bottom + CLIP_TOLERANCE_PX
           )
         : next;
+      const clippedJunctions = canvasRect
+        ? nextJunctions.filter(
+            (j) => j.x >= canvasRect.left - CLIP_TOLERANCE_PX && j.x <= canvasRect.right + CLIP_TOLERANCE_PX && j.y >= canvasRect.top - CLIP_TOLERANCE_PX && j.y <= canvasRect.bottom + CLIP_TOLERANCE_PX
+          )
+        : nextJunctions;
 
-      const nextKey = clipped.map((s) => `${s.key}:${Math.round(s.x1)}:${Math.round(s.y1)}:${Math.round(s.x2)}:${Math.round(s.y2)}:${s.energized}`).join("|");
+      const nextKey =
+        clipped.map((s) => `${s.key}:${Math.round(s.x1)}:${Math.round(s.y1)}:${Math.round(s.x2)}:${Math.round(s.y2)}:${s.energized}`).join("|") +
+        "||" +
+        clippedJunctions.map((j) => `${j.key}:${Math.round(j.x)}:${Math.round(j.y)}:${j.energized}`).join("|");
       if (nextKey !== lastKeyRef.current) {
         lastKeyRef.current = nextKey;
         setSegments(clipped);
+        setJunctions(clippedJunctions);
       }
     }
 
@@ -178,35 +287,55 @@ export default function GridWiringOverlay({
     // Re-measures immediately whenever the program's own topology/labels change (placement, wiring, deletion) - scroll/resize/zoom are covered by the listeners and poll above instead of a dependency, since they aren't reflected in gridProgram itself.
   }, [gridProgram]);
 
-  if (segments.length === 0) return null;
+  if (segments.length === 0 && junctions.length === 0) return null;
 
   function handleClick(s: Segment) {
-    if (s.kind === "h") onToggleHorizontalWire(s.rungIndex, s.row, s.col);
-    else onToggleVerticalWire(s.rungIndex, s.row, s.col);
+    onSelectWire({ kind: s.kind, rungIndex: s.rungIndex, row: s.row, col: s.col }, (s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2);
   }
 
   return (
     <svg className="pointer-events-none fixed inset-0 z-10 h-full w-full">
-      {segments.map((s) => (
-        <g key={s.key}>
-          <line x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} stroke={s.energized ? "#22c55e" : "#2563eb"} strokeWidth={3} strokeLinecap="round" />
-          {/* Invisible wide hit-target - the visible 3px stroke above is too thin to reliably click, this is what actually receives the click/hover. pointer-events-auto re-enables hit-testing for just this element, overriding the pointer-events-none the <svg> root inherits down to everything else. */}
-          <line
-            x1={s.x1}
-            y1={s.y1}
-            x2={s.x2}
-            y2={s.y2}
-            stroke="transparent"
-            strokeWidth={HIT_STROKE_WIDTH}
-            className="pointer-events-auto cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleClick(s);
-            }}
-          >
-            <title>คลิกเพื่อตัดสายไฟเส้นนี้ (Click to disconnect this wire)</title>
-          </line>
-        </g>
+      {segments.map((s) => {
+        const hitPieces = computeHitPieces(s.x1, s.y1, s.x2, s.y2, s.midGap);
+        const isSelected = sameWire(selectedWire, s);
+        return (
+          <g key={s.key}>
+            <line
+              x1={s.x1}
+              y1={s.y1}
+              x2={s.x2}
+              y2={s.y2}
+              stroke={isSelected ? "#dc2626" : s.energized ? "#22c55e" : "#2563eb"}
+              strokeWidth={isSelected ? 4 : 3}
+              strokeDasharray={isSelected ? "6 3" : undefined}
+              strokeLinecap="round"
+            />
+            {/* Invisible wide hit-target - the visible 3px stroke above is too thin to reliably click, this is what actually receives the click/hover. pointer-events-auto re-enables hit-testing for just this element, overriding the pointer-events-none the <svg> root inherits down to everything else. Pulled back PORT_EXCLUSION_PX from each end (see constant comment), plus split around the midpoint for a midGap segment, so it never shadows the PortDot buttons at the segment's endpoints or its center mid-wire-tap. */}
+            {hitPieces.map((hit, i) => (
+              <line
+                key={i}
+                x1={hit.x1}
+                y1={hit.y1}
+                x2={hit.x2}
+                y2={hit.y2}
+                stroke="transparent"
+                strokeWidth={HIT_STROKE_WIDTH}
+                className="pointer-events-auto cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClick(s);
+                }}
+              >
+                {/* GX Works UX overhaul Task 4: click now selects (see the class-level WireKey comment) - deletion is Backspace/Delete or the floating delete button GridEditorSurface renders for the selection, not this click itself anymore. */}
+                <title>คลิกเพื่อเลือกสายไฟเส้นนี้ แล้วกด Delete หรือปุ่มลบ (Click to select this wire, then Delete or the delete button to remove it)</title>
+              </line>
+            ))}
+          </g>
+        );
+      })}
+      {/* GX Works UX overhaul Task 3: solder dots at genuine wire T-junctions/branch points (see the Junction type comment) - purely visual (no pointer-events-auto), so the mid-wire-tap PortDot already anchored at this same cell (GridCellView) stays exactly as clickable as it was, per Task 2's "never shadow a port" fix. */}
+      {junctions.map((j) => (
+        <circle key={j.key} cx={j.x} cy={j.y} r={4.5} fill={j.energized ? "#22c55e" : "#2563eb"} stroke="white" strokeWidth={1.5} className="dark:stroke-zinc-950" />
       ))}
     </svg>
   );

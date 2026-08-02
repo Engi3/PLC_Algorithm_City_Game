@@ -93,6 +93,13 @@ function PortDot({
       data-col={col}
       onPointerDown={(e) => {
         e.stopPropagation();
+        // GX Works UX overhaul Task 4: claims this pointer for the entire gesture regardless of where it
+        // physically moves afterward. Without this, a touch drag that crosses off this small button and onto
+        // GridCanvas's scrollable container (touch-pan-x/y) risks the browser reinterpreting the rest of the
+        // gesture as a native pan/scroll instead of continuing to feed pointermove to the drag-to-connect
+        // state machine in GridEditorSurface - exactly the touchscreen wiring failure mode flagged in the
+        // Task 1 audit. Safe to call unconditionally: pointer capture auto-releases on pointerup/pointercancel.
+        e.currentTarget.setPointerCapture(e.pointerId);
         onDragStart(row, col, e.clientX, e.clientY);
       }}
       onClick={(e) => e.stopPropagation()}

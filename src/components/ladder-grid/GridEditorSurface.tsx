@@ -17,7 +17,7 @@ import GridRungEditor from "./GridRungEditor";
 import GridCanvas from "./GridCanvas";
 import GridFbdView from "./GridFbdView";
 import GridStView from "./GridStView";
-import GridWiringOverlay from "./GridWiringOverlay";
+import GridWiringOverlay, { type WireKey } from "./GridWiringOverlay";
 import VariablePoolDrawer from "@/components/ladder/VariablePoolDrawer";
 import IoPanel from "@/components/ladder/IoPanel";
 import AnalogInputPanel from "@/components/ladder/AnalogInputPanel";
@@ -40,6 +40,51 @@ const BLOCK_DRAG_THRESHOLD_PX = 6;
 
 /** UX/UI refinement Task 5: movement under this, from pointerdown to pointerup on a PortDot, counts as a tap (arms/completes two-tap wiring) rather than a drag-to-connect - the touch-friendly alternative for devices where dragging a small dot precisely is unreliable. */
 const PORT_TAP_THRESHOLD_PX = 6;
+
+/**
+ * GX Works UX overhaul Task 2 "Magnetic Snap": how close (in px) the cursor
+ * needs to be to a port's center to snap to it as a drop target - a
+ * Flowchart-editor-style forgiving radius rather than requiring a pixel-
+ * perfect hit on the small dot itself.
+ */
+const MAGNET_SNAP_RADIUS_PX = 20;
+
+type PortTarget = { rungIndex: number; row: number; col: number; x: number; y: number };
+
+/**
+ * GX Works UX overhaul Task 2: resolves the nearest connectable port to a
+ * point, within `radiusPx` - replaces the old `elementFromPoint`-based
+ * exact-pixel hit test. Two reasons for the change: (1) it gives a real
+ * "magnetic" tolerance instead of requiring the cursor to land exactly on a
+ * ~10-22px dot, and (2) `elementFromPoint` was structurally unreliable here
+ * regardless of tolerance - GridWiringOverlay's own click-to-delete hit-line
+ * renders `fixed` at the document root, so it wins the hit-test over a
+ * PortDot sitting at the very same pixel on any already-wired cell (verified
+ * live via `elementFromPoint` during the Task 1 audit - it resolved to the
+ * overlay's `<line>`, not the button). Scanning real port rects directly
+ * sidesteps that layering question entirely. Restricted to `rungIndex`
+ * (rungs are independent ladder networks - connectPorts already rejects a
+ * cross-rung connection, so there's no point ever snapping to one).
+ */
+function findNearestPort(clientX: number, clientY: number, radiusPx: number, rungIndex: number, exclude?: { row: number; col: number }): PortTarget | null {
+  const ports = document.querySelectorAll(`[data-grid-port="true"][data-rung-index="${rungIndex}"]`);
+  let best: PortTarget | null = null;
+  let bestDist = Infinity;
+  ports.forEach((el) => {
+    const row = Number(el.getAttribute("data-row"));
+    const col = Number(el.getAttribute("data-col"));
+    if (exclude && row === exclude.row && col === exclude.col) return;
+    const r = el.getBoundingClientRect();
+    const x = r.x + r.width / 2;
+    const y = r.y + r.height / 2;
+    const dist = Math.hypot(x - clientX, y - clientY);
+    if (dist <= radiusPx && dist < bestDist) {
+      bestDist = dist;
+      best = { rungIndex, row, col, x, y };
+    }
+  });
+  return best;
+}
 
 /** UX/UI refinement Task 5: right-click quick-delete (desktop mouse) - the cell to delete, plus screen position for the floating confirm button. */
 type ContextMenuState = { rungIndex: number; row: number; col: number; x: number; y: number };
@@ -122,14 +167,18 @@ export default function GridEditorSurface({
   const [view, setView] = useState<ViewMode>("LD");
   const [activeTool, setActiveTool] = useState<GridTool>(null);
   const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
+  /** GX Works UX overhaul Task 4: the wire a click selected, plus its on-screen midpoint for the floating delete button - clicking a wire no longer deletes it instantly (see GridWiringOverlay), Delete/Backspace or that button does. */
+  const [selectedWire, setSelectedWire] = useState<{ wire: WireKey; x: number; y: number } | null>(null);
   const [portDragSource, setPortDragSource] = useState<PortDragSource | null>(null);
   const [portDragPointer, setPortDragPointer] = useState<{ x: number; y: number } | null>(null);
-  /** UX/UI fix: the port dot currently under the cursor mid-drag, if it's a valid different-cell target - drives a green "magnetic snap" ring so it's obvious where a release will land before you let go. */
-  const [dragHoverPoint, setDragHoverPoint] = useState<{ x: number; y: number } | null>(null);
+  /** GX Works UX overhaul Task 2: the port currently within magnet-snap radius of the cursor mid-drag, if any - drives the green "magnetic snap" ring/preview-line-snap so it's obvious exactly where a release will land before you let go. */
+  const [dragHoverPoint, setDragHoverPoint] = useState<PortTarget | null>(null);
   // UX/UI refinement Task 5: two-tap wiring - the port armed by a first tap, awaiting a second tap on a different port to complete the connection. hasDraggedPortRef distinguishes a real drag (existing drag-to-connect behavior) from a tap (arms/completes/cancels this instead) using the same movement-threshold pattern as the block-drag machinery below.
   const [pendingPortTap, setPendingPortTap] = useState<PortDragSource | null>(null);
   /** UX/UI fix: live cursor position while a tap is armed. A short mouse/trackpad drag that stays under PORT_TAP_THRESHOLD_PX reads as a tap, not a drag - without this, that case showed only the small pulsing dot and no line at all, which is what made a real connection attempt look like nothing had happened. */
   const [tapHoverPointer, setTapHoverPointer] = useState<{ x: number; y: number } | null>(null);
+  /** GX Works UX overhaul Task 2: same magnet-snap resolution as dragHoverPoint, but for a two-tap connection that's armed and being hovered by a mouse/trackpad (touch has no hover to snap during). */
+  const [tapSnapTarget, setTapSnapTarget] = useState<PortTarget | null>(null);
   /** UX/UI fix: a transient "Connected"/"Cannot connect" pill at the drop point after every connection attempt (drag release or second tap) - connectPorts succeeds or fails completely silently otherwise, so there was no way to tell whether a drag actually registered. */
   const [connectionFeedback, setConnectionFeedback] = useState<{ x: number; y: number; success: boolean } | null>(null);
   const hasDraggedPortRef = useRef(false);
@@ -159,6 +208,11 @@ export default function GridEditorSurface({
   useEffect(() => {
     connectPortsRef.current = grid.connectPorts;
   });
+  /** Mirrors pendingPortTap for onUp's synchronous read (see the port-drag effect below) - same reasoning as connectPortsRef/moveNodeRef, but for a piece of this component's own state rather than a prop. */
+  const pendingPortTapRef = useRef<PortDragSource | null>(null);
+  useEffect(() => {
+    pendingPortTapRef.current = pendingPortTap;
+  }, [pendingPortTap]);
 
   /** UX/UI fix: the connection feedback pill self-dismisses so it reads as a toast, not a persistent label. */
   useEffect(() => {
@@ -171,10 +225,12 @@ export default function GridEditorSurface({
   useEffect(() => {
     if (!pendingPortTap) {
       setTapHoverPointer(null);
+      setTapSnapTarget(null);
       return;
     }
     function onMove(e: PointerEvent) {
       setTapHoverPointer({ x: e.clientX, y: e.clientY });
+      setTapSnapTarget(findNearestPort(e.clientX, e.clientY, MAGNET_SNAP_RADIUS_PX, pendingPortTap!.rungIndex, pendingPortTap!));
     }
     window.addEventListener("pointermove", onMove);
     return () => window.removeEventListener("pointermove", onMove);
@@ -265,6 +321,21 @@ export default function GridEditorSurface({
     placeAtSelected(next);
   }
 
+  /** GX Works UX overhaul Task 4: called from a wire's click (via GridWiringOverlay's onSelectWire) - selects it and clears any cell selection, so Delete/Backspace unambiguously targets the wire, not a block. */
+  function handleSelectWire(wire: WireKey, midX: number, midY: number) {
+    setSelectedWire({ wire, x: midX, y: midY });
+    setSelectedCell(null);
+  }
+
+  /** GX Works UX overhaul Task 4: deletes the selected wire - toggling the same connectLeft/connectBottom flag GridCellView's own wire-bar/toggle controls is exactly deletion here, since a selected wire only ever exists where that flag is already true. */
+  function deleteSelectedWire() {
+    if (!selectedWire) return;
+    const { wire } = selectedWire;
+    if (wire.kind === "h") grid.toggleHorizontalWire(wire.rungIndex, wire.row, wire.col);
+    else grid.toggleVerticalWire(wire.rungIndex, wire.row, wire.col);
+    setSelectedWire(null);
+  }
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (isEditableTarget(e.target)) return;
@@ -296,7 +367,10 @@ export default function GridEditorSurface({
           break;
         case "Delete":
         case "Backspace":
-          if (selectedCell) {
+          if (selectedWire) {
+            e.preventDefault();
+            deleteSelectedWire();
+          } else if (selectedCell) {
             e.preventDefault();
             grid.removeNode(selectedCell.rungIndex, selectedCell.row, selectedCell.col);
           }
@@ -304,6 +378,7 @@ export default function GridEditorSurface({
         case "Escape":
           setActiveTool(null);
           setSelectedCell(null);
+          setSelectedWire(null);
           setPendingPortTap(null);
           setContextMenu(null);
           break;
@@ -316,7 +391,7 @@ export default function GridEditorSurface({
     // are recreated every render (not memoized) - re-subscribing on every
     // render (rather than a narrower dep list) is what keeps handleKeyDown
     // from ever calling a stale closure.
-  }, [activeTool, selectedCell, grid]);
+  }, [activeTool, selectedCell, selectedWire, grid]);
 
   /** GX Works UX overhaul Task 1: begins a drag-to-connect gesture from a cell's port dot (see GridCellView's PortDot). */
   function handlePortDragStart(rungIndex: number, row: number, col: number, clientX: number, clientY: number) {
@@ -328,60 +403,65 @@ export default function GridEditorSurface({
   useEffect(() => {
     if (!portDragSource) return;
 
-    function hoverTargetAt(clientX: number, clientY: number): { el: HTMLElement; row: number; col: number; rungIndex: number } | null {
-      const target = document.elementFromPoint(clientX, clientY);
-      const portEl = target instanceof HTMLElement ? target.closest('[data-grid-port="true"]') : null;
-      if (!(portEl instanceof HTMLElement)) return null;
-      const row = Number(portEl.getAttribute("data-row"));
-      const col = Number(portEl.getAttribute("data-col"));
-      const rungIndex = Number(portEl.getAttribute("data-rung-index"));
-      // Don't highlight the port the drag started from - that's not a valid target (connectPorts rejects a same-cell connection).
-      if (rungIndex === portDragSource!.rungIndex && row === portDragSource!.row && col === portDragSource!.col) return null;
-      return { el: portEl, row, col, rungIndex };
-    }
-
     function onMove(e: PointerEvent) {
       const moved = Math.hypot(e.clientX - portDragSource!.startX, e.clientY - portDragSource!.startY);
       if (moved > PORT_TAP_THRESHOLD_PX) hasDraggedPortRef.current = true;
       setPortDragPointer({ x: e.clientX, y: e.clientY });
 
-      // UX/UI fix: highlight whatever port is currently under the cursor once this reads as a real drag, so it's clear where a release will connect to before you actually let go (the earlier version gave zero feedback until the drop itself).
+      // GX Works UX overhaul Task 2 "Magnetic Snap": once this reads as a real drag, resolve (and visually snap to) whichever port is within MAGNET_SNAP_RADIUS_PX of the cursor - a forgiving radius rather than requiring a pixel-perfect hit, so it's obvious exactly where a release will connect before letting go.
       if (hasDraggedPortRef.current) {
         autoScrollCanvasNearEdge(e.clientX, e.clientY);
-        const hover = hoverTargetAt(e.clientX, e.clientY);
-        if (hover) {
-          const r = hover.el.getBoundingClientRect();
-          setDragHoverPoint({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
-        } else {
-          setDragHoverPoint(null);
-        }
+        setDragHoverPoint(findNearestPort(e.clientX, e.clientY, MAGNET_SNAP_RADIUS_PX, portDragSource!.rungIndex, portDragSource!));
       }
+    }
+
+    /**
+     * GX Works UX overhaul Task 4: `connectPortsRef.current(...)` calls into
+     * `grid` (owned by the parent, GridLadderEditor's `useLadderGrid()`),
+     * while this same handler also sets several of GridEditorSurface's own
+     * state variables in the same synchronous tick (setPortDragSource(null)
+     * etc. below). React batches all of it into one update pass, and
+     * updating an ancestor from inside a callback that also updates the
+     * current (descendant) component in the same pass trips React's "Cannot
+     * update a component while rendering a different component" guard -
+     * confirmed via the dev server's full stack trace, not a guess. Deferred
+     * to a microtask so the ancestor-owned update lands in its own,
+     * un-overlapping pass; a microtask still resolves before the next paint,
+     * so there's no perceptible delay to the "Connected"/"Cannot connect"
+     * feedback pill.
+     */
+    function connectAndShowFeedback(rungIndex: number, from: { row: number; col: number }, to: { row: number; col: number }, clientX: number, clientY: number) {
+      queueMicrotask(() => {
+        const success = connectPortsRef.current(rungIndex, from, to);
+        setConnectionFeedback({ x: clientX, y: clientY, success });
+      });
     }
 
     function onUp(e: PointerEvent) {
       if (hasDraggedPortRef.current) {
-        // A genuine drag: connect to whatever port is under the release point (unchanged from Task 1).
-        const hover = hoverTargetAt(e.clientX, e.clientY);
-        let success = false;
-        if (hover && hover.rungIndex === portDragSource!.rungIndex) {
-          success = connectPortsRef.current(portDragSource!.rungIndex, { row: portDragSource!.row, col: portDragSource!.col }, { row: hover.row, col: hover.col });
+        // A genuine drag: connect to whatever port is within magnet-snap radius of the release point.
+        const target = findNearestPort(e.clientX, e.clientY, MAGNET_SNAP_RADIUS_PX, portDragSource!.rungIndex, portDragSource!);
+        if (target) {
+          connectAndShowFeedback(portDragSource!.rungIndex, { row: portDragSource!.row, col: portDragSource!.col }, { row: target.row, col: target.col }, e.clientX, e.clientY);
+        } else {
+          // UX/UI fix: previously silent either way - now always shows a "Connected"/"Cannot connect" pill at the drop point, so a failed drag (blocked path, missed the target) is as visible as a successful one.
+          setConnectionFeedback({ x: e.clientX, y: e.clientY, success: false });
         }
-        // UX/UI fix: previously silent either way - now always shows a "Connected"/"Cannot connect" pill at the drop point, so a failed drag (blocked path, missed the target) is as visible as a successful one.
-        setConnectionFeedback({ x: e.clientX, y: e.clientY, success });
         setPendingPortTap(null); // a completed drag also clears any stale armed tap from an earlier, abandoned two-tap attempt
       } else {
         // UX/UI refinement Task 5: two-tap wiring - this pointerdown/up pair barely moved, so treat it as a tap rather than a drag.
-        setPendingPortTap((pending) => {
-          if (!pending || pending.rungIndex !== portDragSource!.rungIndex) {
-            return { rungIndex: portDragSource!.rungIndex, row: portDragSource!.row, col: portDragSource!.col, startX: portDragSource!.startX, startY: portDragSource!.startY };
-          }
-          if (pending.row === portDragSource!.row && pending.col === portDragSource!.col) {
-            return null; // tapped the same port again - cancel
-          }
-          const success = connectPortsRef.current(portDragSource!.rungIndex, { row: pending.row, col: pending.col }, { row: portDragSource!.row, col: portDragSource!.col });
-          setConnectionFeedback({ x: e.clientX, y: e.clientY, success });
-          return null;
-        });
+        // Reads pendingPortTapRef (not the updater-function form) so connectAndShowFeedback's ancestor-owned
+        // call happens as a plain statement here, not nested inside another state updater - the same
+        // "don't call an ancestor setter while this component's own update is in flight" fix as the drag branch above.
+        const pending = pendingPortTapRef.current;
+        if (!pending || pending.rungIndex !== portDragSource!.rungIndex) {
+          setPendingPortTap({ rungIndex: portDragSource!.rungIndex, row: portDragSource!.row, col: portDragSource!.col, startX: portDragSource!.startX, startY: portDragSource!.startY });
+        } else if (pending.row === portDragSource!.row && pending.col === portDragSource!.col) {
+          setPendingPortTap(null); // tapped the same port again - cancel
+        } else {
+          connectAndShowFeedback(portDragSource!.rungIndex, { row: pending.row, col: pending.col }, { row: portDragSource!.row, col: portDragSource!.col }, e.clientX, e.clientY);
+          setPendingPortTap(null);
+        }
       }
       setPortDragSource(null);
       setPortDragPointer(null);
@@ -555,7 +635,10 @@ export default function GridEditorSurface({
               customVariables={pool.customVariables}
               flow={evalGridFlow(g, grid.inputs, grid.memory, grid.analogInputs)}
               selectedCell={selectedCell && selectedCell.rungIndex === i ? selectedCell : null}
-              onSelectCell={(row, col) => setSelectedCell({ rungIndex: i, row, col })}
+              onSelectCell={(row, col) => {
+                setSelectedCell({ rungIndex: i, row, col });
+                setSelectedWire(null);
+              }}
               onPlaceNode={(row, col, node: GridNode) => {
                 grid.placeNode(i, row, col, node);
                 // UX/UI refinement Task 2 "No-Spam Drop": a click-placed block reverts the cursor to Select/Pointer mode immediately (same as pressing Escape), so the very next click can't accidentally drop a second block. F5-F10's own placeAtSelected deliberately does NOT do this - a keyboard user pressing the same key repeatedly to fill several selected cells in a row is intentional, unlike mouse/touch click-spam.
@@ -592,11 +675,7 @@ export default function GridEditorSurface({
         just never made it onto the screen. Explicit z-10 is a second,
         redundant safety margin on top of the tree-order fix.
       */}
-      <GridWiringOverlay
-        gridProgram={grid.gridProgram}
-        onToggleHorizontalWire={(rungIndex, row, col) => grid.toggleHorizontalWire(rungIndex, row, col)}
-        onToggleVerticalWire={(rungIndex, row, col) => grid.toggleVerticalWire(rungIndex, row, col)}
-      />
+      <GridWiringOverlay gridProgram={grid.gridProgram} selectedWire={selectedWire?.wire ?? null} onSelectWire={handleSelectWire} />
 
       {grid.gridProgram.grids.length < MAX_GRID_RUNGS && (
         <button
@@ -679,19 +758,27 @@ export default function GridEditorSurface({
         drag that stayed under PORT_TAP_THRESHOLD_PX and got read as a tap
         showed nothing but a small pulsing dot on the armed port - which is
         exactly what made a real connection attempt look like it had done
-        nothing. The green ring marks whatever port is currently under the
-        cursor as a valid drop target, so it's clear where a release will
-        land before you actually let go.
+        nothing.
+        GX Works UX overhaul Task 2 "Magnetic Snap": once a port is within
+        MAGNET_SNAP_RADIUS_PX (dragHoverPoint/tapSnapTarget), the preview
+        line's endpoint jumps to that port's exact center instead of
+        trailing the raw cursor, with a glowing green ring around it - a
+        real "magnet-snap", not just a highlight next to wherever the
+        cursor happens to be.
       */}
       {((portDragSource && portDragPointer) || (pendingPortTap && tapHoverPointer)) && (() => {
         const origin = portDragSource ?? pendingPortTap!;
-        const pointer = portDragSource ? portDragPointer! : tapHoverPointer!;
+        const snap = portDragSource ? dragHoverPoint : tapSnapTarget;
+        const pointer = snap ?? (portDragSource ? portDragPointer! : tapHoverPointer!);
         return (
           <svg className="pointer-events-none fixed inset-0 z-50 h-full w-full">
             <line x1={origin.startX} y1={origin.startY} x2={pointer.x} y2={pointer.y} stroke="#2563eb" strokeWidth={3} strokeLinecap="round" />
             <circle cx={origin.startX} cy={origin.startY} r={5} fill="#2563eb" />
-            <circle cx={pointer.x} cy={pointer.y} r={5} fill="#2563eb" />
-            {dragHoverPoint && <circle cx={dragHoverPoint.x} cy={dragHoverPoint.y} r={13} fill="none" stroke="#22c55e" strokeWidth={3} className="animate-pulse" />}
+            {snap ? (
+              <circle cx={snap.x} cy={snap.y} r={13} fill="none" stroke="#22c55e" strokeWidth={3} className="animate-pulse" />
+            ) : (
+              <circle cx={pointer.x} cy={pointer.y} r={5} fill="#2563eb" />
+            )}
           </svg>
         );
       })()}
@@ -738,6 +825,19 @@ export default function GridEditorSurface({
           className="fixed z-50 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-lg hover:bg-red-700"
         >
           🗑 Delete
+        </button>
+      )}
+
+      {/* GX Works UX overhaul Task 4: floating delete button for the selected wire (see GridWiringOverlay - a click now selects, not instantly deletes) - Delete/Backspace does the same thing, this is the touch/no-keyboard equivalent, same pattern as the block context-menu's Delete button above. */}
+      {selectedWire && (
+        <button
+          type="button"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={deleteSelectedWire}
+          style={{ left: selectedWire.x, top: selectedWire.y }}
+          className="fixed z-50 flex -translate-x-1/2 -translate-y-8 items-center gap-1.5 rounded-full bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-lg hover:bg-red-700"
+        >
+          🗑 ตัดสาย (Delete Wire)
         </button>
       )}
     </div>
