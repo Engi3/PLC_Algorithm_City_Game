@@ -11,6 +11,7 @@ import {
   type RequiredCompetency,
 } from "@/lib/ladder/challenge-types";
 import { checkLevelGate, computeChallengeUnlockStatus, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
+import { SKILL_LABELS } from "@/lib/ladder/level-spec";
 import ChallengePlayClient from "@/components/ladder/ChallengePlayClient";
 import PrevNextNav, { type NavTarget } from "@/components/ladder/PrevNextNav";
 
@@ -26,7 +27,7 @@ export default async function ChallengeDetailPage({
   let row: ChallengeLevelRow | null = null;
   let passed = false;
   let attempts = 0;
-  let gate: LevelGateStatus = { unlocked: isTeacher, levelsPassed: 0, totalLevels: 0 };
+  let gate: LevelGateStatus = { unlocked: isTeacher, categories: [] };
   let sequentiallyUnlocked = isTeacher;
   let prevChallengeId: string | null = null;
   let nextChallengeId: string | null = null;
@@ -94,10 +95,12 @@ export default async function ChallengeDetailPage({
   const chapter = chapterForChallengeId(row.challenge_id);
 
   if (!gate.unlocked) {
+    const unmet = gate.categories.filter((c) => c.total > 0 && c.passed / c.total < 0.5);
+    const detail = unmet.map((c) => `${SKILL_LABELS[c.skill]} (${c.passed}/${c.total})`).join(", ");
     return (
       <LockedNotice
         title="🔒 Challenge Mode ยังไม่ปลดล็อค"
-        message={`ต้องผ่านด่านทดสอบ (Levels) ให้ครบทุกด่านก่อน (${gate.levelsPassed}/${gate.totalLevels})`}
+        message={`ต้องผ่านด่านทดสอบ (Levels) อย่างน้อย 50% ในทุกหมวดหมู่ - ยังไม่ถึงเกณฑ์: ${detail}`}
       />
     );
   }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { checkLevelGate, computeChallengeUnlockStatus, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
+import { SKILL_LABELS } from "@/lib/ladder/level-spec";
 import {
   CHALLENGE_CHAPTERS,
   COMPETENCY_TAG_LABELS,
@@ -23,7 +24,7 @@ export default async function ChallengesPage() {
 
   let challenges: ChallengeRow[] = [];
   const passedIds = new Set<string>();
-  let gate: LevelGateStatus = { unlocked: isTeacher, levelsPassed: 0, totalLevels: 0 };
+  let gate: LevelGateStatus = { unlocked: isTeacher, categories: [] };
 
   try {
     const supabase = await createClient();
@@ -74,26 +75,42 @@ export default async function ChallengesPage() {
           </p>
           <h1 className="mt-1 text-2xl font-semibold">🔒 ยังไม่ปลดล็อค</h1>
         </div>
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950">
-          <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-            ต้องผ่านด่านทดสอบ (Levels) ให้ครบทุกด่านก่อน จึงจะปลดล็อค Challenge Mode ได้
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-6 dark:border-amber-800 dark:bg-amber-950">
+          <p className="text-center text-sm font-medium text-amber-800 dark:text-amber-300">
+            ต้องผ่านด่านทดสอบ (Levels) อย่างน้อย 50% ในทุกหมวดหมู่ จึงจะปลดล็อค Challenge Mode ได้
           </p>
-          <p className="mt-3 font-mono text-2xl font-semibold text-amber-700 dark:text-amber-400">
-            {gate.levelsPassed}/{gate.totalLevels}
-          </p>
-          <p className="text-xs text-amber-700 dark:text-amber-400">ด่านที่ผ่านแล้ว</p>
-          <div className="mx-auto mt-3 h-2 w-full max-w-xs overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
-            <div
-              className="h-full bg-amber-500"
-              style={{ width: `${gate.totalLevels > 0 ? Math.min(100, (gate.levelsPassed / gate.totalLevels) * 100) : 0}%` }}
-            />
+          <div className="mx-auto mt-4 flex max-w-sm flex-col gap-2.5">
+            {gate.categories.map((c) => {
+              const ratio = c.total > 0 ? c.passed / c.total : 1;
+              const met = ratio >= 0.5;
+              return (
+                <div key={c.skill}>
+                  <div className="flex items-center justify-between text-xs text-amber-800 dark:text-amber-300">
+                    <span className="font-medium">
+                      {met ? "✓" : "○"} {SKILL_LABELS[c.skill]}
+                    </span>
+                    <span className="font-mono">
+                      {c.passed}/{c.total} ({Math.round(ratio * 100)}%)
+                    </span>
+                  </div>
+                  <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
+                    <div
+                      className={`h-full ${met ? "bg-emerald-500" : "bg-amber-500"}`}
+                      style={{ width: `${Math.min(100, ratio * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <Link
-            href="/dashboard/play"
-            className="mt-5 inline-block rounded-md bg-amber-600 px-5 py-2 text-sm font-medium text-white hover:bg-amber-700"
-          >
-            ไปเล่นด่านทดสอบ →
-          </Link>
+          <div className="text-center">
+            <Link
+              href="/dashboard/play"
+              className="mt-5 inline-block rounded-md bg-amber-600 px-5 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            >
+              ไปเล่นด่านทดสอบ →
+            </Link>
+          </div>
         </div>
       </div>
     );
