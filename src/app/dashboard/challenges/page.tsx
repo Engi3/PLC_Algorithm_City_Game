@@ -106,7 +106,7 @@ export default async function ChallengesPage() {
           <p className="font-mono text-[11px] uppercase tracking-widest text-amber-400">
             Challenge Mode — Industrial Simulation Curriculum
           </p>
-          <h1 className="mt-1 text-2xl font-semibold">50 ภารกิจจำลองโรงงานอุตสาหกรรม</h1>
+          <h1 className="mt-1 text-2xl font-semibold">{challenges.length} ภารกิจจำลองโรงงานอุตสาหกรรม</h1>
           <p className="mt-1 text-sm text-zinc-400">
             ความยากระดับสูง ผสมผสาน NO/NC, Timer, Counter, Analog และ Interlock เข้าด้วยกันในสถานการณ์จริง
           </p>
@@ -151,73 +151,108 @@ export default async function ChallengesPage() {
               {chapterChallenges.map((challenge) => {
                 const passed = passedIds.has(challenge.id);
                 const unlocked = isTeacher || (unlockStatus.get(challenge.id) ?? false);
-
-                if (!unlocked) {
-                  return (
-                    <div
-                      key={challenge.id}
-                      title="ต้องผ่านภารกิจก่อนหน้าให้สำเร็จก่อน จึงจะปลดล็อคภารกิจนี้"
-                      className="flex cursor-not-allowed flex-col gap-2 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-4 opacity-60 dark:border-zinc-800 dark:bg-zinc-950"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500">
-                          CH-{String(challenge.challenge_id).padStart(2, "0")}
-                        </span>
-                        <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500">
-                          🔒 ล็อคอยู่
-                        </span>
-                      </div>
-                      <h3 className="text-sm font-medium text-zinc-400 dark:text-zinc-600">{challenge.title}</h3>
-                    </div>
-                  );
-                }
-
                 return (
-                  <Link
-                    key={challenge.id}
-                    href={`/dashboard/challenges/${challenge.id}`}
-                    className={`flex flex-col gap-2 rounded-lg border bg-white p-4 transition-colors hover:border-amber-500 dark:bg-zinc-950 ${
-                      passed
-                        ? "border-emerald-300 dark:border-emerald-800"
-                        : "border-zinc-200 dark:border-zinc-800"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
-                        CH-{String(challenge.challenge_id).padStart(2, "0")}
-                      </span>
-                      {passed ? (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400">
-                          ✓ ผ่านแล้ว
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
-                          ยังไม่ผ่าน
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{challenge.title}</h3>
-                    <div className="mt-auto flex flex-wrap gap-1 pt-1">
-                      {challenge.required_competencies.map((tag) => {
-                        const key = tag as RequiredCompetency;
-                        const label = COMPETENCY_TAG_LABELS[key] ?? tag;
-                        const classes =
-                          COMPETENCY_TAG_BADGE_CLASSES[key] ??
-                          "bg-zinc-100 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400";
-                        return (
-                          <span key={tag} className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${classes}`}>
-                            {label}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </Link>
+                  <ChallengeCard key={challenge.id} challenge={challenge} unlocked={unlocked} passed={passed} />
                 );
               })}
             </div>
           </div>
         );
       })}
+
+      {(() => {
+        const categorizedIds = new Set(
+          CHALLENGE_CHAPTERS.flatMap((chapter) =>
+            challenges
+              .filter((c) => c.challenge_id >= chapter.idRange[0] && c.challenge_id <= chapter.idRange[1])
+              .map((c) => c.id)
+          )
+        );
+        const extra = challenges.filter((c) => !categorizedIds.has(c.id));
+        if (extra.length === 0) return null;
+        const extraPassed = extra.filter((c) => passedIds.has(c.id)).length;
+
+        return (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-zinc-800 px-4 py-2.5 text-white">
+              <div>
+                <h2 className="text-sm font-semibold">ภารกิจเพิ่มเติม</h2>
+                <p className="text-[11px] text-zinc-400">Additional Challenges</p>
+              </div>
+              <span className="font-mono text-xs text-zinc-400">
+                {extraPassed}/{extra.length} ผ่านแล้ว
+              </span>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {extra.map((challenge) => {
+                const passed = passedIds.has(challenge.id);
+                const unlocked = isTeacher || (unlockStatus.get(challenge.id) ?? false);
+                return (
+                  <ChallengeCard key={challenge.id} challenge={challenge} unlocked={unlocked} passed={passed} />
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
     </div>
+  );
+}
+
+function ChallengeCard({ challenge, unlocked, passed }: { challenge: ChallengeRow; unlocked: boolean; passed: boolean }) {
+  if (!unlocked) {
+    return (
+      <div
+        title="ต้องผ่านภารกิจก่อนหน้าให้สำเร็จก่อน จึงจะปลดล็อคภารกิจนี้"
+        className="flex cursor-not-allowed flex-col gap-2 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-4 opacity-60 dark:border-zinc-800 dark:bg-zinc-950"
+      >
+        <div className="flex items-center justify-between">
+          <span className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500">
+            CH-{String(challenge.challenge_id).padStart(2, "0")}
+          </span>
+          <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500">
+            🔒 ล็อคอยู่
+          </span>
+        </div>
+        <h3 className="text-sm font-medium text-zinc-400 dark:text-zinc-600">{challenge.title}</h3>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={`/dashboard/challenges/${challenge.id}`}
+      className={`flex flex-col gap-2 rounded-lg border bg-white p-4 transition-colors hover:border-amber-500 dark:bg-zinc-950 ${
+        passed ? "border-emerald-300 dark:border-emerald-800" : "border-zinc-200 dark:border-zinc-800"
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+          CH-{String(challenge.challenge_id).padStart(2, "0")}
+        </span>
+        {passed ? (
+          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400">
+            ✓ ผ่านแล้ว
+          </span>
+        ) : (
+          <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+            ยังไม่ผ่าน
+          </span>
+        )}
+      </div>
+      <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{challenge.title}</h3>
+      <div className="mt-auto flex flex-wrap gap-1 pt-1">
+        {challenge.required_competencies.map((tag) => {
+          const key = tag as RequiredCompetency;
+          const label = COMPETENCY_TAG_LABELS[key] ?? tag;
+          const classes = COMPETENCY_TAG_BADGE_CLASSES[key] ?? "bg-zinc-100 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400";
+          return (
+            <span key={tag} className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${classes}`}>
+              {label}
+            </span>
+          );
+        })}
+      </div>
+    </Link>
   );
 }

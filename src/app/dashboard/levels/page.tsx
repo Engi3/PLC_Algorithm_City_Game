@@ -46,12 +46,20 @@ export default async function LevelsPage() {
             .
           </p>
         </div>
-        <Link
-          href="/dashboard/levels/new"
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          + Create Level
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/levels/new"
+            className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            + Create Level
+          </Link>
+          <Link
+            href="/dashboard/challenges/new"
+            className="rounded-md bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700"
+          >
+            + Create Challenge
+          </Link>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
