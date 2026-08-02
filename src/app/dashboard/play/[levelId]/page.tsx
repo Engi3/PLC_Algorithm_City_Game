@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isLevelSpec, type SkillCategory } from "@/lib/ladder/level-spec";
 import GridLadderPlayground from "@/components/ladder/GridLadderPlayground";
+import PrevNextNav, { type NavTarget } from "@/components/ladder/PrevNextNav";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 
 export default async function LevelPlayPage({
@@ -73,6 +73,9 @@ export default async function LevelPlayPage({
     notFound();
   }
 
+  const prevNav: NavTarget = prevLevelId ? { kind: "link", href: `/dashboard/play/${prevLevelId}` } : { kind: "none" };
+  const nextNav: NavTarget = nextLevelId ? { kind: "link", href: `/dashboard/play/${nextLevelId}` } : { kind: "none" };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -89,34 +92,12 @@ export default async function LevelPlayPage({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {prevLevelId ? (
-            <Link
-              href={`/dashboard/play/${prevLevelId}`}
-              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-            >
-              ← ด่านก่อนหน้า
-            </Link>
-          ) : (
-            <span className="cursor-not-allowed rounded-md border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-300 dark:border-zinc-800 dark:text-zinc-700">
-              ← ด่านก่อนหน้า
-            </span>
-          )}
-          {nextLevelId ? (
-            <Link
-              href={`/dashboard/play/${nextLevelId}`}
-              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-            >
-              ด่านถัดไป →
-            </Link>
-          ) : (
-            <span className="cursor-not-allowed rounded-md border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-300 dark:border-zinc-800 dark:text-zinc-700">
-              ด่านถัดไป →
-            </span>
-          )}
-        </div>
+        <PrevNextNav prev={prevNav} next={nextNav} prevLabel="← ด่านก่อนหน้า" nextLabel="ด่านถัดไป →" />
       </div>
       <GridLadderPlayground level={{ id: levelId, description, skill, hints }} />
+      <div className="flex justify-end border-t border-zinc-200 pt-4 dark:border-zinc-800">
+        <PrevNextNav prev={prevNav} next={nextNav} prevLabel="← ด่านก่อนหน้า" nextLabel="ด่านถัดไป →" />
+      </div>
     </div>
   );
 }

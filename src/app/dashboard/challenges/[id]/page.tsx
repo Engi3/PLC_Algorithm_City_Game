@@ -12,6 +12,7 @@ import {
 } from "@/lib/ladder/challenge-types";
 import { checkLevelGate, computeChallengeUnlockStatus, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
 import ChallengePlayClient from "@/components/ladder/ChallengePlayClient";
+import PrevNextNav, { type NavTarget } from "@/components/ladder/PrevNextNav";
 
 export default async function ChallengeDetailPage({
   params,
@@ -113,6 +114,15 @@ export default async function ChallengeDetailPage({
   const stageCount = spec?.testCases[0]?.stages.length ?? 0;
   const safetyCount = spec?.testCases[0]?.safetyConstraints?.length ?? 0;
 
+  const prevNav: NavTarget = prevChallengeId
+    ? { kind: "link", href: `/dashboard/challenges/${prevChallengeId}` }
+    : { kind: "none" };
+  const nextNav: NavTarget = nextChallengeId
+    ? nextUnlocked
+      ? { kind: "link", href: `/dashboard/challenges/${nextChallengeId}` }
+      : { kind: "locked", title: "ต้องผ่านภารกิจนี้ก่อน จึงจะปลดล็อคภารกิจถัดไป" }
+    : { kind: "none" };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -122,35 +132,7 @@ export default async function ChallengeDetailPage({
         >
           ← กลับไปที่ Challenge Mode
         </Link>
-        <div className="flex items-center gap-2">
-          {prevChallengeId ? (
-            <Link
-              href={`/dashboard/challenges/${prevChallengeId}`}
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700"
-            >
-              ← ภารกิจก่อนหน้า
-            </Link>
-          ) : (
-            <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600">
-              ← ภารกิจก่อนหน้า
-            </span>
-          )}
-          {nextChallengeId && nextUnlocked ? (
-            <Link
-              href={`/dashboard/challenges/${nextChallengeId}`}
-              className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
-            >
-              ภารกิจถัดไป →
-            </Link>
-          ) : (
-            <span
-              title={nextChallengeId ? "ต้องผ่านภารกิจนี้ก่อน จึงจะปลดล็อคภารกิจถัดไป" : "นี่คือภารกิจสุดท้าย"}
-              className="cursor-not-allowed rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
-            >
-              🔒 ภารกิจถัดไป →
-            </span>
-          )}
-        </div>
+        <PrevNextNav prev={prevNav} next={nextNav} prevLabel="← ภารกิจก่อนหน้า" nextLabel="ภารกิจถัดไป →" />
       </div>
 
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5 text-white">
@@ -224,6 +206,10 @@ export default async function ChallengeDetailPage({
           </p>
         </div>
       )}
+
+      <div className="flex justify-end border-t border-zinc-200 pt-4 dark:border-zinc-800">
+        <PrevNextNav prev={prevNav} next={nextNav} prevLabel="← ภารกิจก่อนหน้า" nextLabel="ภารกิจถัดไป →" />
+      </div>
     </div>
   );
 }
