@@ -10,6 +10,7 @@ import {
   type ChallengeLevelRow,
   type RequiredCompetency,
 } from "@/lib/ladder/challenge-types";
+import { checkLevelGate, computeChallengeUnlockStatus, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
 import ChallengePlayClient from "@/components/ladder/ChallengePlayClient";
 
 export default async function ChallengeDetailPage({
@@ -19,10 +20,16 @@ export default async function ChallengeDetailPage({
 }) {
   const { id } = await params;
   const profile = await getCurrentProfile();
+  const isTeacher = profile?.role === "teacher";
 
   let row: ChallengeLevelRow | null = null;
   let passed = false;
   let attempts = 0;
+  let gate: LevelGateStatus = { unlocked: isTeacher, levelsPassed: 0, totalLevels: 0 };
+  let sequentiallyUnlocked = isTeacher;
+  let prevChallengeId: string | null = null;
+  let nextChallengeId: string | null = null;
+  let nextUnlocked = false;
 
   try {
     const supabase = await createClient();
@@ -40,17 +47,40 @@ export default async function ChallengeDetailPage({
     }
     row = data as ChallengeLevelRow;
 
+    const { data: allChallenges, error: allChallengesError } = await supabase
+      .from("challenge_levels")
+      .select("id, challenge_id")
+      .order("challenge_id", { ascending: true });
+    if (allChallengesError) console.error("ChallengeDetailPage: failed to load challenge order", allChallengesError);
+    const ordered = allChallenges ?? [];
+    const myIndex = ordered.findIndex((c) => c.id === id);
+    if (myIndex > 0) prevChallengeId = ordered[myIndex - 1].id;
+    if (myIndex >= 0 && myIndex + 1 < ordered.length) nextChallengeId = ordered[myIndex + 1].id;
+
     if (profile) {
       const { data: logs, error: logsError } = await supabase
         .from("challenge_play_logs")
-        .select("is_success")
-        .eq("user_id", profile.id)
-        .eq("challenge_level_id", id);
+        .select("challenge_level_id, is_success")
+        .eq("user_id", profile.id);
       if (logsError) {
         console.error("ChallengeDetailPage: failed to load challenge play logs", logsError);
       } else {
-        attempts = logs?.length ?? 0;
-        passed = (logs ?? []).some((l) => l.is_success);
+        const myLogs = (logs ?? []).filter((l) => l.challenge_level_id === id);
+        attempts = myLogs.length;
+        passed = myLogs.some((l) => l.is_success);
+
+        if (!isTeacher) {
+          gate = await checkLevelGate(supabase, profile.id);
+          const passedIds = new Set((logs ?? []).filter((l) => l.is_success).map((l) => l.challenge_level_id));
+          const unlockStatus = computeChallengeUnlockStatus(
+            ordered.map((c) => ({ id: c.id, challengeId: c.challenge_id })),
+            passedIds
+          );
+          sequentiallyUnlocked = unlockStatus.get(id) ?? false;
+          if (nextChallengeId) nextUnlocked = unlockStatus.get(nextChallengeId) ?? false;
+        } else {
+          nextUnlocked = true;
+        }
       }
     }
   } catch (err) {
@@ -60,20 +90,67 @@ export default async function ChallengeDetailPage({
 
   if (!row) notFound();
 
-  const spec = challengeRowToSpec(row);
   const chapter = chapterForChallengeId(row.challenge_id);
+
+  if (!gate.unlocked) {
+    return (
+      <LockedNotice
+        title="🔒 Challenge Mode ยังไม่ปลดล็อค"
+        message={`ต้องผ่านด่านทดสอบ (Levels) ให้ครบทุกด่านก่อน (${gate.levelsPassed}/${gate.totalLevels})`}
+      />
+    );
+  }
+  if (!sequentiallyUnlocked) {
+    return (
+      <LockedNotice
+        title="🔒 ภารกิจนี้ยังไม่ปลดล็อค"
+        message="ต้องผ่านภารกิจก่อนหน้าในลำดับให้สำเร็จก่อน จึงจะเล่นภารกิจนี้ได้"
+      />
+    );
+  }
+
+  const spec = challengeRowToSpec(row);
   const stageCount = spec?.testCases[0]?.stages.length ?? 0;
   const safetyCount = spec?.testCases[0]?.safetyConstraints?.length ?? 0;
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Link
           href="/dashboard/challenges"
           className="text-xs font-medium text-zinc-500 hover:text-blue-600 hover:underline dark:text-zinc-400 dark:hover:text-blue-400"
         >
           ← กลับไปที่ Challenge Mode
         </Link>
+        <div className="flex items-center gap-2">
+          {prevChallengeId ? (
+            <Link
+              href={`/dashboard/challenges/${prevChallengeId}`}
+              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700"
+            >
+              ← ภารกิจก่อนหน้า
+            </Link>
+          ) : (
+            <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600">
+              ← ภารกิจก่อนหน้า
+            </span>
+          )}
+          {nextChallengeId && nextUnlocked ? (
+            <Link
+              href={`/dashboard/challenges/${nextChallengeId}`}
+              className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
+            >
+              ภารกิจถัดไป →
+            </Link>
+          ) : (
+            <span
+              title={nextChallengeId ? "ต้องผ่านภารกิจนี้ก่อน จึงจะปลดล็อคภารกิจถัดไป" : "นี่คือภารกิจสุดท้าย"}
+              className="cursor-not-allowed rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
+            >
+              🔒 ภารกิจถัดไป →
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5 text-white">
@@ -147,6 +224,25 @@ export default async function ChallengeDetailPage({
           </p>
         </div>
       )}
+    </div>
+  );
+}
+
+function LockedNotice({ title, message }: { title: string; message: string }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <Link
+          href="/dashboard/challenges"
+          className="text-xs font-medium text-zinc-500 hover:text-blue-600 hover:underline dark:text-zinc-400 dark:hover:text-blue-400"
+        >
+          ← กลับไปที่ Challenge Mode
+        </Link>
+      </div>
+      <div className="rounded-lg border border-amber-300 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950">
+        <h1 className="text-lg font-semibold text-amber-800 dark:text-amber-300">{title}</h1>
+        <p className="mt-2 text-sm text-amber-700 dark:text-amber-400">{message}</p>
+      </div>
     </div>
   );
 }

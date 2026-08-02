@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
+import { checkLevelGate, computeChallengeUnlockStatus, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
 import {
   CHALLENGE_CHAPTERS,
   COMPETENCY_TAG_LABELS,
@@ -18,9 +19,11 @@ type ChallengeRow = {
 
 export default async function ChallengesPage() {
   const profile = await getCurrentProfile();
+  const isTeacher = profile?.role === "teacher";
 
   let challenges: ChallengeRow[] = [];
   const passedIds = new Set<string>();
+  let gate: LevelGateStatus = { unlocked: isTeacher, levelsPassed: 0, totalLevels: 0 };
 
   try {
     const supabase = await createClient();
@@ -47,12 +50,54 @@ export default async function ChallengesPage() {
       } else {
         for (const log of logs ?? []) passedIds.add(log.challenge_level_id);
       }
+
+      if (!isTeacher) {
+        gate = await checkLevelGate(supabase, profile.id);
+      }
     }
   } catch (err) {
     console.error("ChallengesPage crashed:", err);
   }
 
   const totalPassed = challenges.filter((c) => passedIds.has(c.id)).length;
+  const unlockStatus = computeChallengeUnlockStatus(
+    challenges.map((c) => ({ id: c.id, challengeId: c.challenge_id })),
+    passedIds
+  );
+
+  if (!gate.unlocked) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900 px-5 py-4 text-white">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-amber-400">
+            Challenge Mode — Industrial Simulation Curriculum
+          </p>
+          <h1 className="mt-1 text-2xl font-semibold">🔒 ยังไม่ปลดล็อค</h1>
+        </div>
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950">
+          <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+            ต้องผ่านด่านทดสอบ (Levels) ให้ครบทุกด่านก่อน จึงจะปลดล็อค Challenge Mode ได้
+          </p>
+          <p className="mt-3 font-mono text-2xl font-semibold text-amber-700 dark:text-amber-400">
+            {gate.levelsPassed}/{gate.totalLevels}
+          </p>
+          <p className="text-xs text-amber-700 dark:text-amber-400">ด่านที่ผ่านแล้ว</p>
+          <div className="mx-auto mt-3 h-2 w-full max-w-xs overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
+            <div
+              className="h-full bg-amber-500"
+              style={{ width: `${gate.totalLevels > 0 ? Math.min(100, (gate.levelsPassed / gate.totalLevels) * 100) : 0}%` }}
+            />
+          </div>
+          <Link
+            href="/dashboard/play"
+            className="mt-5 inline-block rounded-md bg-amber-600 px-5 py-2 text-sm font-medium text-white hover:bg-amber-700"
+          >
+            ไปเล่นด่านทดสอบ →
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -105,6 +150,28 @@ export default async function ChallengesPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {chapterChallenges.map((challenge) => {
                 const passed = passedIds.has(challenge.id);
+                const unlocked = isTeacher || (unlockStatus.get(challenge.id) ?? false);
+
+                if (!unlocked) {
+                  return (
+                    <div
+                      key={challenge.id}
+                      title="ต้องผ่านภารกิจก่อนหน้าให้สำเร็จก่อน จึงจะปลดล็อคภารกิจนี้"
+                      className="flex cursor-not-allowed flex-col gap-2 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-4 opacity-60 dark:border-zinc-800 dark:bg-zinc-950"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500">
+                          CH-{String(challenge.challenge_id).padStart(2, "0")}
+                        </span>
+                        <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-500">
+                          🔒 ล็อคอยู่
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-medium text-zinc-400 dark:text-zinc-600">{challenge.title}</h3>
+                    </div>
+                  );
+                }
+
                 return (
                   <Link
                     key={challenge.id}
