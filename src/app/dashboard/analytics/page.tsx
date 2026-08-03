@@ -13,6 +13,8 @@ export default async function AnalyticsPage() {
   let levelCount = 0;
   let challengeIdByLevelId: Record<string, number> = {};
   let challengeCount = 0;
+  let gameLevelNumberById: Record<string, number> = {};
+  let gameLevelCount = 0;
 
   try {
     const data = await loadClassData();
@@ -21,6 +23,8 @@ export default async function AnalyticsPage() {
     levelCount = data.levelCount;
     challengeIdByLevelId = data.challengeIdByLevelId;
     challengeCount = data.challengeCount;
+    gameLevelNumberById = data.gameLevelNumberById;
+    gameLevelCount = data.gameLevelCount;
   } catch (err) {
     console.error("AnalyticsPage crashed:", err);
   }
@@ -42,6 +46,8 @@ export default async function AnalyticsPage() {
         levelCount={levelCount}
         challengeIdByLevelId={challengeIdByLevelId}
         challengeCount={challengeCount}
+        gameLevelNumberById={gameLevelNumberById}
+        gameLevelCount={gameLevelCount}
       />
     </div>
   );

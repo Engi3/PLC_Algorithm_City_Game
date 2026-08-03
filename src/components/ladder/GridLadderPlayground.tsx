@@ -218,7 +218,7 @@ export default function GridLadderPlayground({ level }: { level?: LevelInfo } = 
       </div>
 
       {showAiReview && level && (
-        <AiReviewModal levelId={level.id} program={grid.gridProgram} onClose={() => setShowAiReview(false)} />
+        <AiReviewModal contextKind="level" contextId={level.id} program={grid.gridProgram} onClose={() => setShowAiReview(false)} />
       )}
     </div>
   );

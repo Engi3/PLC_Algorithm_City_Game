@@ -1,0 +1,894 @@
+[
+  {
+    "level_number": 1,
+    "game_type": "MAZE",
+    "title": "ทางตรงสู่เป้าหมาย",
+    "description": "หุ่นยนต์อยู่หน้าทางเดินตรง ไม่มีสิ่งกีดขวาง ให้เขียนวงจรสั่งหุ่นยนต์เดินหน้าไปจนถึงเป้าหมาย (GOAL)",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 (มีกำแพงข้างหน้า) แล้วต่อไปยัง Y0 (เดินหน้า) เพื่อให้เดินหน้าตลอดเวลาที่ไม่มีกำแพง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 2,
+    "game_type": "MAZE",
+    "title": "เลี้ยวขวาเมื่อชนกำแพง",
+    "description": "ทางเดินมีมุมเลี้ยวขวา 1 จุด เมื่อหุ่นยนต์เจอกำแพงข้างหน้า (X0) ให้สั่งเลี้ยวขวา (Y2) แล้วเดินหน้าต่อจนถึงเป้าหมาย",
+    "hints": [
+      "ใช้หน้าสัมผัส NO ต่อกับ X0 แล้วต่อไปยัง Y2 (เลี้ยวขวา) - ทำงานเฉพาะตอนมีกำแพงข้างหน้าเท่านั้น",
+      "อย่าลืมรุ้ง NC(X0)->Y0 สำหรับเดินหน้าตอนไม่มีกำแพงด้วย"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 3,
+    "game_type": "MAZE",
+    "title": "เลี้ยวซ้ายเมื่อชนกำแพง",
+    "description": "เหมือนด่านก่อนหน้า แต่คราวนี้ทางเดินเลี้ยวซ้ายแทน ให้ใช้เอาต์พุต Y1 (เลี้ยวซ้าย) แทน Y2",
+    "hints": [
+      "สลับจากด่านก่อนหน้า: NO(X0) -> Y1 (เลี้ยวซ้าย)"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 2,
+      "y": 0,
+      "direction": "W"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 4,
+    "game_type": "MAZE",
+    "title": "ทางเลี้ยวขวาต่อเนื่อง",
+    "description": "ทางเดินรูปตัว Z เลี้ยวขวา 2 จุด วงจรเดิมจากด่าน 2 ยังใช้ได้ เพราะกฎ \"เจอกำแพงให้เลี้ยวขวา\" เหมือนกันทุกจุด",
+    "hints": [
+      "ใช้วงจรเดียวกับด่าน 2 ได้เลย ไม่ต้องแก้ไข"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 20,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 5,
+    "game_type": "MAZE",
+    "title": "ตรวจสองด้านก่อนเลี้ยว",
+    "description": "ทางเดินนี้มีทั้งเลี้ยวขวาและเลี้ยวซ้ายปนกัน ใช้เซนเซอร์ X2 (กำแพงด้านขวา) ร่วมกับ X0 เพื่อตัดสินใจว่าจะเลี้ยวทางไหน",
+    "hints": [
+      "ถ้าเจอกำแพงข้างหน้า (X0) และด้านขวาว่าง (X2=ไม่มีกำแพง) ให้เลี้ยวขวา: NO(X0) ต่ออนุกรมกับ NC(X2) -> Y2",
+      "ถ้าเจอกำแพงข้างหน้าและด้านขวาก็มีกำแพง ให้เลี้ยวซ้ายแทน: NO(X0) ต่ออนุกรมกับ NO(X2) -> Y1"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 6,
+    "game_type": "MAZE",
+    "title": "ต่อผิดทาง เจอกับดัก",
+    "description": "ระวัง! ถ้าต่อเอาต์พุตเลี้ยวผิดด้าน (Y1 กับ Y2 สลับกัน) หุ่นยนต์จะเดินเข้ากับดักอันตราย (HAZARD) และด่านจบทันที ต่อให้ถูกต้องเพื่อเลี้ยวขวาไปเป้าหมาย",
+    "hints": [
+      "วงจรเดียวกับด่าน 2 (NO(X0)->Y2, NC(X0)->Y0) - แค่ต่อ Y2 ให้ถูก อย่าใช้ Y1"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "HAZARD",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 1,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 7,
+    "game_type": "MAZE",
+    "title": "เขาวงกตทางแยกซ้ำ",
+    "description": "เขาวงกตขนาดใหญ่ขึ้น ใช้กฎการตัดสินใจสองด้าน (เหมือนด่าน 5) ผ่านทางแยกหลายจุดจนถึงเป้าหมาย",
+    "hints": [
+      "ใช้วงจรเดียวกับด่าน 5 ได้เลย กฎเดิมใช้ได้กับทุกทางแยกในเขาวงกตนี้"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 20,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 8,
+    "game_type": "MAZE",
+    "title": "เขาวงกตซับซ้อน",
+    "description": "เขาวงกตที่ยาวและซับซ้อนกว่าเดิม ยังคงใช้กฎการตัดสินใจสองด้านเช่นเดิม",
+    "hints": [
+      "วงจรเดิมจากด่าน 5/7 ยังใช้ได้ - กฎ \"ขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย\" ใช้ได้ทุกทางแยก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 25,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 9,
+    "game_type": "MAZE",
+    "title": "ทางแยกอันตราย",
+    "description": "ทางแยกแบบด่าน 5 อีกครั้ง แต่คราวนี้ถ้าต่อเอาต์พุตเลี้ยวสลับกันที่ทางแยกแรก หุ่นยนต์จะเดินเข้ากับดักอันตรายทันที",
+    "hints": [
+      "ใช้วงจรเดียวกับด่าน 5 (การตัดสินใจสองด้าน) - ต่อ Y1/Y2 ให้ถูกด้าน ห้ามสลับ"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "HAZARD",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 1,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 20,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 10,
+    "game_type": "MAZE",
+    "title": "เขาวงกตสุดท้ายของหมวดพื้นฐาน",
+    "description": "ด่านสรุปหมวดพื้นฐาน: เขาวงกตรูปตัว U ขนาดใหญ่ เลี้ยวขวาทุกจุด เดินหน้าให้ถึงเป้าหมาย",
+    "hints": [
+      "ใช้วงจรเดียวกับด่าน 2/4 (เลี้ยวขวาเสมอเมื่อเจอกำแพง)"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 25,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 11,
+    "game_type": "FACTORY",
+    "title": "สายพานพื้นฐาน",
+    "description": "เปิดสายพานลำเลียง (Y0) ตลอดเวลา เพื่อส่งสินค้า 1 ชิ้นออกจากสายพานให้สำเร็จ",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับที่อยู่ที่ไม่ได้ใช้งาน (เช่น X9) แล้วต่อไป Y0 เพื่อให้สายพานเดินตลอดเวลา"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 50,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 12,
+    "game_type": "FACTORY",
+    "title": "ล็อตสินค้า 2 ชิ้น",
+    "description": "เปิดสายพานลำเลียงส่งสินค้าให้ครบ 2 ชิ้น",
+    "hints": [
+      "วงจรเดียวกับด่าน 11"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 10
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 60,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 13,
+    "game_type": "FACTORY",
+    "title": "ล็อตสินค้าใหญ่",
+    "description": "ล็อตใหญ่ขึ้น ส่งสินค้าให้ครบ 4 ชิ้น",
+    "hints": [
+      "วงจรเดียวกับด่าน 11/12"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 10
+        },
+        {
+          "id": "c",
+          "position": 20
+        },
+        {
+          "id": "d",
+          "position": 30
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 4
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 80,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 14,
+    "game_type": "FACTORY",
+    "title": "ตรวจจับของเสีย",
+    "description": "มีสินค้าชิ้นหนึ่งเป็นของเสีย (ตรวจจับได้ที่ X1) ให้เขียนวงจรเก็บสถานะ \"พบของเสีย\" ไว้ในรีเลย์ภายใน M0 โดยใช้คำสั่ง SET",
+    "hints": [
+      "ใช้หน้าสัมผัส NO ต่อกับ X1 แล้วต่อไปคำสั่ง SET M0 - เมื่อ SET แล้ว M0 จะค้างสถานะ true ตลอดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 15,
+    "game_type": "FACTORY",
+    "title": "ดันของเสียออกจากสาย",
+    "description": "ต่อยอดจากด่านก่อนหน้า: เมื่อ M0 ติดค้างแล้ว ให้สั่งดันของออกจากสายพาน (Y1) ด้วย",
+    "hints": [
+      "ต่อจากด่าน 14: เพิ่มหน้าสัมผัส NO ต่อกับ M0 แล้วต่อไปยัง Y1"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y1",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 16,
+    "game_type": "FACTORY",
+    "title": "ล็อตใหญ่ไม่มีของเสีย",
+    "description": "ทบทวนพื้นฐาน: ล็อตสินค้าดีล้วน 5 ชิ้น ให้สายพานทำงานจนกว่าจะส่งครบทุกชิ้น",
+    "hints": [
+      "วงจรเดียวกับด่าน 11-13 ก็เพียงพอแล้ว"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 10
+        },
+        {
+          "id": "c",
+          "position": 20
+        },
+        {
+          "id": "d",
+          "position": 30
+        },
+        {
+          "id": "e",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 5
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 90,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 17,
+    "game_type": "FACTORY",
+    "title": "กฎความปลอดภัยสายพาน",
+    "description": "ด่านนี้เปิดใช้กฎความปลอดภัย: ห้ามเปิดสายพาน (Y0) และตัวดัน (Y1) พร้อมกันเด็ดขาด ให้ส่งสินค้า 1 ชิ้นให้สำเร็จโดยไม่ละเมิดกฎ",
+    "hints": [
+      "ด่านนี้ไม่มีของเสีย ไม่ต้องแตะ Y1 เลยก็ผ่านได้ - ใช้วงจรเดิมจากด่าน 11"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-conveyor-pusher-overlap",
+        "description": "ห้ามเปิดสายพาน (Y0) และตัวดัน (Y1) พร้อมกัน",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y0",
+            "expected": true
+          },
+          {
+            "kind": "bit",
+            "address": "Y1",
+            "expected": true
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 50,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 18,
+    "game_type": "FACTORY",
+    "title": "ของเสียพร้อมกฎความปลอดภัย",
+    "description": "รวมสองบทเรียน: ตรวจจับและดันของเสียออก (เหมือนด่าน 15) แต่ต้องไม่ละเมิดกฎห้ามเปิดสายพานกับตัวดันพร้อมกัน - ต้องหยุดสายพานก่อนดันของออก",
+    "hints": [
+      "แก้วงจรด่าน 15: ให้สายพาน (Y0) ทำงานเฉพาะตอนที่ M0 ยังไม่ติด (ใช้หน้าสัมผัส NC ต่อกับ M0 อนุกรมกับสายพาน)",
+      "NC(X9) ต่ออนุกรมกับ NC(M0) -> Y0, NO(X1) -> SET M0, NO(M0) -> Y1"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y1",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-conveyor-pusher-overlap",
+        "description": "ห้ามเปิดสายพาน (Y0) และตัวดัน (Y1) พร้อมกัน",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y0",
+            "expected": true
+          },
+          {
+            "kind": "bit",
+            "address": "Y1",
+            "expected": true
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 19,
+    "game_type": "FACTORY",
+    "title": "ทบทวนกฎความปลอดภัย",
+    "description": "ทบทวน: ล็อตสินค้าดีล้วน 3 ชิ้น ภายใต้กฎห้ามเปิดสายพานกับตัวดันพร้อมกัน",
+    "hints": [
+      "ไม่มีของเสีย ไม่ต้องแตะ Y1 - วงจรเดิมจากด่าน 11 ปลอดภัยอยู่แล้ว"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 10
+        },
+        {
+          "id": "c",
+          "position": 20
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 3
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-conveyor-pusher-overlap",
+        "description": "ห้ามเปิดสายพาน (Y0) และตัวดัน (Y1) พร้อมกัน",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y0",
+            "expected": true
+          },
+          {
+            "kind": "bit",
+            "address": "Y1",
+            "expected": true
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 70,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 20,
+    "game_type": "FACTORY",
+    "title": "บทสรุปหมวดพื้นฐาน",
+    "description": "ด่านสรุปหมวดพื้นฐานดิจิทัล: ตรวจจับของเสีย ดันออกอย่างปลอดภัย ภายใต้กฎห้ามเปิดสายพานกับตัวดันพร้อมกัน (เหมือนด่าน 18)",
+    "hints": [
+      "วงจรเดียวกับด่าน 18"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y1",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-conveyor-pusher-overlap",
+        "description": "ห้ามเปิดสายพาน (Y0) และตัวดัน (Y1) พร้อมกัน",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y0",
+            "expected": true
+          },
+          {
+            "kind": "bit",
+            "address": "Y1",
+            "expected": true
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  }
+]

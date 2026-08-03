@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { generateCertificatePdf } from "@/lib/certificate/generate";
+import CertificateGenerator from "./CertificateGenerator";
 import { CERTIFICATE_THRESHOLD } from "@/lib/certificate/threshold";
 import { COMPETENCY_LABELS_TH, type CompetencyAxis } from "@/lib/analytics/competency";
 
@@ -9,40 +9,24 @@ export default function CertificateCard({
   axis,
   score,
   studentName,
+  studentId,
   userId,
+  rankLabel,
   allLevelsAverage,
 }: {
   axis: CompetencyAxis;
   score: number;
   studentName: string;
+  studentId: string | null;
   userId: string;
+  /** Leaderboard rank at render time, e.g. "#3 / 25 คน" - shown on the certificate if available. */
+  rankLabel?: string;
   /** Phase 5: for ladder_programming/problem_solving only - the "≥80% average across ALL levels" additional gate, computed by computeAllLevelsAverage. Undefined for the other 4 axes, which have no such gate. */
   allLevelsAverage?: number;
 }) {
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [showGenerator, setShowGenerator] = useState(false);
   const meetsAllLevelsGate = allLevelsAverage === undefined || allLevelsAverage >= CERTIFICATE_THRESHOLD;
   const unlocked = score >= CERTIFICATE_THRESHOLD && meetsAllLevelsGate;
-
-  async function handleDownload() {
-    setGenerating(true);
-    setError(null);
-    try {
-      const verifyUrl = `${window.location.origin}/certificate/verify/${userId}/${axis}`;
-      await generateCertificatePdf({
-        studentName,
-        axisLabel: COMPETENCY_LABELS_TH[axis],
-        score,
-        dateLabel: new Date().toLocaleDateString("th-TH-u-ca-buddhist", { year: "numeric", month: "long", day: "numeric" }),
-        verifyUrl,
-      });
-    } catch (err) {
-      console.error("generateCertificatePdf failed:", err);
-      setError("สร้าง PDF ไม่สำเร็จ กรุณาลองใหม่");
-    } finally {
-      setGenerating(false);
-    }
-  }
 
   if (!unlocked) {
     return (
@@ -72,13 +56,22 @@ export default function CertificateCard({
       <p className="text-[11px] text-amber-700 dark:text-amber-400">{score}/100</p>
       <button
         type="button"
-        onClick={handleDownload}
-        disabled={generating}
-        className="mt-1 rounded-md bg-amber-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-amber-700 disabled:opacity-60"
+        onClick={() => setShowGenerator(true)}
+        className="mt-1 rounded-md bg-amber-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-amber-700"
       >
-        {generating ? "กำลังสร้าง..." : "ดาวน์โหลด PDF"}
+        ดูใบประกาศนียบัตร
       </button>
-      {error && <p className="text-[10px] text-red-600 dark:text-red-400">{error}</p>}
+      {showGenerator && (
+        <CertificateGenerator
+          axis={axis}
+          score={score}
+          studentName={studentName}
+          studentId={studentId}
+          userId={userId}
+          rankLabel={rankLabel}
+          onClose={() => setShowGenerator(false)}
+        />
+      )}
     </div>
   );
 }

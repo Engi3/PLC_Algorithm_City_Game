@@ -1,0 +1,6287 @@
+[
+  {
+    "level_number": 1,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 1",
+    "description": "เขาวงกต 9x9 - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า (X0) ถ้าขวาว่าง (NC X2) เลี้ยวขวา (Y2) ไม่ว่าง (NO X2) เลี้ยวซ้าย (Y1)",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "GOAL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 25,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 2,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 2",
+    "description": "เขาวงกต 9x9 - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า (X0) ถ้าขวาว่าง (NC X2) เลี้ยวขวา (Y2) ไม่ว่าง (NO X2) เลี้ยวซ้าย (Y1)",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 27,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 3,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 3",
+    "description": "เขาวงกต 9x9 - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า (X0) ถ้าขวาว่าง (NC X2) เลี้ยวขวา (Y2) ไม่ว่าง (NO X2) เลี้ยวซ้าย (Y1)",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 28,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 4,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 4",
+    "description": "เขาวงกต 9x9 - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า (X0) ถ้าขวาว่าง (NC X2) เลี้ยวขวา (Y2) ไม่ว่าง (NO X2) เลี้ยวซ้าย (Y1)",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 33,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 5,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 5",
+    "description": "เขาวงกต 9x9 - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า (X0) ถ้าขวาว่าง (NC X2) เลี้ยวขวา (Y2) ไม่ว่าง (NO X2) เลี้ยวซ้าย (Y1)",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 35,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 6,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 6 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย ห้ามพลาดเข้ากับดัก",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าเดินผิดทางจะพลาดเข้ากับดักทันที"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 36,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 7,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 7 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย ห้ามพลาดเข้ากับดัก",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าเดินผิดทางจะพลาดเข้ากับดักทันที"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 39,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 8,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 8 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย ห้ามพลาดเข้ากับดัก",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าเดินผิดทางจะพลาดเข้ากับดักทันที"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 43,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 9,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 9 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย ห้ามพลาดเข้ากับดัก",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าเดินผิดทางจะพลาดเข้ากับดักทันที"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 10,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ด่านที่ 10 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้าน: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย ห้ามพลาดเข้ากับดัก",
+    "hints": [
+      "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
+      "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าเดินผิดทางจะพลาดเข้ากับดักทันที"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 52,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 21,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 1",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 3 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "GOAL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 23,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 22,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 2",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 4 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 26,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 23,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 3",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 5 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 28,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 24,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 4",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 3 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 31,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 25,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 5",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 4 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 34,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 26,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 6 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 5 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 36,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 27,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 7 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 3 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 37,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 28,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 8 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 4 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 42,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 29,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 9 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 5 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 30,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (หน่วงเวลาก่อนเดิน) ด่านที่ 10 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม แต่ต้องรอ TON T0 นับครบก่อนจึงเดินได้ (T0 preset = 3 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 50,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 41,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 1",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 1 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "GOAL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 25,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 42,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 2",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 1 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 27,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 43,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 3",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 2 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 28,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 44,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 4",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 3 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 33,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 45,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 5",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 3 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 35,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 46,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 6 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 4 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 4
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 36,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 47,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 7 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 3 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 39,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 48,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 8 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 7 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 7
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 43,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 49,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 9 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 4 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 4
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 50,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (นับจำนวนเลี้ยว) ด่านที่ 10 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมนับจำนวนครั้งที่เจอกำแพงข้างหน้าด้วย CTU C0 (ต้องนับให้ได้อย่างน้อย 6 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 เข้ากับ CTU C0",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 6
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 52,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 61,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 1",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "GOAL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 25,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 62,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 2",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 27,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 63,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 3",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 28,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 64,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 4",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 33,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 65,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 5",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 35,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 66,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 6 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 36,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 67,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 7 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 39,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 68,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 8 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 43,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 69,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 9 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 70,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 (ตรวจระยะใกล้เป้าหมาย) ด่านที่ 10 (ระวังกับดัก)",
+    "description": "เขาวงกต 9x9 เดิม พร้อมวัดระยะทางถึงเป้าหมายด้วย CMP (M0 ต้องติดเมื่อระยะทาง AI0 <= 1)",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP: AI0 <= ค่าคงที่ -> M0",
+      "AI0 คือระยะทาง (Manhattan distance) จากหุ่นยนต์ถึงเป้าหมาย ยิ่งใกล้เป้าหมายค่ายิ่งน้อย",
+      "กฎตัดสินใจสองด้าน (เลี้ยวขวา/ซ้าย) เหมือนหมวดพื้นฐานดิจิทัลทุกประการ",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "bit",
+        "address": "M0",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 52,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 91,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ขั้นสูง ด่านที่ 1",
+    "description": "เขาวงกต 9x9 ขั้นสูง พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้านเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 49,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 92,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ขั้นสูง ด่านที่ 2",
+    "description": "เขาวงกต 9x9 ขั้นสูง พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้านเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 52,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 93,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ขั้นสูง ด่านที่ 3",
+    "description": "เขาวงกต 9x9 ขั้นสูง พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้านเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "GOAL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "S"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 58,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 94,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ขั้นสูง ด่านที่ 4",
+    "description": "เขาวงกต 9x9 ขั้นสูง พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้านเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 63,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 95,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ขั้นสูง ด่านที่ 5",
+    "description": "เขาวงกต 9x9 ขั้นสูง พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้านเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 67,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 96,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ขั้นสูง ด่านที่ 6",
+    "description": "เขาวงกต 9x9 ขั้นสูง พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้านเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "GOAL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 70,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 97,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ขั้นสูง ด่านที่ 7",
+    "description": "เขาวงกต 9x9 ขั้นสูง พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้านเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "HAZARD",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 71,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 98,
+    "game_type": "MAZE",
+    "title": "เขาวงกต 9x9 ขั้นสูง ด่านที่ 8",
+    "description": "เขาวงกต 9x9 ขั้นสูง พร้อมกับดัก (HAZARD) - ใช้กฎตัดสินใจสองด้านเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 69,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 99,
+    "game_type": "MAZE",
+    "title": "บทสรุปหมวดขั้นสูง (เขาวงกต 9x9 ด่านสุดท้าย)",
+    "description": "ด่านสรุปฝั่งเขาวงกตของหมวดขั้นสูง - เขาวงกต 9x9 ที่ซับซ้อนที่สุดในหลักสูตรนี้ พร้อมกับดัก ใช้กฎตัดสินใจสองด้านเดิมให้แม่นยำ",
+    "hints": [
+      "ใช้กฎตัดสินใจสองด้านเดิม (NO(X0) อนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต",
+      "ระวัง! มีกับดัก (HAZARD) ซ่อนอยู่ข้างเส้นทาง ถ้าต่อวงจรผิด (เช่นสลับ Y1/Y2) อาจพลาดเข้ากับดัก"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "HAZARD",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ],
+      [
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "WALL",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 84,
+    "ticks_per_second": null
+  }
+]

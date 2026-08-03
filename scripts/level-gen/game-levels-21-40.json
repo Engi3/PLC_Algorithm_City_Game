@@ -1,0 +1,875 @@
+[
+  {
+    "level_number": 21,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องก่อนออกเดิน",
+    "description": "หุ่นยนต์ต้องรอให้ตัวจับเวลาอุ่นเครื่อง (T0) นับครบก่อน จึงจะเริ่มเดินหน้าไปเป้าหมายได้ (T0 preset = 3 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 28,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 22,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องแล้วเลี้ยวขวา",
+    "description": "รอตัวจับเวลาอุ่นเครื่องก่อน แล้วค่อยเดินหน้า/เลี้ยวขวาตามด่านเดิม (T0 preset = 4 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 29,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 23,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องแล้วเลี้ยวซ้าย",
+    "description": "รอตัวจับเวลาอุ่นเครื่องก่อน แล้วค่อยเดินหน้า/เลี้ยวซ้ายตามด่านเดิม (T0 preset = 5 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 2,
+      "y": 0,
+      "direction": "W"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 30,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 24,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องแล้วเลี้ยวขวาต่อเนื่อง",
+    "description": "รอตัวจับเวลาอุ่นเครื่องก่อน แล้วเดินตามทางเลี้ยวขวาต่อเนื่อง (T0 preset = 3 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 28,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 25,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องแล้วตัดสินใจสองด้าน",
+    "description": "รอตัวจับเวลาอุ่นเครื่องก่อน แล้วใช้กฎตัดสินใจสองด้านเหมือนเดิม (T0 preset = 4 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 29,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 26,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องแล้วระวังกับดัก",
+    "description": "รอตัวจับเวลาอุ่นเครื่องก่อน แล้วเลี้ยวขวาให้ถูก ห้ามพลาดเข้ากับดัก (T0 preset = 5 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "HAZARD",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 1,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 30,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 27,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องแล้วเขาวงกตทางแยกซ้ำ",
+    "description": "รอตัวจับเวลาอุ่นเครื่องก่อน แล้วผ่านเขาวงกตทางแยกซ้ำด้วยกฎตัดสินใจสองด้าน (T0 preset = 3 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 28,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 28,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องแล้วเขาวงกตซับซ้อน",
+    "description": "รอตัวจับเวลาอุ่นเครื่องก่อน แล้วผ่านเขาวงกตซับซ้อนด้วยกฎเดิม (T0 preset = 4 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 29,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 29,
+    "game_type": "MAZE",
+    "title": "อุ่นเครื่องแล้วทางแยกอันตราย",
+    "description": "รอตัวจับเวลาอุ่นเครื่องก่อน แล้วใช้กฎตัดสินใจสองด้านให้ถูก ห้ามพลาดเข้ากับดัก (T0 preset = 5 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "HAZARD",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 1,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 30,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 30,
+    "game_type": "MAZE",
+    "title": "บทสรุปหมวดตัวจับเวลา (เขาวงกต)",
+    "description": "ด่านสรุปฝั่งเขาวงกตของหมวดตัวจับเวลา: อุ่นเครื่องก่อน แล้วเดินเขาวงกตรูปตัว U (T0 preset = 3 ติ๊ก)",
+    "hints": [
+      "ใช้บล็อกตัวจับเวลา TON ชื่อ T0 ต่อกับหน้าสัมผัส NC(X9) เพื่อให้เดินนับตลอดเวลา",
+      "ต่อหน้าสัมผัส NO ที่อยู่ \"T0.DN\" อนุกรมกับ NC(X0) แล้วค่อยต่อไป Y0 - หุ่นยนต์จะเดินได้ก็ต่อเมื่อ T0 นับครบเท่านั้น"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 28,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 31,
+    "game_type": "FACTORY",
+    "title": "จับเวลาดันของเสีย",
+    "description": "ของเสีย 1 ชิ้น ใช้ตัวจับเวลาค้างจังหวะดันของออก แล้วรีเซ็ต M0 อัตโนมัติเมื่อครบเวลา (ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 0
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 50,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 32,
+    "game_type": "FACTORY",
+    "title": "ของดีตามหลังของเสีย",
+    "description": "ของเสีย 1 ชิ้น ตามด้วยของดี 1 ชิ้น ห่างกันพอสมควร - ตัวจับเวลาต้องรีเซ็ต M0 ทันเวลาก่อนของดีมาถึง (ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 60
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 70,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 33,
+    "game_type": "FACTORY",
+    "title": "ของดีนำ ของเสียตาม",
+    "description": "ของดี 1 ชิ้นผ่านไปก่อน แล้วของเสียตามมาทีหลัง (ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 60,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 70,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 34,
+    "game_type": "FACTORY",
+    "title": "ของเสียสองชิ้นห่างกัน",
+    "description": "ของเสีย 2 ชิ้น ห่างกันพอให้ตัวจับเวลาทำงานครบรอบก่อนของชิ้นถัดไปมาถึง (ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 70,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 0
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 74,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 35,
+    "game_type": "FACTORY",
+    "title": "ผสมของดีของเสีย 3 ชิ้น",
+    "description": "ล็อตผสม: ดี-เสีย-ดี เรียงกัน ต้องดันเฉพาะชิ้นที่เสียออกเท่านั้น (ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 55,
+          "defective": true
+        },
+        {
+          "id": "c",
+          "position": 115
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 89,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 36,
+    "game_type": "FACTORY",
+    "title": "ล็อตใหญ่ผสมของเสีย",
+    "description": "ล็อตใหญ่ขึ้น: ดี-ดี-เสีย-ดี เรียงกัน (ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 45
+        },
+        {
+          "id": "c",
+          "position": 90,
+          "defective": true
+        },
+        {
+          "id": "d",
+          "position": 150
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 100,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 37,
+    "game_type": "FACTORY",
+    "title": "จับเวลาสั้นลง",
+    "description": "ตัวจับเวลาสั้นลงกว่าเดิม (10 ติ๊ก) ยังต้องดันของเสียออกให้สำเร็จ (ตัวจับเวลา T0 preset = 10 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 0
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 50,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 38,
+    "game_type": "FACTORY",
+    "title": "จับเวลาสั้น ของดีตามติด",
+    "description": "ตัวจับเวลาสั้น (10 ติ๊ก) กับของดีตามหลังของเสียในระยะห่างที่ปลอดภัย (ตัวจับเวลา T0 preset = 10 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 55
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 69,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 39,
+    "game_type": "FACTORY",
+    "title": "ล็อตผสมจับเวลาสั้น",
+    "description": "ล็อตผสมดี-เสีย-ดี-เสีย-ดี ด้วยตัวจับเวลาสั้น (ตัวจับเวลา T0 preset = 10 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 45,
+          "defective": true
+        },
+        {
+          "id": "c",
+          "position": 100
+        },
+        {
+          "id": "d",
+          "position": 145,
+          "defective": true
+        },
+        {
+          "id": "e",
+          "position": 200
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 117,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 40,
+    "game_type": "FACTORY",
+    "title": "บทสรุปหมวดตัวจับเวลา (สายพาน)",
+    "description": "ด่านสรุปฝั่งสายพานของหมวดตัวจับเวลา: ล็อตผสมขนาดใหญ่ที่สุดของหมวดนี้ (ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "X1 -> SET M0 เมื่อพบของเสีย",
+      "M0 -> TON T0 (preset ตามที่กำหนด) เพื่อค้างจังหวะดันของออก",
+      "M0 -> Y1 (ดันของออก) และ T0.DN -> RESET M0 เพื่อให้พร้อมรับของเสียชิ้นถัดไป"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 45
+        },
+        {
+          "id": "c",
+          "position": 90,
+          "defective": true
+        },
+        {
+          "id": "d",
+          "position": 150
+        },
+        {
+          "id": "e",
+          "position": 195,
+          "defective": true
+        },
+        {
+          "id": "f",
+          "position": 250
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 4
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 134,
+    "ticks_per_second": null
+  }
+]

@@ -47,13 +47,14 @@ function findCommonlyFailedLevels(
 
 function buildFallbackSummary(
   skillLine: string,
-  commonlyFailed: { label: string; studentsStuck: number }[]
+  commonlyFailed: { label: string; studentsStuck: number }[],
+  gameCompletionRate: number
 ): string {
   const failedLine =
     commonlyFailed.length > 0
       ? commonlyFailed.map((l) => `${l.label} (${l.studentsStuck} คนยังไม่ผ่าน)`).join(", ")
       : "ไม่มีด่านที่นักเรียนหลายคนติดขัดเป็นพิเศษ";
-  return `สรุปข้อมูลดิบ (ไม่ผ่าน AI): คะแนนเฉลี่ยแต่ละทักษะ - ${skillLine}. ด่านที่นักเรียนหลายคนยังติดขัด: ${failedLine}`;
+  return `สรุปข้อมูลดิบ (ไม่ผ่าน AI): คะแนนเฉลี่ยแต่ละทักษะ - ${skillLine}. ด่านที่นักเรียนหลายคนยังติดขัด: ${failedLine}. ความคืบหน้า Game Mode เฉลี่ยของทั้งชั้น: ${gameCompletionRate}%`;
 }
 
 /**
@@ -66,7 +67,7 @@ export async function generateClassInsightsAction(): Promise<ClassInsightsResult
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "teacher") return { error: "Forbidden." };
 
-  const { students, levelSkills, levelTitles } = await loadClassData();
+  const { students, levelSkills, levelTitles, gameLevelCount } = await loadClassData();
   if (students.length === 0) {
     return { error: "ยังไม่มีนักเรียนที่อนุมัติแล้วให้วิเคราะห์" };
   }
@@ -82,13 +83,25 @@ export async function generateClassInsightsAction(): Promise<ClassInsightsResult
       ? commonlyFailed.map((l) => `${l.label} (นักเรียนที่ยังไม่ผ่าน ${l.studentsStuck} คน)`).join("; ")
       : "ไม่มีด่านที่นักเรียนหลายคนติดขัดเป็นพิเศษ";
 
+  // Same "class-wide aggregate only" anonymization as the skill/failed-level
+  // lines above - one completion percentage across all 100 Game Mode
+  // levels (Maze/Factory/Hybrid real-time PLC control), not per-student.
+  const gamePassedTotal = students.reduce(
+    (sum, s) => sum + new Set(s.gameLogs.filter((l) => l.is_success).map((l) => l.game_level_id)).size,
+    0
+  );
+  const gameCompletionRate =
+    students.length > 0 && gameLevelCount > 0 ? Math.round((gamePassedTotal / (students.length * gameLevelCount)) * 100) : 0;
+
   const prompt = `คุณเป็นผู้ช่วยอาจารย์วิเคราะห์ผลการเรียนวิชา PLC Ladder Logic ของนักเรียนทั้งชั้นเรียนจำนวน ${students.length} คน (ข้อมูลนี้เป็นค่าเฉลี่ยรวมของทั้งชั้น ไม่มีการระบุชื่อนักเรียนรายบุคคล)
 
 คะแนนเฉลี่ยของทั้งชั้นเรียนแยกตามทักษะ (เต็ม 100): ${skillLine}
 
 ด่านที่นักเรียนหลายคน (ตั้งแต่ 2 คนขึ้นไป) ยังติดขัดไม่ผ่าน: ${failedLine}
 
-กรุณาวิเคราะห์และให้คำแนะนำเป็นภาษาไทย กระชับ (3-5 ประโยค) ว่าหัวข้อ PLC ใดที่อาจารย์ควรทบทวนเพิ่มเติมในการบรรยายหน้าชั้นเรียน โดยอ้างอิงข้อมูลข้างต้นให้ชัดเจน ตอบเฉพาะเนื้อหาคำแนะนำเท่านั้น ห้ามใส่คำนำหรือคำลงท้าย`;
+ความคืบหน้า Game Mode (จำลองควบคุมหุ่นยนต์ AGV ในเขาวงกตและสายการผลิตโรงงานแบบเรียลไทม์ ${gameLevelCount} ด่าน) เฉลี่ยของทั้งชั้นเรียน: ${gameCompletionRate}%
+
+กรุณาวิเคราะห์และให้คำแนะนำเป็นภาษาไทย กระชับ (3-5 ประโยค) ว่าหัวข้อ PLC ใดที่อาจารย์ควรทบทวนเพิ่มเติมในการบรรยายหน้าชั้นเรียน โดยอ้างอิงข้อมูลข้างต้นให้ชัดเจน (รวมถึงความคืบหน้า Game Mode หากมีนัยสำคัญ) ตอบเฉพาะเนื้อหาคำแนะนำเท่านั้น ห้ามใส่คำนำหรือคำลงท้าย`;
 
   try {
     const result = await generateGeminiJSON<ClassInsightsSchema>(prompt, RESPONSE_SCHEMA);
@@ -100,6 +113,6 @@ export async function generateClassInsightsAction(): Promise<ClassInsightsResult
     if (!(err instanceof GeminiConfigError) && !(err instanceof GeminiRequestError)) {
       console.error("generateClassInsightsAction: unexpected error type", err);
     }
-    return { insights: buildFallbackSummary(skillLine, commonlyFailed), source: "fallback" };
+    return { insights: buildFallbackSummary(skillLine, commonlyFailed, gameCompletionRate), source: "fallback" };
   }
 }

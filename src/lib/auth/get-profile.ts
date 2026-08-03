@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type UserRole = "student" | "teacher" | "guest";
 export type ApprovalStatus = "pending" | "approved" | "rejected";
+export type ModeOverride = "locked" | "unlocked" | null;
 
 export type Profile = {
   id: string;
@@ -17,6 +18,8 @@ export type Profile = {
   hint_credits: number;
   skip_tokens: number;
   approval_status: ApprovalStatus;
+  game_mode_override: ModeOverride;
+  challenge_mode_override: ModeOverride;
 };
 
 export async function getCurrentProfile(): Promise<Profile | null> {
@@ -42,7 +45,27 @@ export async function getCurrentProfile(): Promise<Profile | null> {
       return null;
     }
 
-    return data as Profile;
+    // Queried separately: until migration 0013 runs, these columns don't
+    // exist yet - a PostgREST select() is all-or-nothing, so folding them
+    // into the query above would break EVERY page (getCurrentProfile runs
+    // on every authenticated load) instead of just degrading the two
+    // features that actually need them. Same split already used for the
+    // Phase 12 competency columns (see load-class-data.ts).
+    let gameModeOverride: ModeOverride = null;
+    let challengeModeOverride: ModeOverride = null;
+    const { data: overrides, error: overridesError } = await supabase
+      .from("users")
+      .select("game_mode_override, challenge_mode_override")
+      .eq("id", user.id)
+      .single();
+    if (overridesError) {
+      console.error("getCurrentProfile: failed to load mode overrides", overridesError);
+    } else if (overrides) {
+      gameModeOverride = overrides.game_mode_override;
+      challengeModeOverride = overrides.challenge_mode_override;
+    }
+
+    return { ...data, game_mode_override: gameModeOverride, challenge_mode_override: challengeModeOverride } as Profile;
   } catch (err) {
     // Next.js throws this internally when `cookies()` is called during
     // static-generation analysis, to bail the route into dynamic rendering.

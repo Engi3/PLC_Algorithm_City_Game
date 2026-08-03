@@ -4,11 +4,16 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { evaluateGridLevel, countGridBlocks } from "@/lib/ladder/level-eval";
 import { isLevelSpec } from "@/lib/ladder/level-spec";
+import { evaluateChallenge } from "@/lib/ladder/challenge-eval";
+import { challengeRowToSpec, type ChallengeLevelRow } from "@/lib/ladder/challenge-types";
+import { gameLevelRowToSpec, type GameLevelRow } from "@/lib/games/game-level-types";
+import { runGameLevelToCompletion } from "@/lib/games/run-game-level";
 import { compileGridProgram, compiledProgramToStructuredText } from "@/lib/ladder/iec-compiler";
 import { generateGeminiJSON, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
 import type { GridProgram } from "@/lib/ladder/grid-types";
 
 type AiReviewScores = { correctness: number; conciseness: number; safety: number; approach: number; feedback: string };
+type ContextKind = "level" | "challenge" | "game";
 
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
@@ -28,26 +33,101 @@ function clamp0to100(n: unknown): number {
   return Math.max(0, Math.min(100, Math.round(num)));
 }
 
+/** Verifies the submission actually passed and builds the (description, blocksNote) pair the prompt needs - one branch per context kind, sharing everything else (Gemini call, scoring, persistence) below. */
+async function verifyAndDescribe(
+  contextKind: ContextKind,
+  contextId: string,
+  program: GridProgram
+): Promise<{ ok: true; description: string; blocksNote: string } | { ok: false; error: string }> {
+  const supabase = await createClient();
+
+  if (contextKind === "level") {
+    const { data: level, error } = await supabase
+      .from("levels")
+      .select("id, optimal_blocks_count, map_layout_json")
+      .eq("id", contextId)
+      .single();
+    if (error || !level || !isLevelSpec(level.map_layout_json)) return { ok: false, error: "Level not found or misconfigured." };
+
+    const evalResult = evaluateGridLevel(program, level.map_layout_json);
+    if (!evalResult.passed) return { ok: false, error: "โปรแกรมยังไม่ผ่านชุดทดสอบของด่านนี้ กรุณาส่งคำตอบที่ถูกต้องก่อนขอรีวิวจาก AI" };
+
+    const blocksUsed = countGridBlocks(program);
+    return {
+      ok: true,
+      description: level.map_layout_json.description,
+      blocksNote: `จำนวนบล็อกที่ใช้: ${blocksUsed}${level.optimal_blocks_count ? ` (ค่าที่เหมาะสมที่สุดคือ ${level.optimal_blocks_count} บล็อก)` : ""}`,
+    };
+  }
+
+  if (contextKind === "challenge") {
+    const { data, error } = await supabase
+      .from("challenge_levels")
+      .select("id, challenge_id, title, description, required_competencies, hints, stages_json, max_optimal_blocks, reference_grid_program_json")
+      .eq("id", contextId)
+      .single();
+    if (error || !data) return { ok: false, error: "Challenge not found." };
+
+    const spec = challengeRowToSpec(data as ChallengeLevelRow);
+    if (!spec) return { ok: false, error: "This challenge is misconfigured." };
+
+    const evalResult = evaluateChallenge(program, spec);
+    if (!evalResult.passed) return { ok: false, error: "โปรแกรมยังไม่ผ่านทุกด่านย่อยของ Challenge นี้ กรุณาส่งคำตอบที่ถูกต้องก่อนขอรีวิวจาก AI" };
+
+    const blocksUsed = countGridBlocks(program);
+    return {
+      ok: true,
+      description: spec.description,
+      blocksNote: `จำนวนบล็อกที่ใช้: ${blocksUsed}${spec.maxOptimalBlocks ? ` (ค่าที่เหมาะสมที่สุดคือ ${spec.maxOptimalBlocks} บล็อก)` : ""}`,
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("game_levels")
+    .select(
+      "id, level_number, game_type, title, description, hints, map_layout_json, robot_start_json, factory_initial_json, success_conditions_json, safety_constraints_json, time_limit_ticks, ticks_per_second"
+    )
+    .eq("id", contextId)
+    .single();
+  if (error || !data) return { ok: false, error: "Game level not found." };
+
+  const spec = gameLevelRowToSpec(data as GameLevelRow);
+  if (!spec) return { ok: false, error: "This game level is misconfigured." };
+
+  const maxTicks = (spec.timeLimitTicks ?? 100) + 5;
+  const outcome = runGameLevelToCompletion(program, spec, maxTicks);
+  if (outcome.status !== "won") return { ok: false, error: "โปรแกรมยังไม่ผ่านด่านนี้ กรุณาส่งคำตอบที่ถูกต้องก่อนขอรีวิวจาก AI" };
+
+  const blocksUsed = countGridBlocks(program);
+  return { ok: true, description: spec.description, blocksNote: `จำนวนบล็อกที่ใช้: ${blocksUsed}` };
+}
+
 /**
- * Phase 13 AI code reviewer. Deliberately independent of submitLevelAction's
- * energy/coins/play_logs bookkeeping - the frontend calls this only after
- * its own local test-case check passes (Rule 1: reject early, save tokens),
- * and this route re-verifies that pass server-side before ever calling
- * Gemini, since it can award bonus coins. A Gemini outage never blocks or
- * penalizes the student (Rule 2): the base submission already succeeded via
- * the deterministic test-case gate before this endpoint is even called.
+ * AI code reviewer, shared by Levels/Challenge Mode/Game Mode - independent
+ * of each context's own submit action's bookkeeping (energy/coins/attempt
+ * logs), same as the original Levels-only version: the frontend only calls
+ * this after its own submit already reported a pass, and this route
+ * re-verifies that pass server-side (per context kind, see
+ * verifyAndDescribe above) before ever calling Gemini, since it can award
+ * bonus coins. A Gemini outage never blocks or penalizes the student - the
+ * base submission already succeeded via the deterministic gate before this
+ * endpoint is even called.
  */
 export async function POST(request: Request) {
-  let body: { levelId?: string; program?: GridProgram };
+  let body: { contextKind?: ContextKind; contextId?: string; levelId?: string; program?: GridProgram };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { levelId, program } = body;
-  if (!levelId || !program) {
-    return NextResponse.json({ error: "Missing levelId or program." }, { status: 400 });
+  // levelId is the pre-existing Levels-only shape - still accepted so no
+  // caller needs updating just to keep working.
+  const contextKind: ContextKind = body.contextKind ?? "level";
+  const contextId = body.contextId ?? body.levelId;
+  const { program } = body;
+  if (!contextId || !program) {
+    return NextResponse.json({ error: "Missing contextId or program." }, { status: 400 });
   }
 
   const profile = await getCurrentProfile();
@@ -55,36 +135,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
 
-  const supabase = await createClient();
-  const { data: level, error: levelError } = await supabase
-    .from("levels")
-    .select("id, optimal_blocks_count, map_layout_json")
-    .eq("id", levelId)
-    .single();
-
-  if (levelError || !level || !isLevelSpec(level.map_layout_json)) {
-    return NextResponse.json({ error: "Level not found or misconfigured." }, { status: 404 });
+  const verified = await verifyAndDescribe(contextKind, contextId, program);
+  if (!verified.ok) {
+    return NextResponse.json({ error: verified.error }, { status: verified.error.includes("not found") ? 404 : 400 });
   }
 
-  const evalResult = evaluateGridLevel(program, level.map_layout_json);
-  if (!evalResult.passed) {
-    return NextResponse.json(
-      { error: "โปรแกรมยังไม่ผ่านชุดทดสอบของด่านนี้ กรุณาส่งคำตอบที่ถูกต้องก่อนขอรีวิวจาก AI" },
-      { status: 400 }
-    );
-  }
-
-  const blocksUsed = countGridBlocks(program);
   const structuredText = compiledProgramToStructuredText(compileGridProgram(program.grids));
 
   const prompt = `คุณเป็นวิศวกรอาวุโสที่ตรวจสอบโค้ด PLC Ladder Logic ของนักศึกษา
 
-โจทย์: ${level.map_layout_json.description}
+โจทย์: ${verified.description}
 
 โปรแกรมของนักเรียน (Structured Text โดยประมาณ):
 ${structuredText}
 
-จำนวนบล็อกที่ใช้: ${blocksUsed}${level.optimal_blocks_count ? ` (ค่าที่เหมาะสมที่สุดคือ ${level.optimal_blocks_count} บล็อก)` : ""}
+${verified.blocksNote}
 
 โปรแกรมนี้ผ่านชุดทดสอบทั้งหมดแล้ว (ทำงานถูกต้องตามข้อกำหนด) กรุณาประเมิน 4 ด้านนี้เป็นคะแนน 0-100:
 - correctness: ความถูกต้องเชิงตรรกะและความสมเหตุสมผลของวิธีแก้ปัญหา
@@ -113,24 +178,23 @@ ${structuredText}
   const safety = clamp0to100(review.safety);
   const approach = clamp0to100(review.approach);
   const feedback =
-    typeof review.feedback === "string" && review.feedback.trim()
-      ? review.feedback.trim()
-      : "AI ไม่ได้ให้ความคิดเห็นเพิ่มเติม";
+    typeof review.feedback === "string" && review.feedback.trim() ? review.feedback.trim() : "AI ไม่ได้ให้ความคิดเห็นเพิ่มเติม";
 
-  // Teachers preview AI review quality while testing a level; their runs
-  // must never award coins or land in ai_evaluations (same rule Phase 10-12
-  // already apply to student_scores/game_logic_score for teacher test-plays).
+  // Teachers preview AI review quality while testing content; their runs
+  // must never award coins or land in ai_evaluations (same rule the rest
+  // of the economy already applies to teacher test-plays).
   const isEconomySubject = profile.role !== "teacher";
-  const coinsAwarded = isEconomySubject
-    ? Math.max(0, Math.round((correctness + conciseness + safety) / 3 / 10))
-    : 0;
+  const coinsAwarded = isEconomySubject ? Math.max(0, Math.round((correctness + conciseness + safety) / 3 / 10)) : 0;
 
   if (isEconomySubject) {
     try {
       const admin = createAdminClient();
       const { error: insertError } = await admin.from("ai_evaluations").insert({
         user_id: profile.id,
-        level_id: levelId,
+        context_kind: contextKind,
+        level_id: contextKind === "level" ? contextId : null,
+        challenge_id: contextKind === "challenge" ? contextId : null,
+        game_level_id: contextKind === "game" ? contextId : null,
         correctness,
         conciseness,
         safety,
@@ -141,10 +205,7 @@ ${structuredText}
       if (insertError) console.error("evaluate-submission: failed to insert ai_evaluations row", insertError);
 
       if (coinsAwarded > 0) {
-        const { error: coinsError } = await admin
-          .from("users")
-          .update({ coins: profile.coins + coinsAwarded })
-          .eq("id", profile.id);
+        const { error: coinsError } = await admin.from("users").update({ coins: profile.coins + coinsAwarded }).eq("id", profile.id);
         if (coinsError) console.error("evaluate-submission: failed to award bonus coins", coinsError);
       }
     } catch (err) {

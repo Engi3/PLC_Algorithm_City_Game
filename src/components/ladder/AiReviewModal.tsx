@@ -23,13 +23,17 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
   );
 }
 
-/** Fetched on mount and shown as a modal - triggered after a level's test cases already passed, per Rule 1 (never call the API on a failing submission). */
+export type AiReviewContextKind = "level" | "challenge" | "game";
+
+/** Fetched on mount and shown as a modal - triggered after a level/challenge/game submission already passed, per Rule 1 (never call the API on a failing submission). */
 export default function AiReviewModal({
-  levelId,
+  contextKind,
+  contextId,
   program,
   onClose,
 }: {
-  levelId: string;
+  contextKind: AiReviewContextKind;
+  contextId: string;
   program: GridProgram;
   onClose: () => void;
 }) {
@@ -45,7 +49,7 @@ export default function AiReviewModal({
         const res = await fetch("/api/evaluate-submission", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ levelId, program }),
+          body: JSON.stringify({ contextKind, contextId, program }),
         });
         const data = (await res.json()) as AiReviewResponse;
         setResult(data);
@@ -56,7 +60,7 @@ export default function AiReviewModal({
         setLoading(false);
       }
     })();
-  }, [levelId, program]);
+  }, [contextKind, contextId, program]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>

@@ -10,11 +10,14 @@ import {
   ALL_COMPETENCY_AXES,
   type ManualCompetencyScores,
   type ChallengePlayLogLite,
+  type GamePlayLogLite,
 } from "@/lib/analytics/competency";
 import SkillRadarChart from "@/components/analytics/SkillRadarChart";
 import CompetencyRadarChart from "@/components/analytics/CompetencyRadarChart";
 import CoachBox from "@/components/progress/CoachBox";
 import CertificateCard from "@/components/progress/CertificateCard";
+import { loadClassData } from "@/lib/analytics/load-class-data";
+import { computeLeaderboard } from "@/lib/analytics/leaderboard";
 
 type LevelRow = { id: string; levelNumber: number; title: string };
 
@@ -39,6 +42,8 @@ export default async function ProgressPage() {
   };
   let challengeLogs: ChallengePlayLogLite[] = [];
   let challengeCount = 0;
+  let gameLogs: GamePlayLogLite[] = [];
+  let gameLevelCount = 0;
 
   try {
     const supabase = await createClient();
@@ -60,6 +65,25 @@ export default async function ProgressPage() {
       console.error("ProgressPage: failed to load challenge play logs", challengeLogsError);
     } else {
       challengeLogs = challengePlayLogs ?? [];
+    }
+
+    const { count: gameLevelCountResult, error: gameLevelCountError } = await supabase
+      .from("game_levels")
+      .select("*", { count: "exact", head: true });
+    if (gameLevelCountError) {
+      console.error("ProgressPage: failed to count game_levels", gameLevelCountError);
+    } else {
+      gameLevelCount = gameLevelCountResult ?? 0;
+    }
+
+    const { data: gamePlayLogs, error: gameLogsError } = await supabase
+      .from("game_play_logs")
+      .select("game_level_id, is_success")
+      .eq("user_id", profile.id);
+    if (gameLogsError) {
+      console.error("ProgressPage: failed to load game play logs", gameLogsError);
+    } else {
+      gameLogs = gamePlayLogs ?? [];
     }
 
     const { data: levels, error: levelsError } = await supabase
@@ -123,14 +147,30 @@ export default async function ProgressPage() {
   }
 
   const skillScores = computeSkillScores(logs, levelSkills);
-  const competencyScores = computeCompetencyScores(logs, levelCount, manualCompetency, {
-    logs: challengeLogs,
-    totalChallenges: challengeCount,
-  });
+  const competencyScores = computeCompetencyScores(
+    logs,
+    levelCount,
+    manualCompetency,
+    { logs: challengeLogs, totalChallenges: challengeCount },
+    { logs: gameLogs, totalGameLevels: gameLevelCount }
+  );
   const allLevelsAverage = computeAllLevelsAverage(logs, levelCount);
   const passedLevelIds = new Set(logs.filter((l) => l.is_success).map((l) => l.level_id));
   const studentName =
     profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : profile.username;
+
+  // Rank is computed against the whole approved-student class, so it needs
+  // its own loadClassData() call - kept in its own try/catch: if this fails,
+  // the certificates should still render, just without a rank line on them.
+  let rankLabel: string | undefined;
+  try {
+    const classData = await loadClassData();
+    const leaderboard = computeLeaderboard(classData.students, classData.levelCount, classData.challengeCount, classData.gameLevelCount);
+    const myEntry = leaderboard.find((e) => e.id === profile.id);
+    if (myEntry) rankLabel = `#${myEntry.rank} / ${leaderboard.length} คน`;
+  } catch (err) {
+    console.error("ProgressPage: failed to compute rank", err);
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -173,7 +213,9 @@ export default async function ProgressPage() {
               axis={axis}
               score={competencyScores[axis]}
               studentName={studentName}
+              studentId={profile.student_id}
               userId={profile.id}
+              rankLabel={rankLabel}
               allLevelsAverage={
                 axis === "ladder_programming" || axis === "problem_solving" ? allLevelsAverage : undefined
               }

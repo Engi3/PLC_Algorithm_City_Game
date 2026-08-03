@@ -1,0 +1,435 @@
+[
+  {
+    "level_number": 81,
+    "game_type": "FACTORY",
+    "title": "แนะนำหุ่นยนต์คัดแยก",
+    "description": "หุ่นยนต์คัดแยกวัตถุ: ชิ้นงานหมวดหมู่ 1 ทั้งหมดต้องถูกแขนหุ่นยนต์ (Y3) ดันไปถังที่ 1",
+    "hints": [
+      "AI3 คือหมวดหมู่ (category) ของชิ้นงานที่อยู่ในจุดตรวจจับตอนนี้ (0, 1 หรือ 2)",
+      "ใช้ CMP: AI3 == 1 -> SET M1 แล้วต่อ M1 -> Y3 (แขนหุ่นยนต์ ดันไปถังที่ 1) - ต่อ TON หน่วงเวลาแล้ว RESET M1 เมื่อครบ เพื่อให้พร้อมรับชิ้นถัดไป",
+      "ทำแบบเดียวกันกับ AI3 == 2 -> SET M2 -> Y1 (ตัวดัน ดันไปถังที่ 2) - ชิ้นที่ไม่ถูกดันเลยจะไหลผ่านไปถังที่ 0 เอง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "category": 1
+        },
+        {
+          "id": "b",
+          "position": 25,
+          "category": 1
+        },
+        {
+          "id": "c",
+          "position": 50,
+          "category": 1
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "sort_items",
+        "target": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 45,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 82,
+    "game_type": "FACTORY",
+    "title": "คัดแยกสองหมวดหมู่",
+    "description": "คัดแยกวัตถุ 2 หมวดหมู่พร้อมกัน: หมวด 1 ไปถังที่ 1 (Y3), หมวด 2 ไปถังที่ 2 (Y1)",
+    "hints": [
+      "AI3 คือหมวดหมู่ (category) ของชิ้นงานที่อยู่ในจุดตรวจจับตอนนี้ (0, 1 หรือ 2)",
+      "ใช้ CMP: AI3 == 1 -> SET M1 แล้วต่อ M1 -> Y3 (แขนหุ่นยนต์ ดันไปถังที่ 1) - ต่อ TON หน่วงเวลาแล้ว RESET M1 เมื่อครบ เพื่อให้พร้อมรับชิ้นถัดไป",
+      "ทำแบบเดียวกันกับ AI3 == 2 -> SET M2 -> Y1 (ตัวดัน ดันไปถังที่ 2) - ชิ้นที่ไม่ถูกดันเลยจะไหลผ่านไปถังที่ 0 เอง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "category": 1
+        },
+        {
+          "id": "b",
+          "position": 20,
+          "category": 2
+        },
+        {
+          "id": "c",
+          "position": 40,
+          "category": 1
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "sort_items",
+        "target": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 50,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 83,
+    "game_type": "FACTORY",
+    "title": "บทสรุปหมวดคัดแยก (สามหมวดหมู่)",
+    "description": "ด่านสรุป: คัดแยกครบทั้ง 3 หมวดหมู่ - หมวด 0 ไหลผ่านเอง หมวด 1 ไปถังที่ 1 หมวด 2 ไปถังที่ 2",
+    "hints": [
+      "AI3 คือหมวดหมู่ (category) ของชิ้นงานที่อยู่ในจุดตรวจจับตอนนี้ (0, 1 หรือ 2)",
+      "ใช้ CMP: AI3 == 1 -> SET M1 แล้วต่อ M1 -> Y3 (แขนหุ่นยนต์ ดันไปถังที่ 1) - ต่อ TON หน่วงเวลาแล้ว RESET M1 เมื่อครบ เพื่อให้พร้อมรับชิ้นถัดไป",
+      "ทำแบบเดียวกันกับ AI3 == 2 -> SET M2 -> Y1 (ตัวดัน ดันไปถังที่ 2) - ชิ้นที่ไม่ถูกดันเลยจะไหลผ่านไปถังที่ 0 เอง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "category": 0
+        },
+        {
+          "id": "b",
+          "position": 15,
+          "category": 1
+        },
+        {
+          "id": "c",
+          "position": 30,
+          "category": 2
+        },
+        {
+          "id": "d",
+          "position": 45,
+          "category": 1
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "sort_items",
+        "target": 4
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 55,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 84,
+    "game_type": "FACTORY",
+    "title": "แนะนำสายพานย้อนกลับ",
+    "description": "พบของเสีย 1 ชิ้น - ใช้สายพานย้อนกลับ (Y4) ส่งกลับไปจุดเริ่มต้นแทนการใช้ตัวดัน",
+    "hints": [
+      "X1 คือเซ็นเซอร์ตรวจของเสีย - ต่อ NO(X1) -> SET M0 แล้วต่อ M0 -> Y4 (ย้อนกลับ) เพื่อส่งของเสียกลับไปจุดเริ่ม"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "return_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 40,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 85,
+    "game_type": "FACTORY",
+    "title": "บทสรุปสายพานย้อนกลับ (หลายชิ้น)",
+    "description": "ของเสีย 2 ชิ้นเรียงกัน - วงจรต้องย้อนกลับแล้ว \"รีเซ็ต\" ตัวเองให้พร้อมตรวจจับชิ้นถัดไปด้วย (ใช้ TON หน่วงเวลาแล้ว RESET)",
+    "hints": [
+      "X1 คือเซ็นเซอร์ตรวจของเสีย - ต่อ NO(X1) -> SET M0 แล้วต่อ M0 -> Y4 (ย้อนกลับ) เพื่อส่งของเสียกลับไปจุดเริ่ม",
+      "ต่อ TON หน่วงเวลาการย้อนกลับ แล้ว RESET M0 เมื่อ TON นับครบ - ไม่งั้นสายพานจะย้อนกลับค้างตลอดไป ตรวจจับชิ้นถัดไปไม่ได้"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 40,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "return_items",
+        "target": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 90,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 86,
+    "game_type": "FACTORY",
+    "title": "แนะนำไฟจราจร",
+    "description": "ประตูไฟจราจรปิดอยู่ก่อน (ไฟแดง) - หน่วงเวลาแล้วเปิดไฟเขียว (Y7) ให้สายพานผ่านประตูไปได้",
+    "hints": [
+      "Y5 = ไฟแดง, Y6 = ไฟเหลือง, Y7 = ไฟเขียว - สายพานจะผ่านประตูได้ก็ต่อเมื่อ Y7 ติดเท่านั้น",
+      "วงจรไฟจราจรวนซ้ำ: ไฟเขียวติดเมื่อไม่ใช่ช่วงเหลือง/แดง ใช้ TON นับเวลาแต่ละสี แล้ว SET/RESET รีเลย์ภายในสลับสถานะ"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0,
+      "gateEnabled": true
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 45,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 87,
+    "game_type": "FACTORY",
+    "title": "วงจรไฟจราจรวนซ้ำ",
+    "description": "สร้างวงจรไฟจราจรที่วนซ้ำเอง (เขียว -> เหลือง -> แดง -> เขียว) ให้ชิ้นงานผ่านประตูไปได้ในช่วงไฟเขียว",
+    "hints": [
+      "Y5 = ไฟแดง, Y6 = ไฟเหลือง, Y7 = ไฟเขียว - สายพานจะผ่านประตูได้ก็ต่อเมื่อ Y7 ติดเท่านั้น",
+      "วงจรไฟจราจรวนซ้ำ: ไฟเขียวติดเมื่อไม่ใช่ช่วงเหลือง/แดง ใช้ TON นับเวลาแต่ละสี แล้ว SET/RESET รีเลย์ภายในสลับสถานะ"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0,
+      "gateEnabled": true
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 60,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 88,
+    "game_type": "FACTORY",
+    "title": "บทสรุปไฟจราจร (หลายชิ้น)",
+    "description": "ด่านสรุป: ชิ้นงานหลายชิ้นต้องผ่านประตูให้ครบ โดยบางชิ้นอาจต้องรอไฟเขียวรอบถัดไป",
+    "hints": [
+      "Y5 = ไฟแดง, Y6 = ไฟเหลือง, Y7 = ไฟเขียว - สายพานจะผ่านประตูได้ก็ต่อเมื่อ Y7 ติดเท่านั้น",
+      "วงจรไฟจราจรวนซ้ำ: ไฟเขียวติดเมื่อไม่ใช่ช่วงเหลือง/แดง ใช้ TON นับเวลาแต่ละสี แล้ว SET/RESET รีเลย์ภายในสลับสถานะ"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 15
+        },
+        {
+          "id": "c",
+          "position": 30
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0,
+      "gateEnabled": true
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 110,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 89,
+    "game_type": "FACTORY",
+    "title": "คัดแยกผ่านประตูไฟจราจร",
+    "description": "รวมสองกลไก: ชิ้นงานต้องผ่านประตูไฟจราจรก่อน แล้วจึงถูกคัดแยกตามหมวดหมู่",
+    "hints": [
+      "Y5 = ไฟแดง, Y6 = ไฟเหลือง, Y7 = ไฟเขียว - สายพานจะผ่านประตูได้ก็ต่อเมื่อ Y7 ติดเท่านั้น",
+      "วงจรไฟจราจรวนซ้ำ: ไฟเขียวติดเมื่อไม่ใช่ช่วงเหลือง/แดง ใช้ TON นับเวลาแต่ละสี แล้ว SET/RESET รีเลย์ภายในสลับสถานะ",
+      "AI3 คือหมวดหมู่ (category) ของชิ้นงานที่อยู่ในจุดตรวจจับตอนนี้ (0, 1 หรือ 2)",
+      "ใช้ CMP: AI3 == 1 -> SET M1 แล้วต่อ M1 -> Y3 (แขนหุ่นยนต์ ดันไปถังที่ 1) - ต่อ TON หน่วงเวลาแล้ว RESET M1 เมื่อครบ เพื่อให้พร้อมรับชิ้นถัดไป",
+      "ทำแบบเดียวกันกับ AI3 == 2 -> SET M2 -> Y1 (ตัวดัน ดันไปถังที่ 2) - ชิ้นที่ไม่ถูกดันเลยจะไหลผ่านไปถังที่ 0 เอง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "category": 1
+        },
+        {
+          "id": "b",
+          "position": 15,
+          "category": 2
+        },
+        {
+          "id": "c",
+          "position": 30,
+          "category": 1
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0,
+      "gateEnabled": true
+    },
+    "success_conditions_json": [
+      {
+        "kind": "sort_items",
+        "target": 3
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 100,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 90,
+    "game_type": "FACTORY",
+    "title": "บทสรุปหมวดขั้นสูง (สายการผลิตอัตโนมัติเต็มรูปแบบ)",
+    "description": "ด่านสรุปฝั่งสายการผลิตของหมวดขั้นสูง: ชิ้นงานครบ 3 หมวดหมู่ต้องผ่านประตูไฟจราจรแล้วถูกคัดแยกให้ถูกถังทุกชิ้น",
+    "hints": [
+      "Y5 = ไฟแดง, Y6 = ไฟเหลือง, Y7 = ไฟเขียว - สายพานจะผ่านประตูได้ก็ต่อเมื่อ Y7 ติดเท่านั้น",
+      "วงจรไฟจราจรวนซ้ำ: ไฟเขียวติดเมื่อไม่ใช่ช่วงเหลือง/แดง ใช้ TON นับเวลาแต่ละสี แล้ว SET/RESET รีเลย์ภายในสลับสถานะ",
+      "AI3 คือหมวดหมู่ (category) ของชิ้นงานที่อยู่ในจุดตรวจจับตอนนี้ (0, 1 หรือ 2)",
+      "ใช้ CMP: AI3 == 1 -> SET M1 แล้วต่อ M1 -> Y3 (แขนหุ่นยนต์ ดันไปถังที่ 1) - ต่อ TON หน่วงเวลาแล้ว RESET M1 เมื่อครบ เพื่อให้พร้อมรับชิ้นถัดไป",
+      "ทำแบบเดียวกันกับ AI3 == 2 -> SET M2 -> Y1 (ตัวดัน ดันไปถังที่ 2) - ชิ้นที่ไม่ถูกดันเลยจะไหลผ่านไปถังที่ 0 เอง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "category": 0
+        },
+        {
+          "id": "b",
+          "position": 15,
+          "category": 1
+        },
+        {
+          "id": "c",
+          "position": 30,
+          "category": 2
+        },
+        {
+          "id": "d",
+          "position": 45,
+          "category": 1
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0,
+      "gateEnabled": true
+    },
+    "success_conditions_json": [
+      {
+        "kind": "sort_items",
+        "target": 4
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 100,
+    "ticks_per_second": null
+  }
+]

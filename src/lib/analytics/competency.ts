@@ -39,6 +39,9 @@ export type ManualCompetencyScores = {
 /** Shape of a public.challenge_play_logs row this module needs - see challenge_play_logs's migration (no score column, unlike play_logs, since Challenge Mode isn't scored, only pass/fail). */
 export type ChallengePlayLogLite = { challenge_level_id: string; is_success: boolean };
 
+/** Shape of a public.game_play_logs row this module needs - same pass/fail-only shape as ChallengePlayLogLite, see 0012_game_play_logs.sql. */
+export type GamePlayLogLite = { game_level_id: string; is_success: boolean };
+
 function clamp0to100(n: number): number {
   return Math.max(0, Math.min(100, Math.round(n)));
 }
@@ -129,6 +132,23 @@ function computeAdvancedChallengeAuto(challengeLogs: ChallengePlayLogLite[], tot
 }
 
 /**
+ * Auto fallback for system_control when a teacher hasn't graded it: plain
+ * completion fraction across all 100 (or however many exist) Game Mode
+ * levels. Mirrors computeAdvancedChallengeAuto's reasoning exactly - Game
+ * Mode is also pass/fail only (game_play_logs has no score column), and
+ * system_control (real-time I/O control of a simulated physical process:
+ * a Maze robot's sensors/actuators, a Factory line's conveyor/tank/
+ * heater) is precisely what completing these levels demonstrates, unlike
+ * the other 3 manually-graded axes which have no matching data source at
+ * all.
+ */
+function computeSystemControlAuto(gameLogs: GamePlayLogLite[], totalGameLevels: number): number {
+  if (totalGameLevels <= 0) return 0;
+  const passed = new Set(gameLogs.filter((l) => l.is_success).map((l) => l.game_level_id)).size;
+  return clamp0to100((passed / totalGameLevels) * 100);
+}
+
+/**
  * Certificate gate (Phase 5): best passing score per level, averaged across
  * every level in the system (0 for never-passed/unattempted levels) - unlike
  * computeLadderProgramming this isn't weighted by completion fraction, since
@@ -153,7 +173,8 @@ export function computeCompetencyScores(
   logs: PlayLogLite[],
   totalLevels: number,
   manual: ManualCompetencyScores,
-  challengeData: { logs: ChallengePlayLogLite[]; totalChallenges: number }
+  challengeData: { logs: ChallengePlayLogLite[]; totalChallenges: number },
+  gameData: { logs: GamePlayLogLite[]; totalGameLevels: number }
 ): CompetencyScores {
   return {
     ladder_programming: computeLadderProgramming(logs, totalLevels),
@@ -167,7 +188,10 @@ export function computeCompetencyScores(
       manual.advanced_challenge !== null
         ? clamp0to100(manual.advanced_challenge)
         : computeAdvancedChallengeAuto(challengeData.logs, challengeData.totalChallenges),
-    system_control: manual.system_control !== null ? clamp0to100(manual.system_control) : 0,
+    system_control:
+      manual.system_control !== null
+        ? clamp0to100(manual.system_control)
+        : computeSystemControlAuto(gameData.logs, gameData.totalGameLevels),
   };
 }
 

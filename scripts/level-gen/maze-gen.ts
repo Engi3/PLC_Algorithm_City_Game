@@ -1,0 +1,365 @@
+/**
+ * Procedural perfect-maze generator + solver-verification helpers, for any
+ * ODD tile size (9x9, 11x11, ..., 21x21), shared by generate-maze-9x9.ts
+ * (legacy, fixed 9x9) and generate-maze-50.ts (new 50-level track,
+ * progressive 9x9->21x21).
+ *
+ * A size x size tile grid (size = 2*rooms-1) is a doubled-resolution
+ * rooms x rooms "room" grid: rooms live at even (x,y), the odd cells
+ * between adjacent rooms are corridor tiles that get carved to PATH
+ * exactly when that passage is part of the spanning tree. A randomized
+ * DFS backtracker over the rooms x rooms room graph produces a genuine
+ * perfect maze (a tree - exactly one path between any two rooms, no
+ * loops), which is the one property that makes the "prefer right when
+ * clear, else left" wall-following rule (Pattern D, proven across every
+ * earlier maze batch this session) a GUARANTEED solve, not a
+ * probabilistic one - a maze with loops can strand wall-following on an
+ * island that never reaches the goal, so this generator deliberately
+ * never produces one for the real solution path.
+ *
+ * Hazard levels add exactly one dead-end spur (never part of the solving
+ * tree) off a junction on the true path, placed and verified via
+ * simulation, not hand-reasoning: a level only ships once the correct
+ * Pattern D program reaches GOAL with the hazard in place - see
+ * generateHazardMaze's own comment for why a "swapped wiring" reachability
+ * proof was tried and dropped.
+ */
+import type { MazeMap, MazeRobotState, MazeTile } from "../../src/lib/games/maze-types";
+import { createMazeGameState, mazeBinding } from "../../src/lib/games/maze-plc-binding";
+import { runGridScan } from "../../src/lib/ladder/grid-engine";
+import { createEmptyMemory } from "../../src/lib/ladder/types";
+import type { GridProgram } from "../../src/lib/ladder/grid-types";
+import { evaluateGameLevelTick, type GameRunState } from "../../src/lib/games/evaluate-game-level";
+import type { GameLevelSpec } from "../../src/lib/games/game-level-types";
+
+/** Deterministic PRNG (mulberry32) so a "bad" maze can be reproduced/debugged, and so the whole batch is reproducible from one base seed. */
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+type RoomPos = { rx: number; ry: number };
+type Passages = Set<string>; // "rx,ry-rx2,ry2" normalized
+
+function passageKey(a: RoomPos, b: RoomPos): string {
+  const [p, q] = [a, b].sort((m, n) => m.rx - n.rx || m.ry - n.ry);
+  return `${p.rx},${p.ry}-${q.rx},${q.ry}`;
+}
+
+const ROOM_DIRS: { dx: number; dy: number }[] = [
+  { dx: 1, dy: 0 },
+  { dx: -1, dy: 0 },
+  { dx: 0, dy: 1 },
+  { dx: 0, dy: -1 },
+];
+
+/** Randomized DFS backtracker over the rooms x rooms room graph - a spanning tree, i.e. a perfect maze. */
+function generateSpanningTree(rng: () => number, rooms: number): Passages {
+  const visited = new Set<string>();
+  const passages: Passages = new Set();
+  const stack: RoomPos[] = [{ rx: 0, ry: 0 }];
+  visited.add("0,0");
+
+  while (stack.length > 0) {
+    const current = stack[stack.length - 1];
+    const neighbors = ROOM_DIRS.map((d) => ({ rx: current.rx + d.dx, ry: current.ry + d.dy })).filter(
+      (n) => n.rx >= 0 && n.rx < rooms && n.ry >= 0 && n.ry < rooms && !visited.has(`${n.rx},${n.ry}`)
+    );
+    if (neighbors.length === 0) {
+      stack.pop();
+      continue;
+    }
+    const next = neighbors[Math.floor(rng() * neighbors.length)];
+    passages.add(passageKey(current, next));
+    visited.add(`${next.rx},${next.ry}`);
+    stack.push(next);
+  }
+  return passages;
+}
+
+function roomsAdjacent(a: RoomPos, b: RoomPos): boolean {
+  return passages_has(a, b);
+}
+function passages_has(a: RoomPos, b: RoomPos): boolean {
+  return Math.abs(a.rx - b.rx) + Math.abs(a.ry - b.ry) === 1;
+}
+
+/** BFS over the room graph (using the spanning tree) to find distances from a start room - used to pick a goal at (roughly) a target difficulty. */
+function bfsDistances(passages: Passages, start: RoomPos, rooms: number): Map<string, number> {
+  const dist = new Map<string, number>();
+  dist.set(`${start.rx},${start.ry}`, 0);
+  const queue: RoomPos[] = [start];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    const d = dist.get(`${cur.rx},${cur.ry}`)!;
+    for (const dir of ROOM_DIRS) {
+      const n = { rx: cur.rx + dir.dx, ry: cur.ry + dir.dy };
+      if (n.rx < 0 || n.rx >= rooms || n.ry < 0 || n.ry >= rooms) continue;
+      if (!roomsAdjacent(cur, n) || !passages.has(passageKey(cur, n))) continue;
+      const key = `${n.rx},${n.ry}`;
+      if (dist.has(key)) continue;
+      dist.set(key, d + 1);
+      queue.push(n);
+    }
+  }
+  return dist;
+}
+
+function roomToTile(r: RoomPos): { x: number; y: number } {
+  return { x: r.rx * 2, y: r.ry * 2 };
+}
+
+function buildTileGrid(passages: Passages, rooms: number): MazeTile[][] {
+  const tiles = rooms * 2 - 1;
+  const grid: MazeTile[][] = Array.from({ length: tiles }, () => Array<MazeTile>(tiles).fill("WALL"));
+  for (let ry = 0; ry < rooms; ry++) {
+    for (let rx = 0; rx < rooms; rx++) {
+      const t = roomToTile({ rx, ry });
+      grid[t.y][t.x] = "PATH";
+    }
+  }
+  for (const key of passages) {
+    const [a, b] = key.split("-").map((s) => {
+      const [x, y] = s.split(",").map(Number);
+      return { rx: x, ry: y };
+    });
+    const ta = roomToTile(a);
+    const tb = roomToTile(b);
+    const mx = (ta.x + tb.x) / 2;
+    const my = (ta.y + tb.y) / 2;
+    grid[my][mx] = "PATH";
+  }
+  return grid;
+}
+
+const decisionProgram: GridProgram = buildDecisionProgram();
+const swappedProgram: GridProgram = buildDecisionProgram(true);
+
+function buildDecisionProgram(swapped = false): GridProgram {
+  // Local, minimal re-implementation of Pattern D (see generate-game-levels.ts)
+  // to avoid a circular import into the shared grid-builders module.
+  const GRID_COLUMNS = 11;
+  const COIL_COLUMN = 10;
+  function emptyRow(rowIndex: number) {
+    return Array.from({ length: GRID_COLUMNS }, (_, col) => ({
+      row: rowIndex,
+      col,
+      node: null as import("../../src/lib/ladder/grid-types").GridNode | null,
+      connectLeft: false,
+      connectRight: false,
+      connectTop: false,
+      connectBottom: false,
+    }));
+  }
+  function row(idx: number, instr: import("../../src/lib/ladder/grid-types").GridNode[], coil: import("../../src/lib/ladder/grid-types").GridNode) {
+    const cells = emptyRow(idx);
+    instr.forEach((n, c) => (cells[c].node = n));
+    cells[COIL_COLUMN].node = coil;
+    cells[0].connectLeft = true;
+    for (let c = 0; c < COIL_COLUMN; c++) cells[c].connectRight = true;
+    return cells;
+  }
+  const rightAddr = swapped ? "Y1" : "Y2";
+  const leftAddr = swapped ? "Y2" : "Y1";
+  const rows = [
+    row(0, [{ kind: "CONTACT", type: "NC", address: "X0" }], { kind: "COIL", address: "Y0" }),
+    row(
+      1,
+      [
+        { kind: "CONTACT", type: "NO", address: "X0" },
+        { kind: "CONTACT", type: "NC", address: "X2" },
+      ],
+      { kind: "COIL", address: rightAddr }
+    ),
+    row(
+      2,
+      [
+        { kind: "CONTACT", type: "NO", address: "X0" },
+        { kind: "CONTACT", type: "NO", address: "X2" },
+      ],
+      { kind: "COIL", address: leftAddr }
+    ),
+  ];
+  return { grids: [{ id: "g", rowCount: 3, cells: rows }] };
+}
+
+const DIR_DELTA: Record<string, { dx: number; dy: number }> = {
+  N: { dx: 0, dy: -1 },
+  E: { dx: 1, dy: 0 },
+  S: { dx: 0, dy: 1 },
+  W: { dx: -1, dy: 0 },
+};
+const TURN_RIGHT: Record<string, string> = { N: "E", E: "S", S: "W", W: "N" };
+const TURN_LEFT: Record<string, string> = { N: "W", W: "S", S: "E", E: "N" };
+
+type TurnPoint = { x: number; y: number; wrongDx: number; wrongDy: number; chosenRight: boolean };
+
+/** Replays the correct solution and records, at every tick a turn command fires, the position and the direction NOT taken - candidate hazard-spur locations, in path order (earliest first). */
+export function recordTurnPoints(map: MazeMap, start: MazeRobotState, maxTicks: number): TurnPoint[] {
+  const spec: GameLevelSpec = {
+    levelNumber: 0,
+    gameType: "MAZE",
+    title: "measure",
+    description: "measure",
+    mapLayout: map,
+    robotStart: start,
+    successConditions: [{ kind: "reach_goal" }],
+  };
+  let run: GameRunState = { maze: createMazeGameState(map, start) };
+  let memory = createEmptyMemory();
+  let outcome = evaluateGameLevelTick(spec, run, {}, memory, {}, 0);
+  let tick = 0;
+  const turns: TurnPoint[] = [];
+  while (outcome.status === "playing" && tick < maxTicks) {
+    tick++;
+    const { inputs, analogInputs } = mazeBinding.readInputs(run.maze!);
+    const { memory: nextMemory } = runGridScan(decisionProgram, inputs, memory, { tick: true }, analogInputs);
+    memory = nextMemory;
+    const robotBefore = run.maze!.robot;
+    if (nextMemory.coils.Y2 || nextMemory.coils.Y1) {
+      const chosenRight = !!nextMemory.coils.Y2;
+      const wrongHeading = chosenRight ? TURN_LEFT[robotBefore.direction] : TURN_RIGHT[robotBefore.direction];
+      const d = DIR_DELTA[wrongHeading];
+      turns.push({ x: robotBefore.x, y: robotBefore.y, wrongDx: d.dx, wrongDy: d.dy, chosenRight });
+    }
+    run = { maze: mazeBinding.step(run.maze!, nextMemory.coils, nextMemory) };
+    outcome = evaluateGameLevelTick(spec, run, inputs, nextMemory, analogInputs, tick);
+  }
+  return turns;
+}
+
+function simulate(map: MazeMap, start: MazeRobotState, program: GridProgram, maxTicks: number): { won: boolean; failed: boolean; ticks: number } {
+  const spec: GameLevelSpec = {
+    levelNumber: 0,
+    gameType: "MAZE",
+    title: "measure",
+    description: "measure",
+    mapLayout: map,
+    robotStart: start,
+    successConditions: [{ kind: "reach_goal" }],
+  };
+  let run: GameRunState = { maze: createMazeGameState(map, start) };
+  let memory = createEmptyMemory();
+  let outcome = evaluateGameLevelTick(spec, run, {}, memory, {}, 0);
+  let tick = 0;
+  while (outcome.status === "playing" && tick < maxTicks) {
+    tick++;
+    const { inputs, analogInputs } = mazeBinding.readInputs(run.maze!);
+    const { memory: nextMemory } = runGridScan(program, inputs, memory, { tick: true }, analogInputs);
+    memory = nextMemory;
+    run = { maze: mazeBinding.step(run.maze!, memory.coils, memory) };
+    outcome = evaluateGameLevelTick(spec, run, inputs, memory, analogInputs, tick);
+  }
+  return { won: outcome.status === "won", failed: outcome.status === "failed", ticks: tick };
+}
+
+export type GeneratedMaze = { map: MazeMap; start: MazeRobotState; solveTicks: number };
+
+/** Debug helper (not used by the real generators, which call `simulate` directly with the module-level programs). */
+export function simulateExport(map: MazeMap, start: MazeRobotState, swapped: boolean, maxTicks: number) {
+  return simulate(map, start, swapped ? swappedProgram : decisionProgram, maxTicks);
+}
+
+/**
+ * Generates a size x size perfect maze (size must be odd - 9, 11, 13, ...)
+ * whose true solve length (in ticks, via the real Pattern D solver) falls
+ * within [minTicks, maxTicks] - the difficulty knob - retrying with new
+ * seeds until one fits. Goal is chosen from the room farthest from the
+ * start among candidates that hit the target band, so later levels in a
+ * chapter get further (harder) goals without ever exceeding the fixed
+ * size x size footprint.
+ */
+export function generateDifficultyMaze(seed: number, size: number, minTicks: number, maxTicks: number, maxAttempts = 500): GeneratedMaze {
+  if (size < 3 || size % 2 === 0) throw new Error(`generateDifficultyMaze: size must be odd and >=3 (got ${size})`);
+  const rooms = (size + 1) / 2;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const rng = mulberry32(seed + attempt * 7919);
+    const passages = generateSpanningTree(rng, rooms);
+    const grid = buildTileGrid(passages, rooms);
+    // Face the robot toward whichever passage the start room (0,0) - a
+    // corner, with both its N and W sides always off-grid - actually
+    // has, instead of hardcoding East. Starting E when the tree's only
+    // exit from (0,0) is South means the very first tick already faces
+    // a wall, forcing a decision at the corner itself - and turning
+    // "left" from East is North, permanently off-grid at y=0. That
+    // structurally poisons every hazard placement at the first turn
+    // (confirmed empirically - see the scratch _debug-hazard3.ts
+    // session this was diagnosed with), not just a bad-seed fluke.
+    const hasEastPassage = passages.has(passageKey({ rx: 0, ry: 0 }, { rx: 1, ry: 0 }));
+    const start: MazeRobotState = { x: 0, y: 0, direction: hasEastPassage ? "E" : "S" };
+    const dist = bfsDistances(passages, { rx: 0, ry: 0 }, rooms);
+
+    // Try candidate goal rooms sorted by room-distance descending, so we
+    // prefer the hardest goal that still fits the tick band.
+    const candidates = [...dist.entries()].sort((a, b) => b[1] - a[1]);
+    for (const [key] of candidates) {
+      const [rx, ry] = key.split(",").map(Number);
+      if (rx === 0 && ry === 0) continue;
+      const map = grid.map((r) => [...r]) as MazeMap;
+      const goalTile = roomToTile({ rx, ry });
+      map[goalTile.y][goalTile.x] = "GOAL";
+
+      const result = simulate(map, start, decisionProgram, maxTicks + 10);
+      if (result.won && result.ticks >= minTicks && result.ticks <= maxTicks) {
+        return { map, start, solveTicks: result.ticks };
+      }
+    }
+  }
+  throw new Error(`generateDifficultyMaze: no maze found in [${minTicks},${maxTicks}] ticks after ${maxAttempts} attempts (seed ${seed})`);
+}
+
+/**
+ * Same as generateDifficultyMaze, but also carves one dead-end HAZARD spur
+ * off a junction on the true solve path. The "swapped Y1/Y2" mistake was
+ * tried as a reachability proof for the hazard but dropped: that wiring
+ * bug steers the robot toward every wall it detects, which deadlocks/
+ * oscillates almost immediately rather than reaching any specific spur -
+ * confirmed empirically (0/90 candidates reached a hazard within budget
+ * across 50 seeds in scratch testing). What's load-bearing for fairness is
+ * only that the CORRECT solution never enters the hazard; that's the one
+ * property still verified by simulation below.
+ */
+export function generateHazardMaze(seed: number, size: number, minTicks: number, maxTicks: number, maxAttempts = 500): GeneratedMaze {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const base = (() => {
+      try {
+        return generateDifficultyMaze(seed + attempt * 104729, size, minTicks, maxTicks, 1);
+      } catch {
+        return null;
+      }
+    })();
+    if (!base) continue;
+
+    const { map, start } = base;
+    const turns = recordTurnPoints(map, start, maxTicks + 10);
+    // Only "chose right" turns are candidates: the wrong (left) side is a
+    // direction Pattern D's own contacts never sense (only X0-ahead/X2-
+    // right are read), so carving a hazard there can't also corrupt the
+    // CORRECT solver's own wall-sensing - carving into a "chose left"
+    // turn's wrong (right) side means overwriting the very wall (X2)
+    // that decision depended on, flipping the correct solver's own
+    // choice too (confirmed empirically - see the scratch
+    // _debug-hazard2.ts session this was diagnosed with).
+    for (const t of turns) {
+      if (!t.chosenRight) continue;
+      const nx = t.x + t.wrongDx;
+      const ny = t.y + t.wrongDy;
+      if (nx < 0 || nx >= size || ny < 0 || ny >= size) continue;
+      if (map[ny][nx] !== "WALL") continue;
+      const spurMap = map.map((r) => [...r]) as MazeMap;
+      spurMap[ny][nx] = "HAZARD";
+
+      const correct = simulate(spurMap, start, decisionProgram, maxTicks + 10);
+      if (!correct.won) continue;
+
+      return { map: spurMap, start, solveTicks: correct.ticks };
+    }
+  }
+  throw new Error(`generateHazardMaze: no valid hazard placement found after ${maxAttempts} attempts (seed ${seed})`);
+}

@@ -35,6 +35,7 @@ export async function setApprovalStatusAction(formData: FormData): Promise<void>
   }
 
   revalidatePath("/dashboard/students");
+  revalidatePath("/dashboard");
 }
 
 export async function deleteUserAction(
@@ -67,6 +68,60 @@ export async function deleteUserAction(
 
   revalidatePath("/dashboard/students");
   return { error: null, success: "User deleted." };
+}
+
+const OVERRIDE_MODES = ["game_mode_override", "challenge_mode_override"] as const;
+type OverrideMode = (typeof OVERRIDE_MODES)[number];
+const OVERRIDE_VALUES = ["auto", "unlocked", "locked"] as const;
+
+/**
+ * Special-case per-student unlock/lock for Game Mode or Challenge Mode
+ * (resolveModeUnlock in challenge-unlock.ts reads this). "auto" clears
+ * the override so the normal 50%-per-category gate applies again.
+ */
+export async function setModeOverrideAction(formData: FormData): Promise<void> {
+  const userId = formData.get("userId")?.toString() ?? "";
+  const mode = formData.get("mode")?.toString();
+  const value = formData.get("value")?.toString();
+  if (!userId) return;
+  if (mode !== "game_mode_override" && mode !== "challenge_mode_override") return;
+  if (!value || !(OVERRIDE_VALUES as readonly string[]).includes(value)) return;
+
+  try {
+    await requireTeacher();
+    const supabase = await createClient();
+    const column: OverrideMode = mode;
+    const { error } = await supabase
+      .from("users")
+      .update({ [column]: value === "auto" ? null : value })
+      .eq("id", userId);
+    if (error) console.error("setModeOverrideAction: update failed", error);
+  } catch (err) {
+    console.error("setModeOverrideAction crashed:", err);
+  }
+
+  revalidatePath("/dashboard/students");
+}
+
+/** Free-text class/section label a teacher assigns per student - powers the Global Leaderboard's "sort by class" filter. Empty string clears it back to null (unassigned). */
+export async function setClassNameAction(formData: FormData): Promise<void> {
+  const userId = formData.get("userId")?.toString() ?? "";
+  const className = formData.get("className")?.toString().trim() ?? "";
+  if (!userId) return;
+
+  try {
+    await requireTeacher();
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from("users")
+      .update({ class_name: className || null })
+      .eq("id", userId);
+    if (error) console.error("setClassNameAction: update failed (migration 0016 may not be run yet)", error);
+  } catch (err) {
+    console.error("setClassNameAction crashed:", err);
+  }
+
+  revalidatePath("/dashboard/students");
 }
 
 const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;

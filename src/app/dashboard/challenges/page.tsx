@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
-import { checkLevelGate, computeChallengeUnlockStatus, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
+import { checkLevelGate, computeChallengeUnlockStatus, resolveModeUnlock, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
 import { SKILL_LABELS } from "@/lib/ladder/level-spec";
 import {
   CHALLENGE_CHAPTERS,
@@ -21,10 +21,13 @@ type ChallengeRow = {
 export default async function ChallengesPage() {
   const profile = await getCurrentProfile();
   const isTeacher = profile?.role === "teacher";
+  /** Teachers and guests both bypass per-challenge sequential locking, same as they bypass the whole-mode gate above (resolveModeUnlock). */
+  const bypassSequentialLock = isTeacher || profile?.role === "guest";
 
   let challenges: ChallengeRow[] = [];
   const passedIds = new Set<string>();
-  let gate: LevelGateStatus = { unlocked: isTeacher, categories: [] };
+  let gate: LevelGateStatus = { unlocked: false, categories: [] };
+  let unlocked = false;
 
   try {
     const supabase = await createClient();
@@ -52,9 +55,10 @@ export default async function ChallengesPage() {
         for (const log of logs ?? []) passedIds.add(log.challenge_level_id);
       }
 
-      if (!isTeacher) {
+      if (profile.role === "student") {
         gate = await checkLevelGate(supabase, profile.id);
       }
+      unlocked = resolveModeUnlock(profile.role, profile.challenge_mode_override, gate);
     }
   } catch (err) {
     console.error("ChallengesPage crashed:", err);
@@ -66,7 +70,7 @@ export default async function ChallengesPage() {
     passedIds
   );
 
-  if (!gate.unlocked) {
+  if (!unlocked) {
     return (
       <div className="flex flex-col gap-4">
         <div className="rounded-lg border border-zinc-800 bg-zinc-900 px-5 py-4 text-white">
@@ -167,7 +171,7 @@ export default async function ChallengesPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {chapterChallenges.map((challenge) => {
                 const passed = passedIds.has(challenge.id);
-                const unlocked = isTeacher || (unlockStatus.get(challenge.id) ?? false);
+                const unlocked = bypassSequentialLock || (unlockStatus.get(challenge.id) ?? false);
                 return (
                   <ChallengeCard key={challenge.id} challenge={challenge} unlocked={unlocked} passed={passed} />
                 );
@@ -203,7 +207,7 @@ export default async function ChallengesPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {extra.map((challenge) => {
                 const passed = passedIds.has(challenge.id);
-                const unlocked = isTeacher || (unlockStatus.get(challenge.id) ?? false);
+                const unlocked = bypassSequentialLock || (unlockStatus.get(challenge.id) ?? false);
                 return (
                   <ChallengeCard key={challenge.id} challenge={challenge} unlocked={unlocked} passed={passed} />
                 );

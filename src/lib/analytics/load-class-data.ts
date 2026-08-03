@@ -1,7 +1,7 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isLevelSpec } from "@/lib/ladder/level-spec";
-import type { ChallengePlayLogLite } from "./competency";
+import type { ChallengePlayLogLite, GamePlayLogLite } from "./competency";
 import type { LevelSkillMap, PlayLogLite } from "./skill-radar";
 
 export type ClassStudent = {
@@ -10,6 +10,7 @@ export type ClassStudent = {
   firstName: string | null;
   lastName: string | null;
   studentId: string | null;
+  className: string | null;
   gameLogicScore: number;
   onsitePracticalScore: number | null;
   wiringSkills: number | null;
@@ -19,6 +20,7 @@ export type ClassStudent = {
   levelsPassed: number;
   logs: PlayLogLite[];
   challengeLogs: ChallengePlayLogLite[];
+  gameLogs: GamePlayLogLite[];
 };
 
 export type ClassData = {
@@ -29,17 +31,33 @@ export type ClassData = {
   /** challenge_levels.id -> challenge_id (1-50), so per-student challengeLogs (keyed by the UUID) can be bucketed into the 5 curriculum chapters (see CHALLENGE_CHAPTERS in challenge-types.ts) without a second per-page query. */
   challengeIdByLevelId: Record<string, number>;
   challengeCount: number;
+  /** game_levels.id -> level_number (1-100), same bucketing trick as challengeIdByLevelId but for GAME_CHAPTERS (game-level-types.ts). */
+  gameLevelNumberById: Record<string, number>;
+  gameLevelCount: number;
 };
 
-/** Shared by the analytics dashboard and the AI insights action, so both always see the same live snapshot. */
+/**
+ * Shared by the analytics dashboard and the AI insights action (teacher-only
+ * pages), and by the Leaderboard page + student rank widgets (student-
+ * facing) - uses the admin/service-role client rather than the requesting
+ * user's own RLS-scoped session, since a student's RLS policy on `users`
+ * only allows reading their own row: with the regular client, a student
+ * viewing the Leaderboard or their own rank would only ever see themselves
+ * instead of the whole class. Every field this function selects (name,
+ * student ID, scores, play logs) is already meant to be visible class-wide
+ * for ranking purposes, so bypassing RLS here is intentional, not a leak -
+ * same reasoning /certificate/verify/[userId]/[axis]/page.tsx already uses.
+ */
 export async function loadClassData(): Promise<ClassData> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   let levelSkills: LevelSkillMap = {};
   const levelTitles: Record<string, string> = {};
   let levelCount = 0;
   let students: ClassStudent[] = [];
   const challengeIdByLevelId: Record<string, number> = {};
   let challengeCount = 0;
+  const gameLevelNumberById: Record<string, number> = {};
+  let gameLevelCount = 0;
 
   const { data: levels, error: levelsError } = await supabase
     .from("levels")
@@ -64,6 +82,14 @@ export async function loadClassData(): Promise<ClassData> {
     for (const c of challengeLevels ?? []) challengeIdByLevelId[c.id] = c.challenge_id;
   }
 
+  const { data: gameLevels, error: gameLevelsError } = await supabase.from("game_levels").select("id, level_number");
+  if (gameLevelsError) {
+    console.error("loadClassData: failed to load game_levels", gameLevelsError);
+  } else {
+    gameLevelCount = gameLevels?.length ?? 0;
+    for (const g of gameLevels ?? []) gameLevelNumberById[g.id] = g.level_number;
+  }
+
   const { data: studentUsers, error: usersError } = await supabase
     .from("users")
     .select("id, username, first_name, last_name, student_id")
@@ -75,6 +101,17 @@ export async function loadClassData(): Promise<ClassData> {
     console.error("loadClassData: failed to load students", usersError);
   } else if (studentUsers && studentUsers.length > 0) {
     const studentIds = studentUsers.map((s) => s.id);
+
+    // Queried separately: until migration 0016 runs, this column doesn't
+    // exist yet - folding it into the required select above would fail
+    // the WHOLE query and hide every student, not just the class filter.
+    // Same split already used for the mode-override columns.
+    const { data: classNames, error: classNameError } = await supabase
+      .from("users")
+      .select("id, class_name")
+      .in("id", studentIds);
+    if (classNameError) console.error("loadClassData: failed to load class_name (migration 0016 may not be run yet)", classNameError);
+    const classNameByUser = new Map((classNames ?? []).map((c) => [c.id, c.class_name as string | null]));
 
     const { data: scores, error: scoresError } = await supabase
       .from("student_scores")
@@ -120,6 +157,18 @@ export async function loadClassData(): Promise<ClassData> {
       challengeLogsByUser.set(log.user_id, arr);
     }
 
+    const { data: gameLogs, error: gameLogsError } = await supabase
+      .from("game_play_logs")
+      .select("user_id, game_level_id, is_success")
+      .in("user_id", studentIds);
+    if (gameLogsError) console.error("loadClassData: failed to load game play logs", gameLogsError);
+    const gameLogsByUser = new Map<string, GamePlayLogLite[]>();
+    for (const log of gameLogs ?? []) {
+      const arr = gameLogsByUser.get(log.user_id) ?? [];
+      arr.push(log);
+      gameLogsByUser.set(log.user_id, arr);
+    }
+
     students = studentUsers.map((u) => {
       const score = scoreByUser.get(u.id);
       const competencyScore = competencyByUser.get(u.id);
@@ -131,6 +180,7 @@ export async function loadClassData(): Promise<ClassData> {
         firstName: u.first_name,
         lastName: u.last_name,
         studentId: u.student_id,
+        className: classNameByUser.get(u.id) ?? null,
         gameLogicScore: score?.game_logic_score ?? 0,
         onsitePracticalScore: score?.onsite_practical_score ?? null,
         wiringSkills: competencyScore?.wiring_skills ?? null,
@@ -140,9 +190,19 @@ export async function loadClassData(): Promise<ClassData> {
         levelsPassed,
         logs: userLogs,
         challengeLogs: challengeLogsByUser.get(u.id) ?? [],
+        gameLogs: gameLogsByUser.get(u.id) ?? [],
       };
     });
   }
 
-  return { students, levelSkills, levelTitles, levelCount, challengeIdByLevelId, challengeCount };
+  return {
+    students,
+    levelSkills,
+    levelTitles,
+    levelCount,
+    challengeIdByLevelId,
+    challengeCount,
+    gameLevelNumberById,
+    gameLevelCount,
+  };
 }

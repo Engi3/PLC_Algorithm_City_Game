@@ -10,6 +10,7 @@ import {
   type CompetencyAxis,
   type ManualCompetencyScores,
   type ChallengePlayLogLite,
+  type GamePlayLogLite,
 } from "@/lib/analytics/competency";
 import type { PlayLogLite } from "@/lib/analytics/skill-radar";
 
@@ -61,6 +62,14 @@ export async function generateCoachTipAction(): Promise<CoachTipResult | { error
   if (challengeLogsError) console.error("generateCoachTipAction: failed to load challenge play logs", challengeLogsError);
   const challengeLogs: ChallengePlayLogLite[] = challengePlayLogs ?? [];
 
+  const { count: gameLevelCount } = await supabase.from("game_levels").select("*", { count: "exact", head: true });
+  const { data: gamePlayLogs, error: gameLogsError } = await supabase
+    .from("game_play_logs")
+    .select("game_level_id, is_success")
+    .eq("user_id", profile.id);
+  if (gameLogsError) console.error("generateCoachTipAction: failed to load game play logs", gameLogsError);
+  const gameLogs: GamePlayLogLite[] = gamePlayLogs ?? [];
+
   let manual: ManualCompetencyScores = {
     wiring_skills: null,
     debugging_testing: null,
@@ -81,10 +90,13 @@ export async function generateCoachTipAction(): Promise<CoachTipResult | { error
     };
   }
 
-  const scores = computeCompetencyScores(logs, levelCount ?? 0, manual, {
-    logs: challengeLogs,
-    totalChallenges: challengeCount ?? 0,
-  });
+  const scores = computeCompetencyScores(
+    logs,
+    levelCount ?? 0,
+    manual,
+    { logs: challengeLogs, totalChallenges: challengeCount ?? 0 },
+    { logs: gameLogs, totalGameLevels: gameLevelCount ?? 0 }
+  );
   const weakestAxis = findWeakestAxis(scores);
   const weakestScore = scores[weakestAxis];
 

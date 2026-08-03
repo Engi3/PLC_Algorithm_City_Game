@@ -1,6 +1,7 @@
 import "server-only";
 import type { createClient } from "@/lib/supabase/server";
 import { isLevelSpec, type SkillCategory } from "./level-spec";
+import type { ModeOverride, UserRole } from "@/lib/auth/get-profile";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -54,6 +55,27 @@ export async function checkLevelGate(supabase: SupabaseServerClient, userId: str
 
   const unlocked = categories.every((c) => c.total === 0 || c.passed / c.total >= CATEGORY_UNLOCK_RATIO);
   return { unlocked, categories };
+}
+
+/**
+ * Resolves whether a whole mode (Challenge Mode or Game Mode) is unlocked
+ * for the CURRENT viewer, folding together every way that can be decided,
+ * in priority order:
+ * 1. Teachers and guests are never gated - teachers need to test every
+ *    level/challenge/game freely, and guests get a full trial of
+ *    everything (no account progress to gate against anyway).
+ * 2. A teacher's per-student override (`game_mode_override`/
+ *    `challenge_mode_override` on public.users) - a deliberate special
+ *    case that beats the normal gate either direction, e.g. unlocking a
+ *    struggling student's favorite mode early, or locking a mode for a
+ *    student misusing it.
+ * 3. Otherwise, the normal 50%-per-category Levels gate (`checkLevelGate`).
+ */
+export function resolveModeUnlock(role: UserRole, override: ModeOverride, gate: LevelGateStatus): boolean {
+  if (role === "teacher" || role === "guest") return true;
+  if (override === "unlocked") return true;
+  if (override === "locked") return false;
+  return gate.unlocked;
 }
 
 /**

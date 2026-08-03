@@ -13,10 +13,13 @@ import {
   type CompetencyAxis,
   type CompetencyScores,
   type ChallengePlayLogLite,
+  type GamePlayLogLite,
 } from "@/lib/analytics/competency";
 import { CERTIFICATE_THRESHOLD } from "@/lib/certificate/threshold";
 import { loadClassData } from "@/lib/analytics/load-class-data";
+import { computeLeaderboard } from "@/lib/analytics/leaderboard";
 import CompetencyRadarChart from "@/components/analytics/CompetencyRadarChart";
+import { setApprovalStatusAction } from "@/app/dashboard/students/actions";
 
 function hasAllLevelsGate(axis: CompetencyAxis): boolean {
   return axis === "ladder_programming" || axis === "problem_solving";
@@ -107,6 +110,8 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
   let levelCount = 0;
   let challengeLogs: ChallengePlayLogLite[] = [];
   let challengeCount = 0;
+  let gameLogs: GamePlayLogLite[] = [];
+  let gameLevelCount = 0;
   let manual: ManualCompetencyScores = {
     wiring_skills: null,
     debugging_testing: null,
@@ -142,6 +147,25 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
       challengeLogs = challengePlayLogs ?? [];
     }
 
+    const { count: gameLevelCountResult, error: gameLevelCountError } = await supabase
+      .from("game_levels")
+      .select("*", { count: "exact", head: true });
+    if (gameLevelCountError) {
+      console.error("DashboardPage/StudentSummary: failed to count game_levels", gameLevelCountError);
+    } else {
+      gameLevelCount = gameLevelCountResult ?? 0;
+    }
+
+    const { data: gamePlayLogs, error: gameLogsError } = await supabase
+      .from("game_play_logs")
+      .select("game_level_id, is_success")
+      .eq("user_id", userId);
+    if (gameLogsError) {
+      console.error("DashboardPage/StudentSummary: failed to load game play logs", gameLogsError);
+    } else {
+      gameLogs = gamePlayLogs ?? [];
+    }
+
     const { data: playLogs, error: logsError } = await supabase
       .from("play_logs")
       .select("level_id, score, is_success, created_at")
@@ -171,10 +195,34 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
     console.error("DashboardPage/StudentSummary crashed:", err);
   }
 
-  const competencyScores = computeCompetencyScores(logs, levelCount, manual, {
-    logs: challengeLogs,
-    totalChallenges: challengeCount,
-  });
+  // Rank is computed against the WHOLE approved-student class (not just
+  // this user's own data above), so it needs its own loadClassData() call.
+  // Kept in a separate try/catch: if this fails, the rest of the summary
+  // (radar, certificates, levels passed) should still render fine.
+  let rank: number | null = null;
+  let totalRanked = 0;
+  try {
+    const classData = await loadClassData();
+    const leaderboard = computeLeaderboard(
+      classData.students,
+      classData.levelCount,
+      classData.challengeCount,
+      classData.gameLevelCount
+    );
+    totalRanked = leaderboard.length;
+    const myEntry = leaderboard.find((e) => e.id === userId);
+    rank = myEntry?.rank ?? null;
+  } catch (err) {
+    console.error("DashboardPage/StudentSummary: failed to compute rank", err);
+  }
+
+  const competencyScores = computeCompetencyScores(
+    logs,
+    levelCount,
+    manual,
+    { logs: challengeLogs, totalChallenges: challengeCount },
+    { logs: gameLogs, totalGameLevels: gameLevelCount }
+  );
   const allLevelsAverage = computeAllLevelsAverage(logs, levelCount);
   const certificatesUnlocked = ALL_COMPETENCY_AXES.filter((axis) =>
     isCertificateUnlocked(axis, competencyScores, allLevelsAverage)
@@ -194,6 +242,19 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
       <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-2">
         <CompetencyRadarChart datasets={[{ label: username, scores: competencyScores, color: "#7c3aed" }]} />
         <div className="flex flex-col gap-3 text-center sm:text-left">
+          {rank !== null && (
+            <div>
+              <p className="text-3xl font-semibold text-blue-600 dark:text-blue-400">
+                #{rank} <span className="text-base font-normal text-zinc-400">/ {totalRanked}</span>
+              </p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                อันดับของคุณ ·{" "}
+                <Link href="/dashboard/leaderboard" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                  ดูอันดับทั้งหมด →
+                </Link>
+              </p>
+            </div>
+          )}
           <div>
             <p className="text-3xl font-semibold text-amber-600 dark:text-amber-400">
               {certificatesUnlocked}/{ALL_COMPETENCY_AXES.length}
@@ -212,6 +273,81 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
   );
 }
 
+type PendingUser = {
+  id: string;
+  username: string;
+  role: "student" | "teacher";
+  first_name: string | null;
+  last_name: string | null;
+  student_id: string | null;
+};
+
+/** Admin Overview widget: self-registered accounts waiting for a teacher to approve/reject, so they don't get buried inside the full Manage Users table. Reuses setApprovalStatusAction (students/actions.ts) directly - plain <form action> works fine from a server component, no client boundary needed for a one-shot submit. */
+function PendingApprovalsWidget({ users }: { users: PendingUser[] }) {
+  const shown = users.slice(0, 5);
+  const remaining = users.length - shown.length;
+
+  return (
+    <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+          ⏳ รออนุมัติผู้ใช้งาน ({users.length})
+        </h2>
+        <Link
+          href="/dashboard/students"
+          className="text-xs font-medium text-amber-800 hover:underline dark:text-amber-300"
+        >
+          จัดการทั้งหมด →
+        </Link>
+      </div>
+      <ul className="flex flex-col gap-2">
+        {shown.map((u) => (
+          <li
+            key={u.id}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-white px-3 py-2 text-sm dark:bg-zinc-950"
+          >
+            <div>
+              <span className="font-medium text-zinc-900 dark:text-zinc-50">
+                {u.first_name} {u.last_name}
+              </span>{" "}
+              <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                ({u.username}{u.student_id ? `, ${u.student_id}` : ""}) · {u.role}
+              </span>
+            </div>
+            <div className="flex gap-1">
+              <form action={setApprovalStatusAction}>
+                <input type="hidden" name="userId" value={u.id} />
+                <input type="hidden" name="status" value="approved" />
+                <button
+                  type="submit"
+                  className="rounded bg-green-600 px-2 py-1 text-xs font-medium text-white hover:bg-green-700"
+                >
+                  Approve
+                </button>
+              </form>
+              <form action={setApprovalStatusAction}>
+                <input type="hidden" name="userId" value={u.id} />
+                <input type="hidden" name="status" value="rejected" />
+                <button
+                  type="submit"
+                  className="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+                >
+                  Reject
+                </button>
+              </form>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {remaining > 0 && (
+        <p className="mt-2 text-xs text-amber-800 dark:text-amber-300">
+          และอีก {remaining} คน - ดูทั้งหมดได้ที่หน้า Manage Users
+        </p>
+      )}
+    </div>
+  );
+}
+
 /**
  * Phase 6: condensed teacher class overview - reuses loadClassData() (the
  * same live snapshot /dashboard/analytics and the AI insights action use)
@@ -220,7 +356,22 @@ async function StudentSummary({ userId, username }: { userId: string; username: 
  * insights rather than duplicating those here.
  */
 async function TeacherOverview() {
-  const { students, levelCount, challengeCount } = await loadClassData();
+  const { students, levelCount, challengeCount, gameLevelCount } = await loadClassData();
+
+  let pendingUsers: PendingUser[] = [];
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, username, role, first_name, last_name, student_id")
+      .neq("role", "guest")
+      .eq("approval_status", "pending")
+      .order("username", { ascending: true });
+    if (error) console.error("TeacherOverview: failed to load pending users", error);
+    else pendingUsers = data ?? [];
+  } catch (err) {
+    console.error("TeacherOverview: crashed loading pending users", err);
+  }
 
   const totalStudents = students.length;
   const activeStudents = students.filter((s) => s.logs.length > 0).length;
@@ -236,7 +387,8 @@ async function TeacherOverview() {
         advanced_challenge: s.advancedChallenge,
         system_control: s.systemControl,
       },
-      { logs: s.challengeLogs, totalChallenges: challengeCount }
+      { logs: s.challengeLogs, totalChallenges: challengeCount },
+      { logs: s.gameLogs, totalGameLevels: gameLevelCount }
     )
   );
   const perStudentAllLevelsAverage = students.map((s) => computeAllLevelsAverage(s.logs, levelCount));
@@ -259,6 +411,8 @@ async function TeacherOverview() {
         <StatCard label="Total Submissions" value={totalSubmissions} />
         <StatCard label={`Competency Pass Rate (≥${CERTIFICATE_THRESHOLD})`} value={`${competencyPassRate}%`} />
       </div>
+
+      {pendingUsers.length > 0 && <PendingApprovalsWidget users={pendingUsers} />}
 
       <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mb-3 flex items-center justify-between gap-2">

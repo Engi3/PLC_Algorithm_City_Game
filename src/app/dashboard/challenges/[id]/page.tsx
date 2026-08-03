@@ -10,7 +10,7 @@ import {
   type ChallengeLevelRow,
   type RequiredCompetency,
 } from "@/lib/ladder/challenge-types";
-import { checkLevelGate, computeChallengeUnlockStatus, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
+import { checkLevelGate, computeChallengeUnlockStatus, resolveModeUnlock, type LevelGateStatus } from "@/lib/ladder/challenge-unlock";
 import { SKILL_LABELS } from "@/lib/ladder/level-spec";
 import ChallengePlayClient from "@/components/ladder/ChallengePlayClient";
 import PrevNextNav, { type NavTarget } from "@/components/ladder/PrevNextNav";
@@ -22,13 +22,14 @@ export default async function ChallengeDetailPage({
 }) {
   const { id } = await params;
   const profile = await getCurrentProfile();
-  const isTeacher = profile?.role === "teacher";
+  /** Teachers and guests bypass both the whole-mode gate and per-challenge sequential locking. */
+  const bypassAllLocks = profile?.role === "teacher" || profile?.role === "guest";
 
   let row: ChallengeLevelRow | null = null;
   let passed = false;
   let attempts = 0;
-  let gate: LevelGateStatus = { unlocked: isTeacher, categories: [] };
-  let sequentiallyUnlocked = isTeacher;
+  let gate: LevelGateStatus = { unlocked: bypassAllLocks, categories: [] };
+  let sequentiallyUnlocked = bypassAllLocks;
   let prevChallengeId: string | null = null;
   let nextChallengeId: string | null = null;
   let nextUnlocked = false;
@@ -71,8 +72,9 @@ export default async function ChallengeDetailPage({
         attempts = myLogs.length;
         passed = myLogs.some((l) => l.is_success);
 
-        if (!isTeacher) {
-          gate = await checkLevelGate(supabase, profile.id);
+        if (!bypassAllLocks) {
+          if (profile.role === "student") gate = await checkLevelGate(supabase, profile.id);
+          gate = { ...gate, unlocked: resolveModeUnlock(profile.role, profile.challenge_mode_override, gate) };
           const passedIds = new Set((logs ?? []).filter((l) => l.is_success).map((l) => l.challenge_level_id));
           const unlockStatus = computeChallengeUnlockStatus(
             ordered.map((c) => ({ id: c.id, challengeId: c.challenge_id })),

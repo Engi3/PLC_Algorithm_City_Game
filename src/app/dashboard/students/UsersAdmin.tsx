@@ -1,9 +1,17 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import type { ApprovalStatus, UserRole } from "@/lib/auth/get-profile";
-import { addUserAction, deleteUserAction, setApprovalStatusAction, type ActionState } from "./actions";
+import {
+  addUserAction,
+  deleteUserAction,
+  setApprovalStatusAction,
+  setModeOverrideAction,
+  setClassNameAction,
+  type ActionState,
+} from "./actions";
+import type { ModeOverride } from "@/lib/auth/get-profile";
 
 export type ManagedUser = {
   id: string;
@@ -13,7 +21,12 @@ export type ManagedUser = {
   last_name: string | null;
   student_id: string | null;
   approval_status: ApprovalStatus;
+  gameModeOverride?: ModeOverride;
+  challengeModeOverride?: ModeOverride;
+  className?: string | null;
 };
+
+const PAGE_SIZE_OPTIONS = [20, 50, 100] as const;
 
 const initialState: ActionState = { error: null };
 
@@ -47,6 +60,77 @@ function ApproveRejectButtons({ userId }: { userId: string }) {
         </button>
       </form>
     </div>
+  );
+}
+
+/** Special-case per-student lock/unlock for Game Mode or Challenge Mode - "auto" clears the override so the normal 50%-per-category gate applies again. */
+function ModeOverrideSelect({
+  userId,
+  mode,
+  current,
+}: {
+  userId: string;
+  mode: "game_mode_override" | "challenge_mode_override";
+  current: ModeOverride;
+}) {
+  return (
+    <form
+      action={(formData) => {
+        setModeOverrideAction(formData);
+      }}
+    >
+      <input type="hidden" name="userId" value={userId} />
+      <input type="hidden" name="mode" value={mode} />
+      <select
+        name="value"
+        defaultValue={current ?? "auto"}
+        onChange={(e) => e.currentTarget.form?.requestSubmit()}
+        className={`rounded border px-1.5 py-1 text-xs dark:bg-zinc-900 ${
+          current === "unlocked"
+            ? "border-emerald-400 text-emerald-700 dark:text-emerald-400"
+            : current === "locked"
+              ? "border-red-400 text-red-700 dark:text-red-400"
+              : "border-zinc-300 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
+        }`}
+      >
+        <option value="auto">Auto</option>
+        <option value="unlocked">Force unlock</option>
+        <option value="locked">Force lock</option>
+      </select>
+    </form>
+  );
+}
+
+/** Inline-editable Class column, saved on blur (or Enter) - mirrors ModeOverrideSelect's pattern of submitting on change rather than needing a separate save button. */
+function ClassNameCell({ userId, current }: { userId: string; current: string | null }) {
+  const [value, setValue] = useState(current ?? "");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (value === (current ?? "")) return;
+    setSaving(true);
+    const formData = new FormData();
+    formData.set("userId", userId);
+    formData.set("className", value);
+    try {
+      await setClassNameAction(formData);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <input
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={save}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") e.currentTarget.blur();
+      }}
+      placeholder="-"
+      disabled={saving}
+      className="w-24 rounded border border-zinc-300 bg-transparent px-1.5 py-1 text-xs text-zinc-900 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-50"
+    />
   );
 }
 
@@ -205,6 +289,68 @@ function AddUserSubmitButton() {
   );
 }
 
+function PaginationBar({
+  page,
+  totalPages,
+  pageSize,
+  totalCount,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  page: number;
+  totalPages: number;
+  pageSize: number;
+  totalCount: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+}) {
+  const rangeStart = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const rangeEnd = Math.min(page * pageSize, totalCount);
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-600 dark:text-zinc-400">
+      <div className="flex items-center gap-2">
+        <span>Rows per page:</span>
+        <select
+          value={pageSize}
+          onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          className="rounded border border-zinc-300 bg-transparent px-1.5 py-1 dark:border-zinc-700"
+        >
+          {PAGE_SIZE_OPTIONS.map((size) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
+      </div>
+      <span>
+        {rangeStart}-{rangeEnd} of {totalCount}
+      </span>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onPageChange(page - 1)}
+          disabled={page <= 1}
+          className="rounded border border-zinc-300 px-2 py-1 font-medium disabled:opacity-40 dark:border-zinc-700"
+        >
+          ← Previous
+        </button>
+        <span>
+          Page {page} / {Math.max(1, totalPages)}
+        </span>
+        <button
+          type="button"
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= totalPages}
+          className="rounded border border-zinc-300 px-2 py-1 font-medium disabled:opacity-40 dark:border-zinc-700"
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function UsersAdmin({
   users,
   currentTeacherId,
@@ -212,22 +358,62 @@ export default function UsersAdmin({
   users: ManagedUser[];
   currentTeacherId: string;
 }) {
+  const [search, setSearch] = useState("");
+  const [pageSize, setPageSize] = useState<number>(20);
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((u) => {
+      const name = `${u.first_name ?? ""} ${u.last_name ?? ""}`.toLowerCase();
+      const studentId = (u.student_id ?? "").toLowerCase();
+      const username = u.username.toLowerCase();
+      return name.includes(q) || studentId.includes(q) || username.includes(q);
+    });
+  }, [users, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageUsers = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  function handleSearchChange(v: string) {
+    setSearch(v);
+    setPage(1);
+  }
+
+  function handlePageSizeChange(size: number) {
+    setPageSize(size);
+    setPage(1);
+  }
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
+      <input
+        type="search"
+        value={search}
+        onChange={(e) => handleSearchChange(e.target.value)}
+        placeholder="Search by name or Student ID..."
+        className="w-full max-w-sm rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+      />
+
       <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
             <tr>
               <th className="px-3 py-2">Name</th>
               <th className="px-3 py-2">Username</th>
               <th className="px-3 py-2">Role</th>
               <th className="px-3 py-2">Student ID</th>
+              <th className="px-3 py-2">Class</th>
               <th className="px-3 py-2">Status</th>
+              <th className="px-3 py-2">Game Mode</th>
+              <th className="px-3 py-2">Challenge Mode</th>
               <th className="px-3 py-2">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-            {users.map((u) => (
+            {pageUsers.map((u) => (
               <tr key={u.id}>
                 <td className="px-3 py-2 text-zinc-900 dark:text-zinc-50">
                   {u.first_name} {u.last_name}
@@ -238,11 +424,28 @@ export default function UsersAdmin({
                 <td className="px-3 py-2 capitalize text-zinc-600 dark:text-zinc-400">{u.role}</td>
                 <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">{u.student_id ?? "-"}</td>
                 <td className="px-3 py-2">
+                  <ClassNameCell userId={u.id} current={u.className ?? null} />
+                </td>
+                <td className="px-3 py-2">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[u.approval_status]}`}
                   >
                     {u.approval_status}
                   </span>
+                </td>
+                <td className="px-3 py-2">
+                  {u.role === "student" ? (
+                    <ModeOverrideSelect userId={u.id} mode="game_mode_override" current={u.gameModeOverride ?? null} />
+                  ) : (
+                    <span className="text-xs text-zinc-400">-</span>
+                  )}
+                </td>
+                <td className="px-3 py-2">
+                  {u.role === "student" ? (
+                    <ModeOverrideSelect userId={u.id} mode="challenge_mode_override" current={u.challengeModeOverride ?? null} />
+                  ) : (
+                    <span className="text-xs text-zinc-400">-</span>
+                  )}
                 </td>
                 <td className="px-3 py-2">
                   <div className="flex flex-wrap items-center gap-2">
@@ -252,16 +455,25 @@ export default function UsersAdmin({
                 </td>
               </tr>
             ))}
-            {users.length === 0 && (
+            {pageUsers.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-zinc-400">
-                  No student or teacher accounts yet.
+                <td colSpan={9} className="px-3 py-6 text-center text-zinc-400">
+                  {users.length === 0 ? "No student or teacher accounts yet." : "No users match your search."}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      <PaginationBar
+        page={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalCount={filtered.length}
+        onPageChange={setPage}
+        onPageSizeChange={handlePageSizeChange}
+      />
 
       <AddUserForm />
     </div>

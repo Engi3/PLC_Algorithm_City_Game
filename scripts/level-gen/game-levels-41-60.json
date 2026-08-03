@@ -1,0 +1,943 @@
+[
+  {
+    "level_number": 41,
+    "game_type": "MAZE",
+    "title": "นับสัญญาณเริ่มทำงาน",
+    "description": "ด่านแนะนำตัวนับ: ต่อ CTU ชื่อ C0 กับสัญญาณเริ่มทำงาน (X9) แล้วเดินหน้าไปเป้าหมาย (ต้องนับให้ได้อย่างน้อย 1 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 42,
+    "game_type": "MAZE",
+    "title": "นับจำนวนครั้งที่เลี้ยวขวา",
+    "description": "ต่อ CTU (C0) นับทุกครั้งที่เจอกำแพงข้างหน้า (X0) แล้วเดินไปเป้าหมายให้ครบตามจำนวนครั้งที่นับได้ (ต้องนับให้ได้อย่างน้อย 1 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 43,
+    "game_type": "MAZE",
+    "title": "นับจำนวนครั้งที่เลี้ยวซ้าย",
+    "description": "เหมือนด่านก่อนหน้าแต่เลี้ยวซ้ายแทน (ต้องนับให้ได้อย่างน้อย 1 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 2,
+      "y": 0,
+      "direction": "W"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 44,
+    "game_type": "MAZE",
+    "title": "นับเลี้ยวขวาต่อเนื่อง",
+    "description": "เขาวงกตรูปตัว Z ที่มีจุดเลี้ยวขวาหลายจุด นับให้ครบทุกจุด (ต้องนับให้ได้อย่างน้อย 2 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 20,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 45,
+    "game_type": "MAZE",
+    "title": "นับทางแยกตัดสินใจสองด้าน",
+    "description": "ใช้กฎตัดสินใจสองด้าน พร้อมนับจำนวนทางแยกที่ผ่าน (ต้องนับให้ได้อย่างน้อย 2 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 46,
+    "game_type": "MAZE",
+    "title": "นับแล้วยังต้องระวังกับดัก",
+    "description": "นับจำนวนครั้งที่เลี้ยวขวา และห้ามพลาดเข้ากับดักด้วย (ต้องนับให้ได้อย่างน้อย 1 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "HAZARD",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 1,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 15,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 47,
+    "game_type": "MAZE",
+    "title": "นับทางแยกซ้ำ",
+    "description": "เขาวงกตทางแยกซ้ำ นับจำนวนทางแยกทั้งหมดที่ผ่าน (ต้องนับให้ได้อย่างน้อย 4 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 4
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 20,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 48,
+    "game_type": "MAZE",
+    "title": "นับเขาวงกตซับซ้อน",
+    "description": "เขาวงกตซับซ้อนขึ้น นับจำนวนทางแยกทั้งหมด (ต้องนับให้ได้อย่างน้อย 6 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 6
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 25,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 49,
+    "game_type": "MAZE",
+    "title": "นับทางแยกอันตราย",
+    "description": "ทางแยกตัดสินใจสองด้าน พร้อมกับดักที่ต้องระวัง และนับทางแยกทั้งหมด (ต้องนับให้ได้อย่างน้อย 2 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "HAZARD",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 1,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 20,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 50,
+    "game_type": "MAZE",
+    "title": "บทสรุปหมวดตัวนับ (เขาวงกต)",
+    "description": "ด่านสรุปฝั่งเขาวงกตของหมวดตัวนับ: เขาวงกตรูปตัว U นับจำนวนครั้งที่เลี้ยวขวา (ต้องนับให้ได้อย่างน้อย 2 ครั้งก่อนถึงเป้าหมาย)",
+    "hints": [
+      "ใช้บล็อกตัวนับ CTU ชื่อ C0 - นับขึ้นทุกครั้งที่สัญญาณอินพุตเปลี่ยนจากปิดเป็นเปิด (rising edge)",
+      "ต่อหน้าสัมผัส NO กับ X0 (หรือ X9 สำหรับด่านแรก) เข้ากับ CTU C0"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH"
+      ],
+      [
+        "GOAL",
+        "PATH",
+        "PATH",
+        "PATH",
+        "PATH"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      },
+      {
+        "kind": "numeric",
+        "address": "C0.ACC",
+        "operator": ">=",
+        "value": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 25,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 51,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลังล็อตแรก",
+    "description": "ต่อ CTD ชื่อ C0 นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์ (X0) ล็อตนี้มีของเสีย 1 ชิ้น (ตัวนับถอยหลัง C0 preset = 1, ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 50,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 52,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลัง 2 ชิ้น",
+    "description": "ล็อต 2 ชิ้น ของดีผ่านไปก่อน ของเสียตามมาทีหลัง (ตัวนับถอยหลัง C0 preset = 2, ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 36
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 62,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 53,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลัง 2 ชิ้น สลับลำดับ",
+    "description": "ล็อต 2 ชิ้น สลับตำแหน่ง ของดียังผ่านไปก่อนของเสียเสมอ (ตัวนับถอยหลัง C0 preset = 2, ตัวจับเวลา T0 preset = 12 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 64,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 54,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลังของเสีย 2 ชิ้น",
+    "description": "ล็อต 2 ชิ้น เป็นของเสียทั้งคู่ ห่างกันพอให้ตัวจับเวลารีเซ็ตทันเวลา (ตัวนับถอยหลัง C0 preset = 2, ตัวจับเวลา T0 preset = 8 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 40,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 64,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 55,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลังจับเวลาสั้น",
+    "description": "ตัวจับเวลาสั้นลง (8 ติ๊ก) กับล็อต 1 ชิ้นที่เป็นของเสีย (ตัวนับถอยหลัง C0 preset = 1, ตัวจับเวลา T0 preset = 8 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 50,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 56,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลังจับเวลาสั้น 2 ชิ้น",
+    "description": "ตัวจับเวลาสั้น (8 ติ๊ก) กับล็อต 2 ชิ้น ของดีผ่านก่อนของเสีย (ตัวนับถอยหลัง C0 preset = 2, ตัวจับเวลา T0 preset = 8 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 30
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 60,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 57,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลังของดีล้วน",
+    "description": "ล็อต 2 ชิ้น ของดีล้วน ไม่มีของเสีย (ตัวนับถอยหลัง C0 preset = 2, ตัวจับเวลา T0 preset = 8 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0
+        },
+        {
+          "id": "b",
+          "position": 20
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 2
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 57,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 58,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลังจับเวลายาว",
+    "description": "ตัวจับเวลายาวขึ้น (14 ติ๊ก) กับล็อต 2 ชิ้น เป็นของเสียทั้งคู่ (ตัวนับถอยหลัง C0 preset = 2, ตัวจับเวลา T0 preset = 14 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 46
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 66,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 59,
+    "game_type": "FACTORY",
+    "title": "นับถอยหลังผสมจับเวลายาว",
+    "description": "ตัวจับเวลายาว (14 ติ๊ก) กับล็อต 2 ชิ้น ของดีผ่านก่อนของเสีย (ตัวนับถอยหลัง C0 preset = 2, ตัวจับเวลา T0 preset = 14 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 46
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 66,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 60,
+    "game_type": "FACTORY",
+    "title": "บทสรุปหมวดตัวนับ (สายพาน)",
+    "description": "ด่านสรุปฝั่งสายพานของหมวดตัวนับ: ของเสีย 2 ชิ้น ห่างกันพอดีให้ตัวจับเวลารีเซ็ตทันเวลา (ตัวนับถอยหลัง C0 preset = 2, ตัวจับเวลา T0 preset = 10 ติ๊ก)",
+    "hints": [
+      "ใช้วงจรดันของเสียแบบมีตัวจับเวลาเหมือนหมวดก่อนหน้า",
+      "เพิ่มตัวนับถอยหลัง CTD ชื่อ C0 กับ preset เท่าจำนวนสินค้าทั้งล็อต ต่อกับหน้าสัมผัส NO(X0) - นับถอยหลังทุกครั้งที่มีสินค้าผ่านเซนเซอร์",
+      "ด่านจะผ่านก็ต่อเมื่อ C0 นับถอยหลังครบ (C0.DN) และจำนวนของดีที่ผ่านออกไปถูกต้อง"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 40,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 64,
+    "ticks_per_second": null
+  }
+]

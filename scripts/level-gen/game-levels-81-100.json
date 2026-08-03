@@ -1,0 +1,2025 @@
+[
+  {
+    "level_number": 81,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: คัดของเสียพื้นฐาน",
+    "description": "รวมวงจรคัดของเสีย (จับเวลา+ตัวนับ) กับระบบถัง/ฮีตเตอร์แบบปิดอัตโนมัติและกฎห้ามต้มแห้งไว้ในโปรแกรมเดียว (ถัง AI1>=1000, อุณหภูมิเป้าหมาย AI2>=1500, ตัวจับเวลา 10 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 1500
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 1000
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 82,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: 2 ชิ้น",
+    "description": "ล็อต 2 ชิ้น ของดีผ่านก่อนของเสีย พร้อมระบบถัง/ฮีตเตอร์ (ถัง AI1>=1000, อุณหภูมิเป้าหมาย AI2>=1500, ตัวจับเวลา 10 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 36
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 1500
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 1000
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 83,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: เกณฑ์สูงขึ้น",
+    "description": "เกณฑ์ถังและอุณหภูมิเป้าหมายสูงขึ้น (ถัง AI1>=1500, อุณหภูมิเป้าหมาย AI2>=2000, ตัวจับเวลา 10 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 2000
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 1500
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 84,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: 2 ชิ้น เกณฑ์สูงขึ้น",
+    "description": "ล็อต 2 ชิ้น เกณฑ์ถังและอุณหภูมิเป้าหมายสูงขึ้น (ถัง AI1>=1500, อุณหภูมิเป้าหมาย AI2>=2000, ตัวจับเวลา 10 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 36
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 2000
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 1500
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 85,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: ของเสีย 2 ชิ้น",
+    "description": "ล็อต 2 ชิ้น เป็นของเสียทั้งคู่ ห่างกันพอให้ตัวจับเวลารีเซ็ตทันเวลา (ถัง AI1>=1200, อุณหภูมิเป้าหมาย AI2>=1800, ตัวจับเวลา 8 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 40,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 1800
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 1200
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 86,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: จับเวลาสั้น",
+    "description": "ตัวจับเวลาสั้นลง กับล็อต 2 ชิ้น ของดีผ่านก่อนของเสีย (ถัง AI1>=1200, อุณหภูมิเป้าหมาย AI2>=1800, ตัวจับเวลา 8 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 30
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 1800
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 1200
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 87,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: อุณหภูมิสูง",
+    "description": "อุณหภูมิเป้าหมายสูงขึ้นอีกขั้น (ถัง AI1>=1500, อุณหภูมิเป้าหมาย AI2>=2600, ตัวจับเวลา 10 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 2600
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 1500
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 88,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: เกณฑ์ถังสูง",
+    "description": "เกณฑ์ถังสูงขึ้นอีกขั้น พร้อมล็อต 2 ชิ้น (ถัง AI1>=2000, อุณหภูมิเป้าหมาย AI2>=2600, ตัวจับเวลา 10 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 2600
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 2000
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 89,
+    "game_type": "FACTORY",
+    "title": "รวมทุกทักษะ: ของเสีย 2 ชิ้น เกณฑ์สูง",
+    "description": "ของเสีย 2 ชิ้น พร้อมเกณฑ์ถัง/อุณหภูมิสูงสุดของหมวดนี้ (ถัง AI1>=2000, อุณหภูมิเป้าหมาย AI2>=2800, ตัวจับเวลา 10 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 42,
+          "defective": true
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 0
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 2800
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 2000
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 90,
+    "game_type": "FACTORY",
+    "title": "บทสรุปหมวดขั้นสูง (สายพาน)",
+    "description": "ด่านสรุปฝั่งสายพานของหมวดขั้นสูง: ล็อต 2 ชิ้น เกณฑ์ถัง/อุณหภูมิสูงสุด (ถัง AI1>=2000, อุณหภูมิเป้าหมาย AI2>=3000, ตัวจับเวลา 10 ติ๊ก)",
+    "hints": [
+      "รวมวงจรจากหมวดก่อนหน้าทั้งหมด: SET/TON/RESET คัดของเสีย, CTD นับถอยหลังทั้งล็อต, CMP คู่ควบคุมฮีตเตอร์",
+      "กฎห้ามต้มแห้งยังใช้อยู่: ห้ามเปิด Y2 ขณะ AI1 ต่ำกว่าเกณฑ์"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      },
+      {
+        "kind": "numeric",
+        "address": "AI2",
+        "operator": ">=",
+        "value": 3000
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 2000
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 180,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 91,
+    "game_type": "MAZE",
+    "title": "บันไดเลี้ยว 4 ขั้น",
+    "description": "เขาวงกตบันไดเลี้ยว 4 จุด ใช้กฎตัดสินใจสองด้าน - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 27,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 92,
+    "game_type": "MAZE",
+    "title": "บันไดเลี้ยว 5 ขั้น",
+    "description": "เขาวงกตบันไดเลี้ยว 5 จุด - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 30,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 93,
+    "game_type": "MAZE",
+    "title": "บันไดเลี้ยว 6 ขั้น",
+    "description": "เขาวงกตบันไดเลี้ยว 6 จุด - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 33,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 94,
+    "game_type": "MAZE",
+    "title": "บันไดเลี้ยว 7 ขั้น",
+    "description": "เขาวงกตบันไดเลี้ยว 7 จุด - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 36,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 95,
+    "game_type": "MAZE",
+    "title": "บันไดเลี้ยว 8 ขั้น",
+    "description": "เขาวงกตบันไดเลี้ยว 8 จุด - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 39,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 96,
+    "game_type": "MAZE",
+    "title": "บันไดเลี้ยว 9 ขั้น",
+    "description": "เขาวงกตบันไดเลี้ยว 9 จุด - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 42,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 97,
+    "game_type": "MAZE",
+    "title": "บันไดเลี้ยว 10 ขั้น",
+    "description": "เขาวงกตบันไดเลี้ยว 10 จุด - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 45,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 98,
+    "game_type": "MAZE",
+    "title": "บันไดเลี้ยว 11 ขั้น",
+    "description": "เขาวงกตบันไดเลี้ยว 11 จุด - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 48,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 99,
+    "game_type": "MAZE",
+    "title": "บทสรุปหมวดขั้นสูง (เขาวงกต)",
+    "description": "ด่านสรุปฝั่งเขาวงกตของหมวดขั้นสูง: บันไดเลี้ยว 12 จุด ยาวที่สุดในหลักสูตรนี้ - ใช้กฎเดิม: เจอกำแพงข้างหน้า ถ้าขวาว่างเลี้ยวขวา ไม่ว่างเลี้ยวซ้าย",
+    "hints": [
+      "ใช้วงจรตัดสินใจสองด้านเดิม (NO(X0) ต่ออนุกรมกับ NC(X2) หรือ NO(X2)) - กฎเดิมใช้ได้กับทุกขนาดเขาวงกต"
+    ],
+    "map_layout_json": [
+      [
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "WALL",
+        "PATH",
+        "GOAL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 0,
+      "direction": "E"
+    },
+    "factory_initial_json": null,
+    "success_conditions_json": [
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 51,
+    "ticks_per_second": null
+  },
+  {
+    "level_number": 100,
+    "game_type": "HYBRID",
+    "title": "บอสด่านสุดท้าย: โรงงานอัจฉริยะ",
+    "description": "ภารกิจสุดท้าย: (1) ควบคุมถังผสมสารเคมีและฮีตเตอร์ให้ถึงอุณหภูมิเป้าหมายโดยไม่ต้มแห้ง (2) คัดของเสียออกจากสายการบรรจุขวด (3) เมื่อเสร็จภารกิจโรงงานแล้ว หุ่นยนต์ AGV จะออกเดินทางส่งของอัตโนมัติผ่านเขาวงกต ห้ามชนจุดอันตรายเด็ดขาด",
+    "hints": [
+      "ใช้บล็อกเปรียบเทียบ CMP ควบคุมฮีตเตอร์แบบมีเงื่อนไขถัง (interlock) เหมือนหมวดอนาล็อก",
+      "ใช้ SET เก็บสถานะ \"อุณหภูมิถึงเป้าหมายแล้ว\" ไว้ในรีเลย์ภายใน M1 - ห้ามใช้ CMP เปรียบเทียบสดตรงๆ เพราะอุณหภูมิจะเย็นลงระหว่างที่หุ่นยนต์เดินเขาวงกต",
+      "โปรแกรมเดียวกันนี้ควบคุมทั้งสายพานและหุ่นยนต์ AGV (ใช้ X0-X2, Y0-Y2 ซ้ำกัน) - วางรุ้งควบคุมหุ่นยนต์ไว้ท้ายโปรแกรมเสมอ"
+    ],
+    "map_layout_json": [
+      [
+        "WALL",
+        "HAZARD",
+        "WALL"
+      ],
+      [
+        "PATH",
+        "PATH",
+        "WALL"
+      ],
+      [
+        "WALL",
+        "GOAL",
+        "WALL"
+      ]
+    ],
+    "robot_start_json": {
+      "x": 0,
+      "y": 1,
+      "direction": "E"
+    },
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 0,
+          "defective": true
+        },
+        {
+          "id": "b",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "process_items",
+        "target": 1
+      },
+      {
+        "kind": "bit",
+        "address": "M1",
+        "expected": true
+      },
+      {
+        "kind": "reach_goal"
+      }
+    ],
+    "safety_constraints_json": [
+      {
+        "id": "no-dry-boil",
+        "description": "ห้ามเปิดฮีตเตอร์ (Y2) ขณะระดับถัง (AI1) ต่ำกว่าเกณฑ์ (ป้องกันต้มแห้ง)",
+        "violatingWhen": [
+          {
+            "kind": "bit",
+            "address": "Y2",
+            "expected": true
+          },
+          {
+            "kind": "numeric",
+            "address": "AI1",
+            "operator": "<",
+            "value": 1500
+          },
+          {
+            "kind": "bit",
+            "address": "M1",
+            "expected": false
+          }
+        ]
+      }
+    ],
+    "time_limit_ticks": 200,
+    "ticks_per_second": null
+  }
+]
