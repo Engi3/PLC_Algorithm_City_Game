@@ -49,8 +49,8 @@ rendered live at `/dashboard/guide`.
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/Engi3/PLC_Algorithm_City_Game.git
-cd PLC_Algorithm_City_Game
+git clone https://github.com/Engi3/PLC_Algorithm_Practice.git
+cd PLC_Algorithm_Practice
 npm install
 ```
 

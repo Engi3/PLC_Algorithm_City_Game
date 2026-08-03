@@ -1,4 +1,4 @@
--- PLC Algorithm City Game - Phase 1 schema
+-- PLC Algorithm Practice - Phase 1 schema
 -- Run this once in the Supabase SQL Editor (or via `supabase db push`).
 
 -- ============================================================
