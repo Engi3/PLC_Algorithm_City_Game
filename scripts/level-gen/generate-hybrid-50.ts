@@ -2,41 +2,20 @@
  * New 50-level Hybrid track (own independent 1-50 number line, migration
  * 0014's 'hybrid' game slug) - combines Maze navigation and Factory item
  * processing in ONE program, gated behind size/item-count that grow
- * across 5 chapters. Harder than either standalone track not by being a
- * bigger maze or a bigger factory batch alone, but because the student's
- * single GridProgram must SELF-DETECT when the factory phase is actually
- * done (there's no dedicated "phase" input address - see the header
- * comment on bossSolution() in the now-deleted generate-game-levels-
- * 81-100.ts's Level 100, which this reuses the exact proven technique
- * from) and switch its own behavior accordingly, on shared addresses
- * (X0-X2, Y0-Y2 mean completely different physical things per phase).
+ * across 5 chapters. The Maze/AGV half uses hybridMazeBinding's addresses
+ * (X10-X12/Y10-Y12/AI10, maze-plc-binding.ts), fully distinct from the
+ * Factory half's (X0-X1/Y0-Y7/AI1-AI3) - the two halves of the circuit
+ * are independent rungs, no phase-detection needed on the student's part
+ * (contrast the earlier design, still described in old commit history,
+ * where both halves shared X0-X2/Y0-Y2 and the circuit had to self-detect
+ * which phase was live from counter/timer state alone).
  *
  * Deliberately scoped to the SIMPLE factory pattern only (plain item
  * count via CTD, no reject/tank/heater) - combining a hazard-maze phase
  * WITH a defect-reject or bang-bang-heater factory phase in one circuit
  * is a further compounding of untested risk (mirrors why generate-
  * factory-50.ts's finale chapter deliberately never combines sort with
- * reverse). The genuinely new pedagogical challenge here - self-
- * sequencing two physical systems on shared addresses - is difficulty
- * enough on its own, proven out across 50 levels below.
- *
- * The phase-gate technique:
- *   CTD("C0", itemCount) on NO(X0) - counts every item that crosses the
- *   sensor, DN goes true once the whole batch has passed the sensor. But
- *   the LAST item still needs ~15 more ticks to physically clear the belt
- *   (position 55 -> 100 at 3/tick) before processedCount actually reaches
- *   itemCount - so gating Y0 off C0.DN directly stops the belt mid-
- *   transit, stranding that item forever. TON("T0", 18) started by C0.DN
- *   buffers that transit time; Y0/Y1/Y2 only switch to their maze meaning
- *   once T0.DN is true.
- *   Y0 is built as ONE orRung (grid-builders.ts) with two branches - belt
- *   runs while NOT T0.DN, move-forward runs while T0.DN - since two
- *   separate COIL(Y0) grids would fight every tick (a coil write happens
- *   even when its own rung doesn't conduct, so whichever grid is LAST in
- *   program order always wins - see the deleted boss level's comment).
- *   Y1/Y2 (turn commands) don't need the same orRung treatment here,
- *   since this track's factory phase never uses Y1/Y2 for anything (no
- *   reject, no heater) - there's no second writer to collide with.
+ * reverse).
  *
  * Every level is self-verified against the real engine (the exact same
  * phase-switching harness run-game-level.ts already uses) before being
@@ -47,13 +26,12 @@
  *   npx tsx scripts/replace-hybrid-levels.ts
  */
 import { writeFileSync } from "fs";
-import { NC, NO, COIL, CTD, TON, seriesRung, program, grid, place, wireH, feedLeftRail, tieVertical } from "./grid-builders";
-import { COIL_COLUMN } from "../../src/lib/ladder/grid-types";
+import { NC, NO, COIL, CTD, seriesRung, program } from "./grid-builders";
 import type { GridNode, GridProgram, LadderGrid } from "../../src/lib/ladder/grid-types";
 import { runGridScan } from "../../src/lib/ladder/grid-engine";
 import { createEmptyMemory, type SimMemory } from "../../src/lib/ladder/types";
 import { evaluateGameLevelTick, checkSuccessCondition, type GameRunState } from "../../src/lib/games/evaluate-game-level";
-import { createMazeGameState, mazeBinding } from "../../src/lib/games/maze-plc-binding";
+import { createMazeGameState, hybridMazeBinding } from "../../src/lib/games/maze-plc-binding";
 import { createFactoryGameState, factoryBinding } from "../../src/lib/games/factory-plc-binding";
 import { generateDifficultyMaze, generateHazardMaze, type GeneratedMaze } from "./maze-gen";
 import type { MazeMap, MazeRobotState } from "../../src/lib/games/maze-types";
@@ -68,18 +46,6 @@ function nextId(): string {
 function rung(instructions: GridNode[], coilNode: GridNode): LadderGrid {
   return seriesRung(nextId(), instructions, coilNode);
 }
-/** Same technique the deleted boss level used: N parallel series-AND branches, all vertically tied at the coil column, so the grid engine ORs them into one single coil write per tick instead of two independent grids fighting. */
-function orRung(rows: GridNode[][], coilNode: GridNode): LadderGrid {
-  const g = grid(nextId(), rows.length);
-  rows.forEach((instructions, r) => {
-    instructions.forEach((node, c) => place(g, r, c, node));
-    feedLeftRail(g, r);
-    wireH(g, r, 0, COIL_COLUMN);
-  });
-  place(g, 0, COIL_COLUMN, coilNode);
-  for (let r = 0; r < rows.length - 1; r++) tieVertical(g, r, COIL_COLUMN);
-  return g;
-}
 function factory(items: ConveyorItem[]): FactoryState {
   return { conveyorRunning: false, items, tankLevel: 0, pusherExtended: false, heaterOn: false, temperature: 0 };
 }
@@ -87,22 +53,23 @@ function item(id: string, position: number): ConveyorItem {
   return { id, position };
 }
 
-// C0.DN latches the instant the LAST item crosses the sensor (position 55),
-// but that item still needs ~15 more ticks (45 units / 3 per tick) to reach
-// the belt end at position 100 and actually bump processedCount - the
-// success condition the harness waits on before switching phase to maze.
-// Gating Y0 off C0.DN directly stops the belt mid-transit (X0 misread as a
-// maze "wall ahead" signal while still physically in the factory phase),
-// permanently stranding the last item and never reaching "won". T0 (TON,
-// started by C0.DN) buffers 18 ticks - room for the item to clear the belt
-// - before Y0/Y1/Y2 switch over to their maze meaning.
+// The Factory half (X0/Y0) and the Maze/AGV half (X10-X12/Y10-Y12) are
+// fully independent rungs - the belt just runs continuously (NC("X9") is a
+// never-set address, so it's always energized, same trick generate-
+// factory-50.ts's conveyorAlways() uses) while the AGV's wall-follow logic
+// runs unconditionally alongside it. Neither half's outputs affect the
+// other's world (the harness only ever advances one domain's simulation
+// per tick, gated by which phase is live), so there's no read/write
+// collision and no phase-detection needed in the circuit itself. C0 still
+// counts items past the sensor via CTD, purely as its own counter exercise
+// (the success condition checks C0.DN) - it no longer gates anything else.
 function hybridSolution(itemCount: number): GridProgram {
   return program(
-    orRung([[NC("T0.DN")], [NO("T0.DN"), NC("X0")]], COIL("Y0")),
-    rung([NO("T0.DN"), NO("X0"), NC("X2")], COIL("Y2")),
-    rung([NO("T0.DN"), NO("X0"), NO("X2")], COIL("Y1")),
+    rung([NC("X9")], COIL("Y0")),
     rung([NO("X0")], CTD("C0", itemCount)),
-    rung([NO("C0.DN")], TON("T0", 18))
+    rung([NC("X10")], COIL("Y10")),
+    rung([NO("X10"), NC("X12")], COIL("Y12")),
+    rung([NO("X10"), NO("X12")], COIL("Y11"))
   );
 }
 
@@ -154,10 +121,10 @@ type LevelDef = {
 };
 
 const HINTS = [
-  "โปรแกรมเดียวกันควบคุมทั้งสายพานและหุ่นยนต์ AGV (ใช้ X0-X2, Y0-Y2 ซ้ำกัน) - ต้องให้วงจรรู้เองว่าตอนนี้อยู่เฟสไหน",
-  "ใช้ CTD (ตัวนับถอยหลัง) ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อครบเฟสโรงงาน แต่ชิ้นสุดท้ายยังต้องเดินทางบนสายพานอีกพักหนึ่งกว่าจะสุดสาย",
-  "ใช้ TON ชื่อ T0 หน่วงเวลาหลัง C0.DN ติด ให้สายพาน (Y0) ยังเดินต่ออีกพักเพื่อให้ชิ้นสุดท้ายไปถึงปลายสาย จากนั้นหุ่นยนต์เดินหน้า/เลี้ยว (Y0/Y1/Y2) จึงเริ่มทำงานเมื่อ T0.DN ติดเท่านั้น",
-  "Y0 ต้องรวมเงื่อนไขทั้งสองเฟสไว้ในบล็อกเดียว (ต่อขนานสองแขนงเข้าคอยล์เดียว) ห้ามสร้างรุ้งแยกสองอันที่ต่อ Y0 คนละที่ เพราะจะแย่งกันเขียนค่าทุกรอบสแกน",
+  "สายการผลิตกับหุ่นยนต์ AGV ใช้ Address คนละชุดไม่ซ้ำกัน: สายพาน/โรงงานใช้ X0-X1, Y0-Y7 เหมือนด่าน Factory ปกติ ส่วน AGV ใช้ X10-X12 (เซนเซอร์กำแพง), Y10-Y12 (เดินหน้า/เลี้ยว) แยกต่างหาก",
+  "เขียนวงจรทั้งสองส่วนแยกกันได้เลย ไม่ต้องกังวลว่าจะชนกัน - ให้สายพาน (Y0) เดินตลอดเวลา และให้หุ่นยนต์ AGV เดินหน้า/เลี้ยวตามเซนเซอร์กำแพง (X10-X12) ไปพร้อมกันในวงจรเดียว",
+  "ใช้ CTD (ตัวนับถอยหลัง) ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ (เป็นส่วนหนึ่งของเงื่อนไขผ่านด่าน)",
+  "หุ่นยนต์ AGV ใช้หลักการเดียวกับด่าน Maze Explorer: เดินหน้าตลอดเวลาที่ไม่มีกำแพงข้างหน้า (NC(X10) → Y10) ถ้ามีกำแพงข้างหน้าให้เลี้ยวขวาก่อน ถ้าขวาก็มีกำแพงอีกให้เลี้ยวซ้าย (X12/X11 → Y12/Y11)",
 ];
 
 const levels: LevelDef[] = plannedLevels.map((p) => {
@@ -239,13 +206,13 @@ function verifyLevel(def: LevelDef): string | null {
   while (outcome.status === "playing" && tick < maxTicks) {
     tick++;
     const usesMaze = phase === "maze";
-    const binding = usesMaze ? mazeBinding : factoryBinding;
+    const binding = usesMaze ? hybridMazeBinding : factoryBinding;
     const state = usesMaze ? run.maze! : run.factory!;
     const { inputs, analogInputs } = binding.readInputs(state as never);
     const { memory: nextMemory } = runGridScan(def.solution, inputs, memory, { tick: true }, analogInputs);
     memory = nextMemory;
     run = usesMaze
-      ? { ...run, maze: mazeBinding.step(run.maze!, memory.coils, memory) }
+      ? { ...run, maze: hybridMazeBinding.step(run.maze!, memory.coils, memory) }
       : { ...run, factory: factoryBinding.step(run.factory!, memory.coils, memory) };
 
     if (phase === "factory") {

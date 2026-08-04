@@ -24,48 +24,94 @@ function distanceToGoal(map: MazeMap, robot: MazeRobotState): number {
   return Number.isFinite(best) ? best : 0;
 }
 
-/**
- * Standardized Maze I/O map:
- *   Inputs:  X0 wall ahead, X1 wall to the left, X2 wall to the right, AI0 Manhattan distance to goal
- *   Outputs: Y0 move forward one cell, Y1 turn left 90°, Y2 turn right 90°
- * If a student's ladder logic energizes more than one output in the same
- * scan (easy to do by accident), Y0 takes priority over Y1/Y2 - a
- * deterministic tie-break beats an undefined one. A move into a Wall is
- * refused outright rather than trusting X0 to have been wired into an
- * interlock - the robot can't clip through geometry just because a student
- * forgot the safety check, same as a real motor's hard limit switch.
- */
-export const mazeBinding: GamePlcBinding<MazeGameState> = {
-  readInputs(state) {
-    const { map, robot } = state;
-    const ahead = cellAhead(robot);
-    const left = cellAhead({ ...robot, direction: turnLeft(robot.direction) });
-    const right = cellAhead({ ...robot, direction: turnRight(robot.direction) });
-
-    const inputs: Inputs = {
-      X0: readMazeTile(map, ahead.x, ahead.y) === "WALL",
-      X1: readMazeTile(map, left.x, left.y) === "WALL",
-      X2: readMazeTile(map, right.x, right.y) === "WALL",
-    };
-    const analogInputs: AnalogInputs = { AI0: clampAnalogValue(distanceToGoal(map, robot)) };
-    return { inputs, analogInputs };
-  },
-
-  step(state, outputs) {
-    if (state.status !== "playing") return state;
-    const { map, robot } = state;
-
-    if (outputs.Y0) {
-      const ahead = cellAhead(robot);
-      const tile = readMazeTile(map, ahead.x, ahead.y);
-      if (tile === "WALL") return state;
-      const nextRobot = { ...robot, x: ahead.x, y: ahead.y };
-      if (tile === "HAZARD") return { ...state, robot: nextRobot, status: "failed" };
-      if (tile === "GOAL") return { ...state, robot: nextRobot, status: "won" };
-      return { ...state, robot: nextRobot };
-    }
-    if (outputs.Y1) return { ...state, robot: { ...robot, direction: turnLeft(robot.direction) } };
-    if (outputs.Y2) return { ...state, robot: { ...robot, direction: turnRight(robot.direction) } };
-    return state;
-  },
+/** Address set a maze binding reads/writes - see buildBinding below. */
+type MazeAddresses = {
+  wallAhead: string;
+  wallLeft: string;
+  wallRight: string;
+  distance: string;
+  forward: string;
+  turnLeft: string;
+  turnRight: string;
 };
+
+/** Standalone Maze Explorer track's addresses - unchanged since the track's launch. */
+export const MAZE_ADDR: MazeAddresses = {
+  wallAhead: "X0",
+  wallLeft: "X1",
+  wallRight: "X2",
+  distance: "AI0",
+  forward: "Y0",
+  turnLeft: "Y1",
+  turnRight: "Y2",
+};
+
+/**
+ * Hybrid track's Maze/AGV addresses - deliberately DISTINCT from
+ * MAZE_ADDR (and from every Factory address factory-plc-binding.ts uses:
+ * X0-X1/Y0-Y7/AI1-AI3), so a Hybrid level's combined circuit never has to
+ * reason about the same PLC address meaning two different physical things
+ * depending on which phase is currently live. See io-tables.ts's
+ * HYBRID_MAZE_IO_ROWS for the matching reference table.
+ */
+export const HYBRID_MAZE_ADDR: MazeAddresses = {
+  wallAhead: "X10",
+  wallLeft: "X11",
+  wallRight: "X12",
+  distance: "AI10",
+  forward: "Y10",
+  turnLeft: "Y11",
+  turnRight: "Y12",
+};
+
+/**
+ * Builds a Maze GamePlcBinding against a given address set. If a student's
+ * ladder logic energizes more than one output in the same scan (easy to do
+ * by accident), `forward` takes priority over turnLeft/turnRight - a
+ * deterministic tie-break beats an undefined one. A move into a Wall is
+ * refused outright rather than trusting `wallAhead` to have been wired into
+ * an interlock - the robot can't clip through geometry just because a
+ * student forgot the safety check, same as a real motor's hard limit switch.
+ */
+function buildBinding(addr: MazeAddresses): GamePlcBinding<MazeGameState> {
+  return {
+    readInputs(state) {
+      const { map, robot } = state;
+      const ahead = cellAhead(robot);
+      const left = cellAhead({ ...robot, direction: turnLeft(robot.direction) });
+      const right = cellAhead({ ...robot, direction: turnRight(robot.direction) });
+
+      const inputs: Inputs = {
+        [addr.wallAhead]: readMazeTile(map, ahead.x, ahead.y) === "WALL",
+        [addr.wallLeft]: readMazeTile(map, left.x, left.y) === "WALL",
+        [addr.wallRight]: readMazeTile(map, right.x, right.y) === "WALL",
+      };
+      const analogInputs: AnalogInputs = { [addr.distance]: clampAnalogValue(distanceToGoal(map, robot)) };
+      return { inputs, analogInputs };
+    },
+
+    step(state, outputs) {
+      if (state.status !== "playing") return state;
+      const { map, robot } = state;
+
+      if (outputs[addr.forward]) {
+        const ahead = cellAhead(robot);
+        const tile = readMazeTile(map, ahead.x, ahead.y);
+        if (tile === "WALL") return state;
+        const nextRobot = { ...robot, x: ahead.x, y: ahead.y };
+        if (tile === "HAZARD") return { ...state, robot: nextRobot, status: "failed" };
+        if (tile === "GOAL") return { ...state, robot: nextRobot, status: "won" };
+        return { ...state, robot: nextRobot };
+      }
+      if (outputs[addr.turnLeft]) return { ...state, robot: { ...robot, direction: turnLeft(robot.direction) } };
+      if (outputs[addr.turnRight]) return { ...state, robot: { ...robot, direction: turnRight(robot.direction) } };
+      return state;
+    },
+  };
+}
+
+/** Standalone Maze Explorer track binding - X0-X2/Y0-Y2/AI0, unchanged. */
+export const mazeBinding: GamePlcBinding<MazeGameState> = buildBinding(MAZE_ADDR);
+
+/** Hybrid track's Maze/AGV binding - X10-X12/Y10-Y12/AI10, never overlaps Factory's addresses. */
+export const hybridMazeBinding: GamePlcBinding<MazeGameState> = buildBinding(HYBRID_MAZE_ADDR);

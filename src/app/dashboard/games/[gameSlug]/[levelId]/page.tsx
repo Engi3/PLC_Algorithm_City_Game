@@ -5,7 +5,7 @@ import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { chapterForGameLevel, gameLevelRowToSpec, type GameLevelRow } from "@/lib/games/game-level-types";
 import GamePlayClient from "@/components/games/GamePlayClient";
 import IoAddressTable from "@/components/games/IoAddressTable";
-import { MAZE_IO_ROWS, FACTORY_IO_ROWS } from "@/lib/games/io-tables";
+import { MAZE_IO_ROWS, HYBRID_MAZE_IO_ROWS, FACTORY_IO_ROWS } from "@/lib/games/io-tables";
 import PrevNextNav, { type NavTarget } from "@/components/ladder/PrevNextNav";
 
 const GAME_TYPE_LABEL: Record<string, string> = { MAZE: "🤖 Maze", FACTORY: "🏭 Factory", HYBRID: "⚡ Hybrid" };
@@ -92,6 +92,11 @@ export default async function GameLevelPage({ params }: { params: Promise<{ game
   const prevNav: NavTarget = prevId ? { kind: "link", href: `/dashboard/games/${gameSlug}/${prevId}` } : { kind: "none" };
   const nextNav: NavTarget = nextId ? { kind: "link", href: `/dashboard/games/${gameSlug}/${nextId}` } : { kind: "none" };
 
+  // Teachers/admins can study the worked example on every level; students
+  // and guests only get it on the track's first level, as a one-time
+  // demonstration of the pattern rather than a per-level answer key.
+  const canViewSolution = profile?.role === "teacher" || row.level_number === 1;
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -148,8 +153,9 @@ export default async function GameLevelPage({ params }: { params: Promise<{ game
       */}
       <div className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">รายการ I/O ของด่านนี้</h2>
-        {(row.game_type === "MAZE" || row.game_type === "HYBRID") && (
-          <IoAddressTable title="หุ่นยนต์ AGV (Maze)" rows={MAZE_IO_ROWS} />
+        {row.game_type === "MAZE" && <IoAddressTable title="หุ่นยนต์ AGV (Maze)" rows={MAZE_IO_ROWS} />}
+        {row.game_type === "HYBRID" && (
+          <IoAddressTable title="หุ่นยนต์ AGV (แยก Address จากสายการผลิต)" rows={HYBRID_MAZE_IO_ROWS} />
         )}
         {(row.game_type === "FACTORY" || row.game_type === "HYBRID") && (
           <IoAddressTable title="สายการผลิต (Factory)" rows={FACTORY_IO_ROWS} />
@@ -170,7 +176,7 @@ export default async function GameLevelPage({ params }: { params: Promise<{ game
       )}
 
       {spec ? (
-        <GamePlayClient gameLevelId={row.id} spec={spec} />
+        <GamePlayClient gameLevelId={row.id} spec={spec} canViewSolution={canViewSolution} />
       ) : (
         <div className="rounded-lg border border-dashed border-red-400 bg-red-50 p-5 text-center dark:border-red-700 dark:bg-red-950">
           <p className="text-sm font-medium text-red-800 dark:text-red-300">⚠️ ด่านนี้มีข้อมูลไม่ถูกต้อง กรุณาแจ้งอาจารย์ผู้สอน</p>

@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { GridProgram } from "@/lib/ladder/grid-types";
 import { useGamePlcBridge, type GamePlcBinding, type GamePlcBridge } from "./use-game-plc-bridge";
-import { mazeBinding, createMazeGameState } from "./maze-plc-binding";
+import { mazeBinding, hybridMazeBinding, createMazeGameState } from "./maze-plc-binding";
 import { factoryBinding, createFactoryGameState } from "./factory-plc-binding";
 import { checkSuccessCondition, evaluateGameLevelTick, type GameLevelOutcome, type GameRunState } from "./evaluate-game-level";
 import type { GameLevelSpec } from "./game-level-types";
@@ -11,27 +11,28 @@ import type { GameLevelSpec } from "./game-level-types";
 /**
  * Composes mazeBinding/factoryBinding into one GamePlcBinding<GameRunState>
  * for useGamePlcBridge, per the level's `gameType`. A HYBRID level can't run
- * both sub-bindings' scans simultaneously - Maze and Factory each use the
- * SAME standardized addresses (X0-X2, Y0-Y2) for different physical meanings
- * by design, so composing them live would mean one game's Y0 also (wrongly)
- * drives the other's. Instead a HYBRID level runs its Factory phase first,
- * then switches to its Maze phase once every non-`reach_goal` success
- * condition is met (`phaseRef`, flipped from the onTick callback below) -
- * matching the one concrete HYBRID scenario the curriculum spec describes
- * (pack a batch, then send the AGV to deliver it).
+ * both sub-bindings' scans simultaneously - the world simulation only
+ * advances one domain per tick. It runs its Factory phase first, then
+ * switches to its Maze phase once every non-`reach_goal` success condition
+ * is met (`phaseRef`, flipped from the onTick callback below) - matching the
+ * one concrete HYBRID scenario the curriculum spec describes (pack a batch,
+ * then send the AGV to deliver it). The Maze half of a HYBRID level uses
+ * hybridMazeBinding (X10-X12/Y10-Y12/AI10), not the standalone track's
+ * mazeBinding (X0-X2/Y0-Y2/AI0) - see maze-plc-binding.ts's header comment -
+ * so its addresses never collide with Factory's (X0-X1/Y0-Y7/AI1-AI3).
  */
 function buildCombinedBinding(spec: GameLevelSpec, phaseRef: { current: "factory" | "maze" }): GamePlcBinding<GameRunState> {
   return {
     readInputs(run) {
       if (spec.gameType === "MAZE") return mazeBinding.readInputs(run.maze!);
       if (spec.gameType === "FACTORY") return factoryBinding.readInputs(run.factory!);
-      return phaseRef.current === "factory" ? factoryBinding.readInputs(run.factory!) : mazeBinding.readInputs(run.maze!);
+      return phaseRef.current === "factory" ? factoryBinding.readInputs(run.factory!) : hybridMazeBinding.readInputs(run.maze!);
     },
     step(run, outputs, memory) {
       if (spec.gameType === "MAZE") return { ...run, maze: mazeBinding.step(run.maze!, outputs, memory) };
       if (spec.gameType === "FACTORY") return { ...run, factory: factoryBinding.step(run.factory!, outputs, memory) };
       if (phaseRef.current === "factory") return { ...run, factory: factoryBinding.step(run.factory!, outputs, memory) };
-      return { ...run, maze: mazeBinding.step(run.maze!, outputs, memory) };
+      return { ...run, maze: hybridMazeBinding.step(run.maze!, outputs, memory) };
     },
   };
 }

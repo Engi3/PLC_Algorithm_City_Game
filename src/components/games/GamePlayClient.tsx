@@ -10,8 +10,6 @@ import { useGameLevelPlay } from "@/lib/games/use-game-level-play";
 import type { GameLevelSpec } from "@/lib/games/game-level-types";
 import MazeEngine from "./MazeEngine";
 import FactoryEngine from "./FactoryEngine";
-import IoAddressTable from "./IoAddressTable";
-import { MAZE_IO_ROWS, FACTORY_IO_ROWS } from "@/lib/games/io-tables";
 import { submitGameLevelAction, type SubmitGameLevelResult } from "@/app/dashboard/games/actions";
 import { saveDraftAction, loadDraftAction } from "@/lib/ladder/draft-actions";
 import { getHintAction } from "@/app/dashboard/play/actions";
@@ -37,13 +35,21 @@ import { getHintAction } from "@/app/dashboard/play/actions";
  * is: a Maze-only/Factory-only level gets the FULL width (no sibling panel
  * to share with), a HYBRID level's Maze panel only gets half.
  */
-function mazeCellSize(cols: number, targetBoardWidth: number): number {
+export function mazeCellSize(cols: number, targetBoardWidth: number): number {
   const safeCols = Number.isFinite(cols) && cols > 0 ? cols : 9;
   const raw = Math.floor(targetBoardWidth / safeCols);
   return Number.isFinite(raw) ? Math.max(16, Math.min(40, raw)) : 40;
 }
 
-export default function GamePlayClient({ gameLevelId, spec }: { gameLevelId: string; spec: GameLevelSpec }) {
+export default function GamePlayClient({
+  gameLevelId,
+  spec,
+  canViewSolution,
+}: {
+  gameLevelId: string;
+  spec: GameLevelSpec;
+  canViewSolution: boolean;
+}) {
   const baseGrid = useLadderGrid();
   const pool = useVariablePool();
   const play = useGameLevelPlay(baseGrid.gridProgram, spec);
@@ -169,19 +175,12 @@ export default function GamePlayClient({ gameLevelId, spec }: { gameLevelId: str
                     <li>วางสัญลักษณ์แลดเดอร์ในตาราง (คลิกเลือกช่อง แล้วกด F5-F10) แล้วต่อสายด้วย F9/F10 หรือลากเชื่อมจุดต่อ</li>
                     <li>กด Step เพื่อดูผลทีละรอบสแกน หรือ Run เพื่อให้ทำงานต่อเนื่องอัตโนมัติ</li>
                     <li>สังเกตภาพเกมด้านล่าง (หุ่นยนต์ AGV / สายการผลิต) ว่าตอบสนองตามวงจรที่เขียนถูกต้องหรือไม่</li>
-                    <li>ถ้าติดขัด กด &quot;ขอคำใบ้จาก AI&quot; หรือเปิดดู &quot;เฉลยตัวอย่าง&quot; เป็นแนวทาง (ไม่จำเป็นต้องคัดลอกตรงๆ)</li>
+                    <li>ถ้าติดขัด กด &quot;ขอคำใบ้จาก AI&quot;{canViewSolution ? ' หรือเปิดดู "เฉลยตัวอย่าง" เป็นแนวทาง (ไม่จำเป็นต้องคัดลอกตรงๆ)' : " เป็นแนวทาง"}</li>
                     <li>กด Reset เพื่อเริ่มด่านใหม่ตั้งแต่ต้น แล้ว Run/Step จนผ่านเงื่อนไข จึงกด Submit</li>
                     <li>ผ่านแล้วสามารถกด &quot;ขอรีวิวโค้ดจาก AI&quot; เพื่อรับคำแนะนำและเหรียญโบนัสได้</li>
                     <li>กด &quot;บันทึกวงจร&quot; ได้ทุกเมื่อเพื่อเก็บวงจรที่เขียนค้างไว้ กลับมาทำต่อภายหลังได้</li>
                   </ol>
                 </div>
-
-                {(spec.gameType === "MAZE" || spec.gameType === "HYBRID") && (
-                  <IoAddressTable title="แผนผัง I/O ของหุ่นยนต์ AGV (Maze)" rows={MAZE_IO_ROWS} />
-                )}
-                {(spec.gameType === "FACTORY" || spec.gameType === "HYBRID") && (
-                  <IoAddressTable title="แผนผัง I/O ของสายการผลิต (Factory)" rows={FACTORY_IO_ROWS} />
-                )}
               </div>
             )}
           </div>
@@ -243,7 +242,7 @@ export default function GamePlayClient({ gameLevelId, spec }: { gameLevelId: str
           {saving ? "กำลังบันทึก..." : "💾 บันทึกวงจร"}
         </button>
         {saveMessage && <span className="text-xs text-zinc-500 dark:text-zinc-400">{saveMessage}</span>}
-        {spec.referenceGridProgram && (
+        {spec.referenceGridProgram && canViewSolution && (
           <button
             type="button"
             onClick={() => setShowReferenceSolution(true)}
@@ -312,8 +311,8 @@ export default function GamePlayClient({ gameLevelId, spec }: { gameLevelId: str
         <AiReviewModal contextKind="game" contextId={gameLevelId} program={baseGrid.gridProgram} onClose={() => setShowAiReview(false)} />
       )}
 
-      {showReferenceSolution && spec.referenceGridProgram && (
-        <ReferenceSolutionModal program={spec.referenceGridProgram} onClose={() => setShowReferenceSolution(false)} />
+      {showReferenceSolution && canViewSolution && spec.referenceGridProgram && (
+        <ReferenceSolutionModal program={spec.referenceGridProgram} spec={spec} onClose={() => setShowReferenceSolution(false)} />
       )}
     </div>
   );

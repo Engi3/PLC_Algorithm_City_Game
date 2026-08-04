@@ -32,3 +32,22 @@ export const FACTORY_IO_ROWS: IoRow[] = [
   { address: "Y6", name: "ไฟเหลือง", type: "เอาต์พุตดิจิทัล", description: "ไฟสัญญาณจราจรสีเหลือง (เฉพาะด่านไฟจราจร)" },
   { address: "Y7", name: "ไฟเขียว", type: "เอาต์พุตดิจิทัล", description: "ไฟสัญญาณจราจรสีเขียว - ประตูเปิดให้สินค้าผ่านเมื่อไฟเขียวติด (เฉพาะด่านไฟจราจร)" },
 ];
+
+/**
+ * Hybrid-only Maze/AGV I/O map. Deliberately DIFFERENT addresses from
+ * MAZE_IO_ROWS (X10-X12/Y10-Y12/AI10 instead of X0-X2/Y0-Y2/AI0) so a Hybrid
+ * level's combined I/O table never shows the same address meaning two
+ * different things next to FACTORY_IO_ROWS (X0-X1/Y0-Y7/AI1-AI3) - the AGV
+ * half and the Factory half of a Hybrid program can be written and read as
+ * two fully independent circuits, no phase-detection required. See
+ * hybridMazeBinding in maze-plc-binding.ts for the matching engine mapping.
+ */
+export const HYBRID_MAZE_IO_ROWS: IoRow[] = [
+  { address: "X10", name: "มีกำแพงข้างหน้า", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านหน้าหุ่นยนต์ - เป็นจริงเมื่อมีกำแพงกั้น" },
+  { address: "X11", name: "มีกำแพงด้านซ้าย", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านซ้ายของหุ่นยนต์" },
+  { address: "X12", name: "มีกำแพงด้านขวา", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านขวาของหุ่นยนต์" },
+  { address: "AI10", name: "ระยะทางถึงเป้าหมาย", type: "อินพุตอนาล็อก", description: "ระยะทางแบบแมนฮัตตัน (Manhattan Distance) จากตำแหน่งปัจจุบันถึงธงเป้าหมาย" },
+  { address: "Y10", name: "เดินหน้า", type: "เอาต์พุตดิจิทัล", description: "สั่งให้หุ่นยนต์เดินหน้าหนึ่งช่อง (ถ้ามีกำแพงกั้นอยู่จะไม่ขยับ)" },
+  { address: "Y11", name: "เลี้ยวซ้าย", type: "เอาต์พุตดิจิทัล", description: "หมุนตัวหุ่นยนต์ 90° ไปทางซ้าย (ไม่เปลี่ยนตำแหน่ง)" },
+  { address: "Y12", name: "เลี้ยวขวา", type: "เอาต์พุตดิจิทัล", description: "หมุนตัวหุ่นยนต์ 90° ไปทางขวา (ไม่เปลี่ยนตำแหน่ง)" },
+];
