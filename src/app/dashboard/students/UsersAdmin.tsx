@@ -9,6 +9,8 @@ import {
   setApprovalStatusAction,
   setModeOverrideAction,
   setClassNameAction,
+  updateUserProfileAction,
+  resetUserPasswordAction,
   type ActionState,
 } from "./actions";
 import type { ModeOverride } from "@/lib/auth/get-profile";
@@ -131,6 +133,119 @@ function ClassNameCell({ userId, current }: { userId: string; current: string | 
       disabled={saving}
       className="w-24 rounded border border-zinc-300 bg-transparent px-1.5 py-1 text-xs text-zinc-900 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-50"
     />
+  );
+}
+
+function EditSubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="rounded bg-zinc-700 px-2 py-1 text-xs font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+    >
+      {pending ? pendingLabel : label}
+    </button>
+  );
+}
+
+/** Edit any user's name/student ID, and reset their password to a new value - the teacher never sees the user's current password, only sets a new one (resetUserPasswordAction uses the admin client's updateUserById, which fully overwrites it). */
+function EditUserButton({ user }: { user: ManagedUser }) {
+  const [open, setOpen] = useState(false);
+  const [profileState, profileFormAction] = useActionState(updateUserProfileAction, initialState);
+  const [passwordState, passwordFormAction] = useActionState(resetUserPasswordAction, initialState);
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700"
+      >
+        Edit
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex w-64 flex-col gap-2 rounded border border-zinc-300 bg-zinc-50 p-2 dark:border-zinc-700 dark:bg-zinc-900">
+      <form action={profileFormAction} className="flex flex-col gap-1">
+        <input type="hidden" name="userId" value={user.id} />
+        <div className="flex flex-wrap gap-1">
+          <input
+            name="firstName"
+            defaultValue={user.first_name ?? ""}
+            placeholder="First name"
+            required
+            className="w-28 rounded border border-zinc-300 px-1.5 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <input
+            name="lastName"
+            defaultValue={user.last_name ?? ""}
+            placeholder="Last name"
+            required
+            className="w-28 rounded border border-zinc-300 px-1.5 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          {user.role === "student" && (
+            <input
+              name="studentId"
+              defaultValue={user.student_id ?? ""}
+              placeholder="Student ID"
+              className="w-28 rounded border border-zinc-300 px-1.5 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+            />
+          )}
+          <EditSubmitButton label="Save" pendingLabel="..." />
+        </div>
+        {profileState.error && <p className="text-xs text-red-600 dark:text-red-400">{profileState.error}</p>}
+        {profileState.success && <p className="text-xs text-green-600 dark:text-green-400">{profileState.success}</p>}
+      </form>
+
+      <form
+        action={passwordFormAction}
+        className="flex flex-col gap-1 border-t border-zinc-300 pt-2 dark:border-zinc-700"
+      >
+        <input type="hidden" name="userId" value={user.id} />
+        <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+          Reset password (you can&apos;t view their current one)
+        </p>
+        <div className="flex flex-wrap gap-1">
+          <input
+            type="password"
+            name="newPassword"
+            placeholder="New password"
+            required
+            minLength={6}
+            className="w-28 rounded border border-zinc-300 px-1.5 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <input
+            type="password"
+            name="confirmNewPassword"
+            placeholder="Confirm new"
+            required
+            minLength={6}
+            className="w-28 rounded border border-zinc-300 px-1.5 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Your password"
+            required
+            className="w-28 rounded border border-zinc-300 px-1.5 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <EditSubmitButton label="Reset" pendingLabel="..." />
+        </div>
+        {passwordState.error && <p className="text-xs text-red-600 dark:text-red-400">{passwordState.error}</p>}
+        {passwordState.success && <p className="text-xs text-green-600 dark:text-green-400">{passwordState.success}</p>}
+      </form>
+
+      <button
+        type="button"
+        onClick={() => setOpen(false)}
+        className="w-fit rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-700"
+      >
+        Close
+      </button>
+    </div>
   );
 }
 
@@ -448,8 +563,9 @@ export default function UsersAdmin({
                   )}
                 </td>
                 <td className="px-3 py-2">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-start gap-2">
                     {u.approval_status === "pending" && <ApproveRejectButtons userId={u.id} />}
+                    <EditUserButton user={u} />
                     {u.id !== currentTeacherId && <DeleteButton userId={u.id} />}
                   </div>
                 </td>

@@ -124,6 +124,80 @@ export async function setClassNameAction(formData: FormData): Promise<void> {
   revalidatePath("/dashboard/students");
 }
 
+/** Teacher edits any user's name/student ID - not their username (would desync from the synthetic auth email) or password (see resetUserPasswordAction). */
+export async function updateUserProfileAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const userId = formData.get("userId")?.toString() ?? "";
+  const firstName = formData.get("firstName")?.toString().trim() ?? "";
+  const lastName = formData.get("lastName")?.toString().trim() ?? "";
+  const studentId = formData.get("studentId")?.toString().trim() ?? "";
+  if (!userId || !firstName || !lastName) {
+    return { error: "First name and last name are required." };
+  }
+
+  try {
+    await requireTeacher();
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from("users")
+      .update({ first_name: firstName, last_name: lastName, student_id: studentId || null })
+      .eq("id", userId);
+    if (error) {
+      console.error("updateUserProfileAction: update failed", error);
+      return { error: "Could not save changes." };
+    }
+  } catch (err) {
+    console.error("updateUserProfileAction crashed:", err);
+    return { error: "Something went wrong." };
+  }
+
+  revalidatePath("/dashboard/students");
+  return { error: null, success: "Profile updated." };
+}
+
+/**
+ * Teacher resets another user's password to a new value they choose.
+ * Uses the service-role admin client (auth.admin.updateUserById), which
+ * fully overwrites the password hash - the teacher never sees the user's
+ * current password, only sets a new one. Requires the teacher's own
+ * password to confirm, same as deleteUserAction/addUserAction.
+ */
+export async function resetUserPasswordAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const userId = formData.get("userId")?.toString() ?? "";
+  const newPassword = formData.get("newPassword")?.toString() ?? "";
+  const confirmNewPassword = formData.get("confirmNewPassword")?.toString() ?? "";
+  const confirmPassword = formData.get("confirmPassword")?.toString() ?? "";
+  if (!userId || !newPassword || !confirmNewPassword) {
+    return { error: "Please fill in every field." };
+  }
+  if (newPassword.length < 6) return { error: "New password must be at least 6 characters." };
+  if (newPassword !== confirmNewPassword) return { error: "New passwords do not match." };
+  if (!confirmPassword) return { error: "Enter your own password to confirm this action." };
+
+  try {
+    await requireTeacher();
+    const verify = await verifyOwnPassword(confirmPassword);
+    if (!verify.ok) return { error: verify.error };
+
+    const admin = createAdminClient();
+    const { error } = await admin.auth.admin.updateUserById(userId, { password: newPassword });
+    if (error) {
+      console.error("resetUserPasswordAction: updateUserById failed", error);
+      return { error: "Could not reset password." };
+    }
+  } catch (err) {
+    console.error("resetUserPasswordAction crashed:", err);
+    return { error: "Something went wrong." };
+  }
+
+  return { error: null, success: "Password reset." };
+}
+
 const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
 
 export async function addUserAction(

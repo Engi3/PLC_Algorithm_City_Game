@@ -21,11 +21,15 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard/students", label: "Manage Users" },
         { href: "/dashboard/analytics", label: "Analytics & Export" },
         { href: "/dashboard/leaderboard", label: "Leaderboard" },
+        { href: "/dashboard/settings", label: "My Account" },
         { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
       ];
     case "student":
       if (profile.approval_status !== "approved") {
-        return [{ href: "/dashboard", label: "Home" }];
+        return [
+          { href: "/dashboard", label: "Home" },
+          { href: "/dashboard/settings", label: "My Account" },
+        ];
       }
       return [
         { href: "/dashboard", label: "Home" },
@@ -36,6 +40,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard/progress", label: "My Progress" },
         { href: "/dashboard/leaderboard", label: "Leaderboard" },
         { href: "/dashboard/shop", label: "Shop" },
+        { href: "/dashboard/settings", label: "My Account" },
         { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
       ];
     case "guest":
