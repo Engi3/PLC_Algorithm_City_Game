@@ -20,7 +20,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard/levels", label: "Levels" },
         { href: "/dashboard/students", label: "Manage Users" },
         { href: "/dashboard/analytics", label: "Analytics & Export" },
-        { href: "/dashboard/leaderboard", label: "🏆 Leaderboard" },
+        { href: "/dashboard/leaderboard", label: "Leaderboard" },
         { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
       ];
     case "student":
@@ -34,7 +34,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard/games", label: "Game Mode" },
         { href: "/dashboard/play/sandbox", label: "Sandbox" },
         { href: "/dashboard/progress", label: "My Progress" },
-        { href: "/dashboard/leaderboard", label: "🏆 Leaderboard" },
+        { href: "/dashboard/leaderboard", label: "Leaderboard" },
         { href: "/dashboard/shop", label: "Shop" },
         { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
       ];
@@ -46,7 +46,7 @@ function navItemsForRole(profile: Profile): NavItem[] {
         { href: "/dashboard/challenges", label: "Challenge Mode" },
         { href: "/dashboard/games", label: "Game Mode" },
         { href: "/dashboard/play/sandbox", label: "Sandbox" },
-        { href: "/dashboard/leaderboard", label: "🏆 Leaderboard" },
+        { href: "/dashboard/leaderboard", label: "Leaderboard" },
         { href: "/dashboard/shop", label: "Shop" },
         { href: "/dashboard/guide", label: "คู่มือการใช้งาน" },
       ];
