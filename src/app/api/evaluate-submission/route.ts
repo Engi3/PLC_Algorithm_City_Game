@@ -10,6 +10,7 @@ import { gameLevelRowToSpec, type GameLevelRow } from "@/lib/games/game-level-ty
 import { runGameLevelToCompletion } from "@/lib/games/run-game-level";
 import { compileGridProgram, compiledProgramToStructuredText } from "@/lib/ladder/iec-compiler";
 import { generateGeminiJSON, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
+import { checkAiRateLimit, rateLimitMessage } from "@/lib/ai/rate-limit";
 import type { GridProgram } from "@/lib/ladder/grid-types";
 
 type AiReviewScores = { correctness: number; conciseness: number; safety: number; approach: number; feedback: string };
@@ -133,6 +134,11 @@ export async function POST(request: Request) {
   const profile = await getCurrentProfile();
   if (!profile) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  }
+
+  const rateLimit = checkAiRateLimit("evaluate-submission", profile.id);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ available: false, message: rateLimitMessage(rateLimit.retryAfterSeconds) });
   }
 
   const verified = await verifyAndDescribe(contextKind, contextId, program);

@@ -6,6 +6,7 @@ import { useVariablePool } from "@/lib/ladder/use-variable-pool";
 import GridEditorSurface from "@/components/ladder-grid/GridEditorSurface";
 import AiReviewModal from "./AiReviewModal";
 import { getHintAction } from "@/app/dashboard/play/actions";
+import { useAiCooldown } from "@/lib/ai/use-ai-cooldown";
 import {
   submitLevelAction,
   skipLevelAction,
@@ -41,8 +42,10 @@ export default function GridLadderPlayground({ level }: { level?: LevelInfo } = 
   const [skipping, setSkipping] = useState(false);
   const [hintCreditsRemaining, setHintCreditsRemaining] = useState<number | null>(null);
   const [showAiReview, setShowAiReview] = useState(false);
+  const hintCooldown = useAiCooldown();
 
   async function askForHint() {
+    if (hintCooldown.active) return;
     setHintLoading(true);
     setHintError(null);
     setHint(null);
@@ -59,6 +62,7 @@ export default function GridLadderPlayground({ level }: { level?: LevelInfo } = 
       setHintError("Something went wrong getting a hint.");
     } finally {
       setHintLoading(false);
+      hintCooldown.start();
     }
   }
 
@@ -201,10 +205,10 @@ export default function GridLadderPlayground({ level }: { level?: LevelInfo } = 
         <button
           type="button"
           onClick={askForHint}
-          disabled={hintLoading}
+          disabled={hintLoading || hintCooldown.active}
           className="w-fit rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-60"
         >
-          {hintLoading ? "Thinking..." : "Ask AI for a hint"}
+          {hintLoading ? "Thinking..." : hintCooldown.active ? `Wait ${hintCooldown.secondsLeft}s` : "Ask AI for a hint"}
         </button>
         {hint && (
           <p className="rounded-md bg-purple-50 px-3 py-2 text-sm text-purple-900 dark:bg-purple-950 dark:text-purple-200">

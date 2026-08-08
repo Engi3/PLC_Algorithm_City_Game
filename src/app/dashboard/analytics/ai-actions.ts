@@ -5,6 +5,7 @@ import { loadClassData } from "@/lib/analytics/load-class-data";
 import { computeSkillScores, type LevelSkillMap, type PlayLogLite } from "@/lib/analytics/skill-radar";
 import { SKILL_LABELS, type SkillCategory } from "@/lib/ladder/level-spec";
 import { generateGeminiJSON, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
+import { checkAiRateLimit, rateLimitMessage } from "@/lib/ai/rate-limit";
 
 export type ClassInsightsResult =
   | { insights: string; source: "ai" | "fallback"; error?: undefined }
@@ -66,6 +67,9 @@ function buildFallbackSummary(
 export async function generateClassInsightsAction(): Promise<ClassInsightsResult> {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "teacher") return { error: "Forbidden." };
+
+  const rateLimit = checkAiRateLimit("class-insights", profile.id);
+  if (!rateLimit.allowed) return { error: rateLimitMessage(rateLimit.retryAfterSeconds) };
 
   const { students, levelSkills, levelTitles, gameLevelCount } = await loadClassData();
   if (students.length === 0) {

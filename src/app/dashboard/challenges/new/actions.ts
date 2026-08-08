@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { generateGeminiJSON, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
+import { checkAiRateLimit, rateLimitMessage } from "@/lib/ai/rate-limit";
 import { isChallengeStagesJson, type ChallengeStagesJson, type RequiredCompetency } from "@/lib/ladder/challenge-types";
 
 async function requireTeacher() {
@@ -155,12 +156,16 @@ export type GenerateChallengeDraftResult =
 
 /** AI-assist: teacher types a rough scenario, Gemini drafts title/description/hints/competencies and one scripted testCase. Always reviewed (and, ideally, test-run against a real solution in the embedded editor) by the teacher before saving - see AI_SCHEMA's doc comment for why this can't self-verify the way the hand-authored 50 challenges did. */
 export async function generateChallengeDraftAction(roughIdea: string): Promise<GenerateChallengeDraftResult> {
+  let teacher;
   try {
-    await requireTeacher();
+    teacher = await requireTeacher();
   } catch {
     return { ok: false, error: "Forbidden." };
   }
   if (!roughIdea.trim()) return { ok: false, error: "กรุณาอธิบายโจทย์คร่าวๆ ก่อน" };
+
+  const rateLimit = checkAiRateLimit("challenge-draft", teacher.id);
+  if (!rateLimit.allowed) return { ok: false, error: rateLimitMessage(rateLimit.retryAfterSeconds) };
 
   const prompt = `คุณเป็นผู้ช่วยออกแบบโจทย์ Challenge Mode สำหรับหลักสูตร PLC Ladder Logic ระดับสูง (การจำลองโรงงานอุตสาหกรรม) เป็นภาษาไทยเชิงเทคนิค
 

@@ -13,6 +13,7 @@ import { collectProcessAddresses, type ChallengeSpec, type ProcessAddressGroups 
 import { submitChallengeAction, type SubmitChallengeResult } from "@/app/dashboard/challenges/[id]/actions";
 import { saveDraftAction, loadDraftAction } from "@/lib/ladder/draft-actions";
 import { getHintAction } from "@/app/dashboard/play/actions";
+import { useAiCooldown } from "@/lib/ai/use-ai-cooldown";
 
 const EMPTY_PROCESS_GROUPS: ProcessAddressGroups = { digitalInputs: [], analogInputs: [], actuators: [], timers: [], counters: [] };
 
@@ -55,6 +56,7 @@ export default function ChallengePlayClient({
   const [hintLoading, setHintLoading] = useState(false);
   const [hintCreditsRemaining, setHintCreditsRemaining] = useState<number | null>(null);
   const [showAiReview, setShowAiReview] = useState(false);
+  const hintCooldown = useAiCooldown();
 
   const draftLoaded = useRef(false);
   useEffect(() => {
@@ -82,6 +84,7 @@ export default function ChallengePlayClient({
   }
 
   async function askForHint() {
+    if (hintCooldown.active) return;
     setHintLoading(true);
     setHintError(null);
     setHint(null);
@@ -97,6 +100,7 @@ export default function ChallengePlayClient({
       setHintError("เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง");
     } finally {
       setHintLoading(false);
+      hintCooldown.start();
     }
   }
 
@@ -218,10 +222,10 @@ export default function ChallengePlayClient({
           <button
             type="button"
             onClick={askForHint}
-            disabled={hintLoading}
+            disabled={hintLoading || hintCooldown.active}
             className="w-fit rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-60"
           >
-            {hintLoading ? "กำลังคิด..." : "ขอคำใบ้จาก AI (Ask AI for a hint)"}
+            {hintLoading ? "กำลังคิด..." : hintCooldown.active ? `รออีก ${hintCooldown.secondsLeft} วิ` : "ขอคำใบ้จาก AI (Ask AI for a hint)"}
           </button>
           {hint && (
             <p className="rounded-md bg-purple-50 px-3 py-2 text-sm text-purple-900 dark:bg-purple-950 dark:text-purple-200">

@@ -3,6 +3,7 @@
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
 import { generateGeminiJSON, GeminiConfigError, GeminiRequestError } from "@/lib/ai/gemini";
+import { checkAiRateLimit, rateLimitMessage } from "@/lib/ai/rate-limit";
 import {
   computeCompetencyScores,
   ALL_COMPETENCY_AXES,
@@ -40,6 +41,9 @@ function findWeakestAxis(scores: Record<CompetencyAxis, number>): CompetencyAxis
 export async function generateCoachTipAction(): Promise<CoachTipResult | { error: string }> {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "student") return { error: "Forbidden." };
+
+  const rateLimit = checkAiRateLimit("coach", profile.id);
+  if (!rateLimit.allowed) return { error: rateLimitMessage(rateLimit.retryAfterSeconds) };
 
   const supabase = await createClient();
 

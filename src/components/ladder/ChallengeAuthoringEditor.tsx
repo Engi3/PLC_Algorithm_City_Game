@@ -12,6 +12,7 @@ import {
   createChallengeAction,
   type CreateChallengeResult,
 } from "@/app/dashboard/challenges/new/actions";
+import { useAiCooldown } from "@/lib/ai/use-ai-cooldown";
 
 const ALL_COMPETENCIES: RequiredCompetency[] = ["NO_NC", "TIMER", "COUNTER", "ANALOG", "INTERLOCK", "MATH"];
 
@@ -55,6 +56,7 @@ export default function ChallengeAuthoringEditor() {
   const [roughIdea, setRoughIdea] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const aiCooldown = useAiCooldown();
 
   const [testResult, setTestResult] = useState<{ passed: boolean; detail: string } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -80,6 +82,7 @@ export default function ChallengeAuthoringEditor() {
   }
 
   async function handleAiGenerate() {
+    if (aiCooldown.active) return;
     setAiLoading(true);
     setAiError(null);
     try {
@@ -100,6 +103,7 @@ export default function ChallengeAuthoringEditor() {
       setAiError("เกิดข้อผิดพลาดที่ไม่คาดคิด");
     } finally {
       setAiLoading(false);
+      aiCooldown.start();
     }
   }
 
@@ -180,10 +184,10 @@ export default function ChallengeAuthoringEditor() {
         <button
           type="button"
           onClick={handleAiGenerate}
-          disabled={aiLoading}
+          disabled={aiLoading || aiCooldown.active}
           className="mt-2 rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-60"
         >
-          {aiLoading ? "กำลังสร้าง..." : "✨ ให้ AI ช่วยสร้าง"}
+          {aiLoading ? "กำลังสร้าง..." : aiCooldown.active ? `รออีก ${aiCooldown.secondsLeft} วิ` : "✨ ให้ AI ช่วยสร้าง"}
         </button>
         {aiError && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{aiError}</p>}
       </div>

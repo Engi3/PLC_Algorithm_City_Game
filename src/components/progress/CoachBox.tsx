@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { generateCoachTipAction } from "@/app/dashboard/progress/ai-actions";
+import { useAiCooldown } from "@/lib/ai/use-ai-cooldown";
 
 /** Phase 14: button-triggered AI Personal Coach tip, focused on the student's weakest competency axis. */
 export default function CoachBox() {
@@ -9,8 +10,10 @@ export default function CoachBox() {
   const [source, setSource] = useState<"ai" | "fallback" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const cooldown = useAiCooldown();
 
   async function generate() {
+    if (cooldown.active) return;
     setLoading(true);
     setError(null);
     try {
@@ -26,6 +29,7 @@ export default function CoachBox() {
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง");
     } finally {
       setLoading(false);
+      cooldown.start();
     }
   }
 
@@ -36,10 +40,10 @@ export default function CoachBox() {
         <button
           type="button"
           onClick={generate}
-          disabled={loading}
+          disabled={loading || cooldown.active}
           className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
-          {loading ? "กำลังวิเคราะห์..." : tip ? "วิเคราะห์อีกครั้ง" : "ขอคำแนะนำจาก AI"}
+          {loading ? "กำลังวิเคราะห์..." : cooldown.active ? `รออีก ${cooldown.secondsLeft} วิ` : tip ? "วิเคราะห์อีกครั้ง" : "ขอคำแนะนำจาก AI"}
         </button>
       </div>
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}

@@ -29,6 +29,7 @@ import {
 } from "./actions";
 import { generateClassInsightsAction } from "./ai-actions";
 import { CERTIFICATE_THRESHOLD } from "@/lib/certificate/threshold";
+import { useAiCooldown } from "@/lib/ai/use-ai-cooldown";
 
 export type StudentRow = {
   id: string;
@@ -151,8 +152,10 @@ function AiInsightsPanel() {
   const [source, setSource] = useState<"ai" | "fallback" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const cooldown = useAiCooldown();
 
   async function generate() {
+    if (cooldown.active) return;
     setLoading(true);
     setError(null);
     try {
@@ -168,6 +171,7 @@ function AiInsightsPanel() {
       setError("Something went wrong generating insights.");
     } finally {
       setLoading(false);
+      cooldown.start();
     }
   }
 
@@ -178,10 +182,10 @@ function AiInsightsPanel() {
         <button
           type="button"
           onClick={generate}
-          disabled={loading}
+          disabled={loading || cooldown.active}
           className="rounded-md bg-purple-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-60"
         >
-          {loading ? "กำลังวิเคราะห์..." : "วิเคราะห์ภาพรวมชั้นเรียนด้วย AI"}
+          {loading ? "กำลังวิเคราะห์..." : cooldown.active ? `รออีก ${cooldown.secondsLeft} วิ` : "วิเคราะห์ภาพรวมชั้นเรียนด้วย AI"}
         </button>
       </div>
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
