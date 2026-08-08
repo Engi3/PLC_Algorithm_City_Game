@@ -9,6 +9,8 @@ const KIND_LABEL: Record<VariableKind, string> = {
   output: "Output (Y)",
   relay: "Internal Relay (M)",
   analog_input: "Analog Input (AI) - sensor/slider",
+  timer: "Timer (T) - name/label a T address",
+  counter: "Counter (C) - name/label a C address",
 };
 
 function maxNumberForKind(kind: VariableKind): number {
@@ -56,7 +58,7 @@ export default function VariablePoolDrawer({ pool }: { pool: VariablePoolApi }) 
           >
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                Add Variable (X/Y/M pool)
+                Add Variable (X/Y/M/AI/T/C pool)
               </h3>
               <button
                 type="button"

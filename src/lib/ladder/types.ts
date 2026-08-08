@@ -30,7 +30,7 @@ export const COUNTER_ADDRESSES = Array.from({ length: 100 }, (_, i) => `C${i}`);
  * any pre-migration data that slipped through, never generated or shown
  * anymore.
  */
-export type VariableKind = "input" | "output" | "relay" | "analog_input";
+export type VariableKind = "input" | "output" | "relay" | "analog_input" | "timer" | "counter";
 export type SwitchType = "momentary" | "toggle";
 
 export type DeclaredVariable = {
@@ -49,6 +49,8 @@ const VARIABLE_PREFIX: Record<VariableKind, string> = {
   output: "Y",
   relay: "M",
   analog_input: "AI",
+  timer: "T",
+  counter: "C",
 };
 
 const MAX_NUMBER_BY_KIND: Record<VariableKind, number> = {
@@ -56,6 +58,8 @@ const MAX_NUMBER_BY_KIND: Record<VariableKind, number> = {
   output: MAX_VARIABLE_NUMBER,
   relay: MAX_VARIABLE_NUMBER,
   analog_input: MAX_ANALOG_VARIABLE_NUMBER,
+  timer: MAX_VARIABLE_NUMBER,
+  counter: MAX_VARIABLE_NUMBER,
 };
 
 export function buildVariableAddress(kind: VariableKind, num: number): string {

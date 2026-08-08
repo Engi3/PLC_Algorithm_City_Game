@@ -95,10 +95,17 @@ export function countGridBlocks(program: GridProgram): number {
 export const MIN_SCORE = 20;
 const MAX_SCORE = 100;
 const PENALTY_PER_EXTRA_BLOCK = 10;
+const PENALTY_PER_FAILED_ATTEMPT = 5;
 
-/** More blocks than the level's optimal count costs points; never scores below MIN_SCORE for a passing solution. */
-export function computeScore(blocksUsed: number, optimalBlocksCount: number | null): number {
-  if (!optimalBlocksCount || optimalBlocksCount <= 0) return MAX_SCORE;
-  const extra = Math.max(0, blocksUsed - optimalBlocksCount);
-  return Math.max(MIN_SCORE, MAX_SCORE - extra * PENALTY_PER_EXTRA_BLOCK);
+/**
+ * More blocks than the level's optimal count costs points, and so does
+ * every prior FAILED submit on this level (rewards getting it right with
+ * fewer wrong guesses, not just a tidy circuit) - never scores below
+ * MIN_SCORE for a passing solution, no matter how many blocks or failed
+ * attempts stack up.
+ */
+export function computeScore(blocksUsed: number, optimalBlocksCount: number | null, priorFailedAttempts = 0): number {
+  const blockExtra = optimalBlocksCount && optimalBlocksCount > 0 ? Math.max(0, blocksUsed - optimalBlocksCount) : 0;
+  const penalty = blockExtra * PENALTY_PER_EXTRA_BLOCK + priorFailedAttempts * PENALTY_PER_FAILED_ATTEMPT;
+  return Math.max(MIN_SCORE, MAX_SCORE - penalty);
 }

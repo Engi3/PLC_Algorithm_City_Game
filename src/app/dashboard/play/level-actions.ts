@@ -82,11 +82,10 @@ export async function submitLevelAction(
 
     const evalResult = evaluateGridLevel(program, level.map_layout_json);
     const blocksUsed = countGridBlocks(program);
-    const score = evalResult.passed ? computeScore(blocksUsed, level.optimal_blocks_count) : 0;
 
     const { data: priorAttempts, error: attemptsError } = await supabase
       .from("play_logs")
-      .select("id, score")
+      .select("id, score, is_success")
       .eq("user_id", profile.id)
       .eq("level_id", levelId);
 
@@ -97,6 +96,8 @@ export async function submitLevelAction(
 
     const priorBestScore = Math.max(0, ...(priorAttempts ?? []).map((a) => a.score ?? 0));
     const attemptNumber = (priorAttempts?.length ?? 0) + 1;
+    const priorFailedAttempts = (priorAttempts ?? []).filter((a) => !a.is_success).length;
+    const score = evalResult.passed ? computeScore(blocksUsed, level.optimal_blocks_count, priorFailedAttempts) : 0;
 
     const { error: insertError } = await supabase.from("play_logs").insert({
       user_id: profile.id,
