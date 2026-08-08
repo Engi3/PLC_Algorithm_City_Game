@@ -1,25 +1,25 @@
 /**
- * New independently-numbered 50-level Maze Explorer track (levels 1-50,
- * own number line per migration 0014 - no longer shares 1-100 with
- * Factory), replacing the old 49-level 9x9-only track entirely. Size
- * progresses 9x9 -> 21x21 across 7 tiers; within each tier, difficulty
- * (measured solve-tick count, via the real engine - never hand-guessed)
- * ramps from ~1x-2x the tile size up to ~3x-6x it, and the harder half of
- * each tier is a hazard maze. See maze-gen.ts for the generator itself and
- * generate-maze-9x9.ts for the original single-size version this
- * generalizes.
+ * Task 4c: "massive grid" finale tiers for the Maze Explorer track - levels
+ * 51-68, APPENDED after the existing 1-50 (generate-maze-50.ts, untouched)
+ * rather than replacing anything, so existing levels/play_logs are
+ * unaffected. 3 tiers of 6 levels each, sizes 31x31/41x41/51x51 - the spec
+ * asked for 30x30/40x40/50x50, but maze-gen.ts's room-doubling scheme
+ * requires an ODD size, so these ship as the nearest odd sizes instead (see
+ * MAZE_CHAPTERS's comment in game-level-types.ts).
  *
- * Every level is self-verified against the real engine (runGridScan +
- * evaluateGameLevelTick) before being written out.
+ * Reuses maze-gen.ts's exported `decisionProgram` (the Task 4b hazard-aware
+ * "Pattern D+H" circuit) directly rather than hand-duplicating it a third
+ * time - generate-maze-50.ts's own local `basicDecision()` predates this
+ * export and is left as-is (already shipped/self-verified).
+ *
+ * Every level is self-verified against the real engine before being
+ * written out, same as generate-maze-50.ts.
  *
  * Usage:
- *   npx tsx scripts/level-gen/generate-maze-50.ts
- *   npx tsx scripts/update-maze9x9-levels.ts ./scripts/level-gen/game-levels-maze-50.json   (after deleting old maze rows - see delete-old-maze-levels.ts)
+ *   npx tsx scripts/level-gen/generate-maze-massive.ts
  */
 import { writeFileSync } from "fs";
-import { NC, NO, COIL, seriesRung, program, grid, place, wireH, feedLeftRail, tieVertical } from "./grid-builders";
-import { generateDifficultyMaze, generateHazardMaze, type GeneratedMaze } from "./maze-gen";
-import { COIL_COLUMN, type GridNode, type GridProgram, type LadderGrid } from "../../src/lib/ladder/grid-types";
+import { generateDifficultyMaze, generateHazardMaze, decisionProgram, type GeneratedMaze } from "./maze-gen";
 import { runGridScan } from "../../src/lib/ladder/grid-engine";
 import { createEmptyMemory } from "../../src/lib/ladder/types";
 import { evaluateGameLevelTick, type GameRunState } from "../../src/lib/games/evaluate-game-level";
@@ -27,52 +27,26 @@ import { createMazeGameState, mazeBinding } from "../../src/lib/games/maze-plc-b
 import type { MazeMap, MazeRobotState } from "../../src/lib/games/maze-types";
 import type { SuccessCondition } from "../../src/lib/games/game-level-types";
 
-let idCounter = 0;
-function nextId(): string {
-  idCounter += 1;
-  return `m50_${idCounter}`;
-}
-function rung(instructions: GridNode[], coilNode: GridNode): LadderGrid {
-  return seriesRung(nextId(), instructions, coilNode);
-}
-/** Task 4b: hazard-aware "Pattern D+H" - ahead-blocked (M0) is X0 OR X3 (hazardAhead), via a real parallel-contact branch, not X0 alone. See maze-gen.ts's buildDecisionProgram for the identical topology and full rationale (this file can't import that one directly - it's local to maze-gen.ts - so the shape is kept in sync by hand). */
-function basicDecision(): GridProgram {
-  const blocked = grid(nextId(), 2);
-  place(blocked, 0, 0, NO("X0"));
-  place(blocked, 1, 0, NO("X3"));
-  wireH(blocked, 0, 0, 1);
-  wireH(blocked, 1, 0, 1);
-  tieVertical(blocked, 0, 1);
-  wireH(blocked, 0, 1, COIL_COLUMN);
-  place(blocked, 0, COIL_COLUMN, COIL("M0"));
-  feedLeftRail(blocked, 0);
-  feedLeftRail(blocked, 1);
-
-  return program(blocked, rung([NC("M0")], COIL("Y0")), rung([NO("M0"), NC("X2")], COIL("Y2")), rung([NO("M0"), NO("X2")], COIL("Y1")));
-}
+const FIRST_LEVEL_NUMBER = 51;
 
 type Tier = { size: number; count: number };
 const TIERS: Tier[] = [
-  { size: 9, count: 7 },
-  { size: 11, count: 7 },
-  { size: 13, count: 7 },
-  { size: 15, count: 7 },
-  { size: 17, count: 7 },
-  { size: 19, count: 7 },
-  { size: 21, count: 8 },
+  { size: 31, count: 6 },
+  { size: 41, count: 6 },
+  { size: 51, count: 6 },
 ];
 
 type PlannedLevel = { levelNumber: number; size: number; tierNumber: number; tierIndex: number; tierLength: number; hazard: boolean };
 
 const plannedLevels: PlannedLevel[] = [];
 {
-  let levelNumber = 1;
+  let levelNumber = FIRST_LEVEL_NUMBER;
   TIERS.forEach((tier, tierNumber) => {
     for (let tierIndex = 0; tierIndex < tier.count; tierIndex++) {
       plannedLevels.push({
         levelNumber,
         size: tier.size,
-        tierNumber: tierNumber + 1,
+        tierNumber: tierNumber + 8, // continues after the existing 7 tiers (1-50)
         tierIndex,
         tierLength: tier.count,
         hazard: tierIndex >= Math.ceil(tier.count / 2),
@@ -91,28 +65,28 @@ function tickBand(size: number, tierIndex: number, tierLength: number): [number,
 
 type LevelDef = { levelNumber: number; title: string; description: string; hints: string[]; mapLayout: MazeMap; robotStart: MazeRobotState; timeLimitTicks: number };
 
-const solution = basicDecision();
-
 const levels: LevelDef[] = plannedLevels.map((p) => {
   const [minTicks, maxTicks] = tickBand(p.size, p.tierIndex, p.tierLength);
-  const seed = 500000 + p.levelNumber * 7919;
+  const seed = 900000 + p.levelNumber * 7919;
   const base: GeneratedMaze = p.hazard
     ? generateHazardMaze(seed, p.size, minTicks, maxTicks, 500)
     : generateDifficultyMaze(seed, p.size, minTicks, maxTicks, 500);
 
-  const title = `เขาวงกต ${p.size}x${p.size} ด่านที่ ${p.levelNumber}${p.hazard ? " (ระวังกับดัก)" : ""}`;
+  const title = `เขาวงกตยักษ์ ${p.size}x${p.size} ด่านที่ ${p.levelNumber}${p.hazard ? " (ระวังกับดัก)" : ""}`;
   const description = p.hazard
-    ? `หุ่นยนต์ AGV ของคุณติดอยู่ในเขาวงกตขนาด ${p.size}x${p.size} ที่มีกับดักซ่อนอยู่ตามทาง เขียนวงจรควบคุมให้หุ่นยนต์ใช้เซนเซอร์ตรวจกำแพงรอบตัว หาทางออกไปให้ถึงธงเป้าหมายให้ได้ โดยห้ามพลาดเข้ากับดักเด็ดขาด`
-    : `หุ่นยนต์ AGV ของคุณติดอยู่ในเขาวงกตขนาด ${p.size}x${p.size} เขียนวงจรควบคุมให้หุ่นยนต์ใช้เซนเซอร์ตรวจกำแพงรอบตัว ตัดสินใจเดินหน้าหรือเลี้ยว จนหาทางออกไปถึงธงเป้าหมายให้ได้`;
+    ? `เขาวงกตขนาดยักษ์ ${p.size}x${p.size} มีกับดักซ่อนอยู่ตามทางเลี้ยว เขียนวงจรควบคุมหุ่นยนต์ AGV ให้ใช้เซนเซอร์กำแพง (X0-X2) ร่วมกับเซนเซอร์กับดัก (X3) หาทางออกไปให้ถึงธงเป้าหมายให้ได้ โดยห้ามพลาดเข้ากับดักเด็ดขาด`
+    : `เขาวงกตขนาดยักษ์ ${p.size}x${p.size} เขียนวงจรควบคุมหุ่นยนต์ AGV ให้ใช้เซนเซอร์ตรวจกำแพงรอบตัว ตัดสินใจเดินหน้าหรือเลี้ยว จนหาทางออกไปถึงธงเป้าหมายให้ได้`;
   const hints = p.hazard
     ? [
-        "สำคัญ: ด่านนี้มีกับดัก (HAZARD) วางอยู่บนเส้นทางจริงตรงจุดที่ต้องเลี้ยว - เซนเซอร์ X0 (กำแพงข้างหน้า) ตรวจไม่พบกับดัก ต้องใช้ X3 (มีกับดักข้างหน้า) เพิ่มด้วย ไม่งั้นหุ่นยนต์จะเดินหน้าพลาดเข้ากับดักทันที",
-        "แนะนำ: สร้างรีเลย์ภายใน M0 = \"ข้างหน้าถูกกั้น\" โดยต่อ NO(X0) ขนานกับ NO(X3) (ใครจริงก็ได้) แล้วให้ M0 เป็นตัวเดียวที่ตัดสินใจเดินหน้า/เลี้ยว แทนที่จะเช็ค X0 ตรงๆ",
+        "สำคัญ: ด่านนี้มีกับดัก (HAZARD) วางอยู่บนเส้นทางจริงตรงจุดที่ต้องเลี้ยว - เซนเซอร์ X0 ตรวจไม่พบกับดัก ต้องใช้ X3 เพิ่มด้วย ไม่งั้นหุ่นยนต์จะเดินหน้าพลาดเข้ากับดักทันที",
+        "แนะนำ: สร้างรีเลย์ภายใน M0 = \"ข้างหน้าถูกกั้น\" โดยต่อ NO(X0) ขนานกับ NO(X3) แล้วให้ M0 เป็นตัวเดียวที่ตัดสินใจเดินหน้า/เลี้ยว แทนที่จะเช็ค X0 ตรงๆ",
         "เดินหน้า: NC(M0) -> Y0 | เลี้ยวขวา: NO(M0) อนุกรมกับ NC(X2) -> Y2 | เลี้ยวซ้าย: NO(M0) อนุกรมกับ NO(X2) -> Y1",
+        "แผนที่ใหญ่มาก - ใช้ AI0 (ระยะทางถึงเป้าหมาย) ช่วยตรวจสอบว่าวงจรของคุณกำลังเข้าใกล้เป้าหมายจริงหรือไม่ระหว่างทดสอบ",
       ]
     : [
         "ใช้หน้าสัมผัส NC ต่อกับ X0 แล้วต่อไปยัง Y0 เพื่อเดินหน้าตลอดเวลาที่ไม่มีกำแพง",
         "ที่ทางแยก: NO(X0) อนุกรมกับ NC(X2) -> Y2 (เลี้ยวขวาเมื่อขวาว่าง), NO(X0) อนุกรมกับ NO(X2) -> Y1 (เลี้ยวซ้ายเมื่อขวาไม่ว่าง)",
+        "แผนที่ใหญ่มาก - วงจรเดียวกันกับเขาวงกตทั่วไปยังใช้ได้ แค่ใช้เวลานานขึ้นเพราะระยะทางไกลกว่า",
       ];
 
   return {
@@ -145,7 +119,7 @@ function verifyLevel(def: LevelDef): string | null {
   while (outcome.status === "playing" && tick < maxTicks) {
     tick++;
     const { inputs, analogInputs } = mazeBinding.readInputs(run.maze!);
-    const { memory: nextMemory } = runGridScan(solution, inputs, memory, { tick: true }, analogInputs);
+    const { memory: nextMemory } = runGridScan(decisionProgram, inputs, memory, { tick: true }, analogInputs);
     memory = nextMemory;
     run = { maze: mazeBinding.step(run.maze!, memory.coils, memory) };
     outcome = evaluateGameLevelTick(spec, run, inputs, memory, analogInputs, tick);
@@ -184,7 +158,7 @@ function toRow(def: LevelDef): GameLevelRowOut {
     factory_initial_json: null,
     success_conditions_json: [{ kind: "reach_goal" }],
     safety_constraints_json: [],
-    reference_grid_program_json: solution,
+    reference_grid_program_json: decisionProgram,
     time_limit_ticks: def.timeLimitTicks,
     ticks_per_second: null,
   };
@@ -202,10 +176,10 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`Self-verified ${levels.length} maze levels (sizes ${TIERS.map((t) => t.size).join(",")}).`);
+  console.log(`Self-verified ${levels.length} massive maze levels (sizes ${TIERS.map((t) => t.size).join(",")}), levels ${FIRST_LEVEL_NUMBER}-${FIRST_LEVEL_NUMBER + levels.length - 1}.`);
 
   const rows = levels.map(toRow);
-  const outPath = "./scripts/level-gen/game-levels-maze-50.json";
+  const outPath = "./scripts/level-gen/game-levels-maze-massive.json";
   writeFileSync(outPath, JSON.stringify(rows, null, 2));
   console.log(`Wrote ${rows.length} rows to ${outPath}.`);
 }

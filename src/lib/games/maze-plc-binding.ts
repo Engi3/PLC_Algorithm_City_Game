@@ -13,13 +13,32 @@ export function createMazeGameState(map: MazeMap, start: MazeRobotState): MazeGa
   return { map, robot: start, status: "playing" };
 }
 
+/**
+ * Goal-tile positions cached per map object. A run's map reference never
+ * mutates (only the robot moves), so scanning once and reusing across every
+ * tick avoids an O(size^2) rescan per scan-cycle - matters once mazes scale
+ * past 21x21, since generation itself simulates hundreds of full runs.
+ */
+const goalCache = new WeakMap<MazeMap, { x: number; y: number }[]>();
+
+function findGoals(map: MazeMap): { x: number; y: number }[] {
+  const cached = goalCache.get(map);
+  if (cached) return cached;
+  const goals: { x: number; y: number }[] = [];
+  for (let y = 0; y < map.length; y++) {
+    for (let x = 0; x < map[y].length; x++) {
+      if (map[y][x] === "GOAL") goals.push({ x, y });
+    }
+  }
+  goalCache.set(map, goals);
+  return goals;
+}
+
 /** Manhattan distance from the robot to the nearest GOAL tile - what AI0 reports. 0 if the map has no goal tile (a malformed level, but readInputs still needs to return something). */
 function distanceToGoal(map: MazeMap, robot: MazeRobotState): number {
   let best = Infinity;
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x] === "GOAL") best = Math.min(best, Math.abs(x - robot.x) + Math.abs(y - robot.y));
-    }
+  for (const goal of findGoals(map)) {
+    best = Math.min(best, Math.abs(goal.x - robot.x) + Math.abs(goal.y - robot.y));
   }
   return Number.isFinite(best) ? best : 0;
 }
@@ -29,17 +48,20 @@ type MazeAddresses = {
   wallAhead: string;
   wallLeft: string;
   wallRight: string;
+  /** Task 4b: true when the tile directly ahead is HAZARD (not WALL) - a circuit that only checks wallAhead never sees this and walks straight in, since HAZARD tiles read as "not a wall" to wallAhead by design (see readMazeTile's strict === "WALL" check below). Forces genuinely checking this sensor rather than reusing a pre-hazard wall-following circuit unchanged. */
+  hazardAhead: string;
   distance: string;
   forward: string;
   turnLeft: string;
   turnRight: string;
 };
 
-/** Standalone Maze Explorer track's addresses - unchanged since the track's launch. */
+/** Standalone Maze Explorer track's addresses - X3 (hazardAhead) added Task 4b, X0-X2/Y0-Y2/AI0 unchanged since the track's launch. */
 export const MAZE_ADDR: MazeAddresses = {
   wallAhead: "X0",
   wallLeft: "X1",
   wallRight: "X2",
+  hazardAhead: "X3",
   distance: "AI0",
   forward: "Y0",
   turnLeft: "Y1",
@@ -58,6 +80,7 @@ export const HYBRID_MAZE_ADDR: MazeAddresses = {
   wallAhead: "X10",
   wallLeft: "X11",
   wallRight: "X12",
+  hazardAhead: "X13",
   distance: "AI10",
   forward: "Y10",
   turnLeft: "Y11",
@@ -85,6 +108,7 @@ function buildBinding(addr: MazeAddresses): GamePlcBinding<MazeGameState> {
         [addr.wallAhead]: readMazeTile(map, ahead.x, ahead.y) === "WALL",
         [addr.wallLeft]: readMazeTile(map, left.x, left.y) === "WALL",
         [addr.wallRight]: readMazeTile(map, right.x, right.y) === "WALL",
+        [addr.hazardAhead]: readMazeTile(map, ahead.x, ahead.y) === "HAZARD",
       };
       const analogInputs: AnalogInputs = { [addr.distance]: clampAnalogValue(distanceToGoal(map, robot)) };
       return { inputs, analogInputs };

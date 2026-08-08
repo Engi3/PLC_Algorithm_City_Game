@@ -140,7 +140,17 @@ export const GAME_CHAPTERS: GameChapter[] = [
   { chapterNumber: 5, levelRange: [81, 100], titleTh: "ประยุกต์ขั้นสูง", titleEn: "Advanced Applied" },
 ];
 
-/** The new 50-level Maze Explorer track (scripts/level-gen/generate-maze-50.ts) - its own independent 1-50 number line, grouped by tile-size tier (9x9 -> 21x21) rather than by PLC concept, since every level in this track uses the same Pattern D decision rule and difficulty comes purely from maze size/complexity. */
+/**
+ * The Maze Explorer track's own independent 1-N number line, grouped by
+ * tile-size tier rather than by PLC concept, since difficulty comes purely
+ * from maze size/complexity plus (Task 4b) hazard-sensor usage. Tiers 1-7
+ * (levels 1-50, scripts/level-gen/generate-maze-50.ts) are the original
+ * 9x9->21x21 progression. Tiers 8-10 (levels 51-68, scripts/level-gen/
+ * generate-maze-massive.ts, Task 4c) are the "massive grid" finale the spec
+ * asked for as 30x30/40x40/50x50 - the generator requires an ODD size (see
+ * maze-gen.ts's room-doubling scheme), so these ship as the nearest odd
+ * sizes, 31x31/41x41/51x51, instead.
+ */
 export const MAZE_CHAPTERS: GameChapter[] = [
   { chapterNumber: 1, levelRange: [1, 7], titleTh: "เขาวงกต 9x9", titleEn: "9x9 Maze" },
   { chapterNumber: 2, levelRange: [8, 14], titleTh: "เขาวงกต 11x11", titleEn: "11x11 Maze" },
@@ -148,10 +158,24 @@ export const MAZE_CHAPTERS: GameChapter[] = [
   { chapterNumber: 4, levelRange: [22, 28], titleTh: "เขาวงกต 15x15", titleEn: "15x15 Maze" },
   { chapterNumber: 5, levelRange: [29, 35], titleTh: "เขาวงกต 17x17", titleEn: "17x17 Maze" },
   { chapterNumber: 6, levelRange: [36, 42], titleTh: "เขาวงกต 19x19", titleEn: "19x19 Maze" },
-  { chapterNumber: 7, levelRange: [43, 50], titleTh: "เขาวงกต 21x21 (ขั้นสูงสุด)", titleEn: "21x21 Maze (Finale)" },
+  { chapterNumber: 7, levelRange: [43, 50], titleTh: "เขาวงกต 21x21", titleEn: "21x21 Maze" },
+  { chapterNumber: 8, levelRange: [51, 56], titleTh: "เขาวงกตยักษ์ 31x31", titleEn: "31x31 Giant Maze" },
+  { chapterNumber: 9, levelRange: [57, 62], titleTh: "เขาวงกตยักษ์ 41x41", titleEn: "41x41 Giant Maze" },
+  { chapterNumber: 10, levelRange: [63, 68], titleTh: "เขาวงกตยักษ์ 51x51 (ขั้นสูงสุด)", titleEn: "51x51 Giant Maze (Finale)" },
 ];
 
-/** The new 50-level Factory Simulator track (scripts/level-gen/generate-factory-50.ts) - its own independent 1-50 number line, grouped by scenario rather than by PLC concept: basic conveyor, tank & heater, sorting robot, reversible conveyor, traffic light, then a combined finale layering several mechanics onto one program at once. */
+/**
+ * The Factory Simulator track's own independent 1-N number line, grouped by
+ * scenario rather than by PLC concept. Chapters 1-6 (levels 1-50, scripts/
+ * level-gen/generate-factory-50.ts) are the original track: basic conveyor,
+ * tank & heater, sorting robot, reversible conveyor, traffic light, then a
+ * combined finale layering several mechanics onto one program at once.
+ * Chapter 7 (levels 51-58, scripts/level-gen/generate-factory-count-
+ * dispatch.ts, Task 4d) fills the one gap the original 50 left: Counters
+ * (CTU/CTD) never appeared combined with Timers+Analog anywhere in that
+ * track (only Timer+Analog, in chapter 3's sorting robot) - this chapter
+ * requires all three gating one output at once.
+ */
 export const FACTORY_CHAPTERS: GameChapter[] = [
   { chapterNumber: 1, levelRange: [1, 8], titleTh: "สายพานพื้นฐาน", titleEn: "Basic Conveyor" },
   { chapterNumber: 2, levelRange: [9, 16], titleTh: "ถังน้ำและฮีตเตอร์", titleEn: "Tank & Heater" },
@@ -159,6 +183,7 @@ export const FACTORY_CHAPTERS: GameChapter[] = [
   { chapterNumber: 4, levelRange: [25, 32], titleTh: "สายพานย้อนกลับ", titleEn: "Reversible Conveyor" },
   { chapterNumber: 5, levelRange: [33, 40], titleTh: "ไฟจราจร", titleEn: "Traffic Light" },
   { chapterNumber: 6, levelRange: [41, 50], titleTh: "บทสรุปขั้นสูง", titleEn: "Advanced Finale" },
+  { chapterNumber: 7, levelRange: [51, 58], titleTh: "นับและจ่ายสินค้า (ตัวนับ+ตัวจับเวลา+อนาล็อก)", titleEn: "Count & Dispatch (Counter+Timer+Analog)" },
 ];
 
 /** The new 50-level Hybrid track (scripts/level-gen/generate-hybrid-50.ts) - its own independent 1-50 number line, grouped by maze-size tier (5x5 -> 13x13) same as Maze, since difficulty scales with both maze size and item count together within each tier. */

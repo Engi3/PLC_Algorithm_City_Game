@@ -5,11 +5,12 @@ export type IoRow = {
   description: string;
 };
 
-/** Standardized Maze I/O map (see maze-plc-binding.ts's header comment) - shown as a reference table on the level detail page and inside the play screen's guide, so a student never has to guess what X0-X2/Y0-Y2/AI0 mean. */
+/** Standardized Maze I/O map (see maze-plc-binding.ts's header comment) - shown as a reference table on the level detail page and inside the play screen's guide, so a student never has to guess what X0-X3/Y0-Y2/AI0 mean. */
 export const MAZE_IO_ROWS: IoRow[] = [
-  { address: "X0", name: "มีกำแพงข้างหน้า", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านหน้าหุ่นยนต์ - เป็นจริงเมื่อมีกำแพงกั้น" },
+  { address: "X0", name: "มีกำแพงข้างหน้า", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านหน้าหุ่นยนต์ - เป็นจริงเมื่อมีกำแพงกั้น (กับดัก/HAZARD ไม่ทำให้ค่านี้เป็นจริง - ต้องใช้ X3 แยกต่างหาก)" },
   { address: "X1", name: "มีกำแพงด้านซ้าย", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านซ้ายของหุ่นยนต์" },
   { address: "X2", name: "มีกำแพงด้านขวา", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านขวาของหุ่นยนต์" },
+  { address: "X3", name: "มีกับดักข้างหน้า", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกับดัก (HAZARD) ตรงด้านหน้าหุ่นยนต์ - เป็นจริงเมื่อช่องข้างหน้าเป็นกับดัก ต้องเช็คคู่กับ X0 เพื่อรู้ว่าเดินหน้าไม่ได้จริงหรือไม่ (บางด่านมีกับดักวางอยู่บนเส้นทางตรงจุดเลี้ยว)" },
   { address: "AI0", name: "ระยะทางถึงเป้าหมาย", type: "อินพุตอนาล็อก", description: "ระยะทางแบบแมนฮัตตัน (Manhattan Distance) จากตำแหน่งปัจจุบันถึงธงเป้าหมาย" },
   { address: "Y0", name: "เดินหน้า", type: "เอาต์พุตดิจิทัล", description: "สั่งให้หุ่นยนต์เดินหน้าหนึ่งช่อง (ถ้ามีกำแพงกั้นอยู่จะไม่ขยับ)" },
   { address: "Y1", name: "เลี้ยวซ้าย", type: "เอาต์พุตดิจิทัล", description: "หมุนตัวหุ่นยนต์ 90° ไปทางซ้าย (ไม่เปลี่ยนตำแหน่ง)" },
@@ -35,7 +36,7 @@ export const FACTORY_IO_ROWS: IoRow[] = [
 
 /**
  * Hybrid-only Maze/AGV I/O map. Deliberately DIFFERENT addresses from
- * MAZE_IO_ROWS (X10-X12/Y10-Y12/AI10 instead of X0-X2/Y0-Y2/AI0) so a Hybrid
+ * MAZE_IO_ROWS (X10-X13/Y10-Y12/AI10 instead of X0-X3/Y0-Y2/AI0) so a Hybrid
  * level's combined I/O table never shows the same address meaning two
  * different things next to FACTORY_IO_ROWS (X0-X1/Y0-Y7/AI1-AI3) - the AGV
  * half and the Factory half of a Hybrid program can be written and read as
@@ -43,9 +44,10 @@ export const FACTORY_IO_ROWS: IoRow[] = [
  * hybridMazeBinding in maze-plc-binding.ts for the matching engine mapping.
  */
 export const HYBRID_MAZE_IO_ROWS: IoRow[] = [
-  { address: "X10", name: "มีกำแพงข้างหน้า", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านหน้าหุ่นยนต์ - เป็นจริงเมื่อมีกำแพงกั้น" },
+  { address: "X10", name: "มีกำแพงข้างหน้า", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านหน้าหุ่นยนต์ - เป็นจริงเมื่อมีกำแพงกั้น (กับดัก/HAZARD ไม่ทำให้ค่านี้เป็นจริง - ต้องใช้ X13 แยกต่างหาก)" },
   { address: "X11", name: "มีกำแพงด้านซ้าย", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านซ้ายของหุ่นยนต์" },
   { address: "X12", name: "มีกำแพงด้านขวา", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกำแพงด้านขวาของหุ่นยนต์" },
+  { address: "X13", name: "มีกับดักข้างหน้า", type: "อินพุตดิจิทัล", description: "เซนเซอร์ตรวจกับดัก (HAZARD) ตรงด้านหน้าหุ่นยนต์ AGV - เป็นจริงเมื่อช่องข้างหน้าเป็นกับดัก ต้องเช็คคู่กับ X10" },
   { address: "AI10", name: "ระยะทางถึงเป้าหมาย", type: "อินพุตอนาล็อก", description: "ระยะทางแบบแมนฮัตตัน (Manhattan Distance) จากตำแหน่งปัจจุบันถึงธงเป้าหมาย" },
   { address: "Y10", name: "เดินหน้า", type: "เอาต์พุตดิจิทัล", description: "สั่งให้หุ่นยนต์เดินหน้าหนึ่งช่อง (ถ้ามีกำแพงกั้นอยู่จะไม่ขยับ)" },
   { address: "Y11", name: "เลี้ยวซ้าย", type: "เอาต์พุตดิจิทัล", description: "หมุนตัวหุ่นยนต์ 90° ไปทางซ้าย (ไม่เปลี่ยนตำแหน่ง)" },

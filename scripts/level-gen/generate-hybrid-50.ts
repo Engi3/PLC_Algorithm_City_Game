@@ -10,12 +10,23 @@
  * where both halves shared X0-X2/Y0-Y2 and the circuit had to self-detect
  * which phase was live from counter/timer state alone).
  *
- * Deliberately scoped to the SIMPLE factory pattern only (plain item
- * count via CTD, no reject/tank/heater) - combining a hazard-maze phase
- * WITH a defect-reject or bang-bang-heater factory phase in one circuit
- * is a further compounding of untested risk (mirrors why generate-
- * factory-50.ts's finale chapter deliberately never combines sort with
- * reverse).
+ * Deliberately scoped to a SIMPLE factory pattern (item count + a timed
+ * dispatch gate, no reject/robot-arm/reverse/heater) - combining a
+ * hazard-maze phase WITH a defect-reject or bang-bang-heater factory phase
+ * in one circuit is a further compounding of untested risk (mirrors why
+ * generate-factory-50.ts's finale chapter deliberately never combines sort
+ * with reverse).
+ *
+ * Task 4e: the factory half now requires Counter+Timer+Analog together to
+ * gate the phase switch into the AGV half, matching the spec's own example
+ * ("count 10 boxes, wait 5 seconds, then dispatch an AGV") almost exactly -
+ * CTD C0 counts items, TON T0 waits once C0.DN, and Y7 (dispatch signal)
+ * only lights once BOTH the timer is done AND the tank (AI1) has filled
+ * past a threshold. The phase-switch harness (buildCombinedBinding in
+ * use-game-level-play.ts / the local reimplementation in verifyLevel below)
+ * already gates on "every non-reach_goal success condition holds", so
+ * adding Y7 to successConditions is what actually makes AGV departure wait
+ * on the full T+C+AI combo, not just the counter alone as before.
  *
  * Every level is self-verified against the real engine (the exact same
  * phase-switching harness run-game-level.ts already uses) before being
@@ -26,8 +37,8 @@
  *   npx tsx scripts/replace-hybrid-levels.ts
  */
 import { writeFileSync } from "fs";
-import { NC, NO, COIL, CTD, seriesRung, program } from "./grid-builders";
-import type { GridNode, GridProgram, LadderGrid } from "../../src/lib/ladder/grid-types";
+import { NC, NO, COIL, SET, CTD, TON, CMPCONST, seriesRung, program, grid, place, wireH, feedLeftRail, tieVertical } from "./grid-builders";
+import { COIL_COLUMN, type GridNode, type GridProgram, type LadderGrid } from "../../src/lib/ladder/grid-types";
 import { runGridScan } from "../../src/lib/ladder/grid-engine";
 import { createEmptyMemory, type SimMemory } from "../../src/lib/ladder/types";
 import { evaluateGameLevelTick, checkSuccessCondition, type GameRunState } from "../../src/lib/games/evaluate-game-level";
@@ -63,13 +74,41 @@ function item(id: string, position: number): ConveyorItem {
 // collision and no phase-detection needed in the circuit itself. C0 still
 // counts items past the sensor via CTD, purely as its own counter exercise
 // (the success condition checks C0.DN) - it no longer gates anything else.
-function hybridSolution(itemCount: number): GridProgram {
+// Task 4b: the AGV half's ahead-blocked check is X10 OR X13 (hazardAhead),
+// not X10 alone - generateHazardMaze now places the hazard directly on the
+// solve path's own turning points (see maze-gen.ts), so an X10-only circuit
+// walks straight into it. M0 computes the OR via a genuine parallel-contact
+// branch, mirroring maze-gen.ts's buildDecisionProgram exactly, just offset
+// into the Hybrid track's X1x/Y1x address range.
+function hybridSolution(itemCount: number, waitTicks: number, tankThreshold: number): GridProgram {
+  const blocked = grid(nextId(), 2);
+  place(blocked, 0, 0, NO("X10"));
+  place(blocked, 1, 0, NO("X13"));
+  wireH(blocked, 0, 0, 1);
+  wireH(blocked, 1, 0, 1);
+  tieVertical(blocked, 0, 1);
+  wireH(blocked, 0, 1, COIL_COLUMN);
+  place(blocked, 0, COIL_COLUMN, COIL("M0"));
+  feedLeftRail(blocked, 0);
+  feedLeftRail(blocked, 1);
+
   return program(
     rung([NC("X9")], COIL("Y0")),
     rung([NO("X0")], CTD("C0", itemCount)),
-    rung([NC("X10")], COIL("Y10")),
-    rung([NO("X10"), NC("X12")], COIL("Y12")),
-    rung([NO("X10"), NO("X12")], COIL("Y11"))
+    rung([NO("C0.DN")], TON("T0", waitTicks)),
+    // SET, not COIL: once the maze phase begins, hybridMazeBinding's
+    // readInputs() supplies X10-X13/AI10 only - AI1 isn't in that tick's
+    // analogInputs, so CMPCONST(AI1) would read 0 and a plain COIL would
+    // immediately drop back to false the instant the AGV phase starts (this
+    // grid program keeps running every tick regardless of phase - only the
+    // WORLD each binding steps differs). SET latches Y7 permanently once
+    // its conditions are genuinely met, same sticky behavior C0.DN/T0.DN
+    // already have from their own memory-backed (not sensor-backed) reads.
+    rung([NO("C0.DN"), NO("T0.DN"), CMPCONST(">=", "AI1", tankThreshold)], SET("Y7")),
+    blocked,
+    rung([NC("M0")], COIL("Y10")),
+    rung([NO("M0"), NC("X12")], COIL("Y12")),
+    rung([NO("M0"), NO("X12")], COIL("Y11"))
   );
 }
 
@@ -120,12 +159,19 @@ type LevelDef = {
   solution: GridProgram;
 };
 
+const WAIT_SECONDS = 5;
+const TICKS_PER_SECOND = 5; // matches DEFAULT_TICKS_PER_SECOND (use-game-plc-bridge.ts) - these levels ship ticks_per_second: null, so the default applies.
+
 const HINTS = [
-  "สายการผลิตกับหุ่นยนต์ AGV ใช้ Address คนละชุดไม่ซ้ำกัน: สายพาน/โรงงานใช้ X0-X1, Y0-Y7 เหมือนด่าน Factory ปกติ ส่วน AGV ใช้ X10-X12 (เซนเซอร์กำแพง), Y10-Y12 (เดินหน้า/เลี้ยว) แยกต่างหาก",
+  "สายการผลิตกับหุ่นยนต์ AGV ใช้ Address คนละชุดไม่ซ้ำกัน: สายพาน/โรงงานใช้ X0-X1, Y0-Y7 เหมือนด่าน Factory ปกติ ส่วน AGV ใช้ X10-X13 (เซนเซอร์กำแพง+กับดัก), Y10-Y12 (เดินหน้า/เลี้ยว) แยกต่างหาก",
   "เขียนวงจรทั้งสองส่วนแยกกันได้เลย ไม่ต้องกังวลว่าจะชนกัน - ให้สายพาน (Y0) เดินตลอดเวลา และให้หุ่นยนต์ AGV เดินหน้า/เลี้ยวตามเซนเซอร์กำแพง (X10-X12) ไปพร้อมกันในวงจรเดียว",
-  "ใช้ CTD (ตัวนับถอยหลัง) ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ (เป็นส่วนหนึ่งของเงื่อนไขผ่านด่าน)",
+  "ใช้ CTD (ตัวนับถอยหลัง) ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+  "หุ่นยนต์ AGV จะออกเดินทางได้ก็ต่อเมื่อ \"สัญญาณจ่ายสินค้า\" (Y7) ติด - ต้องต่อ NO(C0.DN) เข้า TON ชื่อ T0 (รอ 5 วินาทีหลังนับครบ) แล้วให้ Y7 ติดเมื่อ C0.DN, T0.DN และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ ครบทั้งสามเงื่อนไขพร้อมกัน (ถังน้ำเติมเองอัตโนมัติ ไม่ต้องเปิดวาล์ว)",
   "หุ่นยนต์ AGV ใช้หลักการเดียวกับด่าน Maze Explorer: เดินหน้าตลอดเวลาที่ไม่มีกำแพงข้างหน้า (NC(X10) → Y10) ถ้ามีกำแพงข้างหน้าให้เลี้ยวขวาก่อน ถ้าขวาก็มีกำแพงอีกให้เลี้ยวซ้าย (X12/X11 → Y12/Y11)",
 ];
+
+const HAZARD_HINT =
+  "สำคัญ: ช่วง AGV มีกับดัก (HAZARD) วางอยู่บนเส้นทางจริงตรงจุดเลี้ยว - X10 (กำแพงข้างหน้า) ตรวจไม่พบกับดัก ต้องใช้ X13 (มีกับดักข้างหน้า) ด้วย เช่น สร้างรีเลย์ M0 = NO(X10) ขนานกับ NO(X13) แล้วใช้ M0 แทน X10 ตรงๆ ในการตัดสินใจเดินหน้า/เลี้ยว";
 
 const levels: LevelDef[] = plannedLevels.map((p) => {
   const [minTicks, maxTicks] = mazeTickBand(p.size, p.tierIndex, p.tierLength);
@@ -147,27 +193,36 @@ const levels: LevelDef[] = plannedLevels.map((p) => {
     ? "บทสรุปสุดท้าย: สายการผลิตและเขาวงกตผสาน"
     : `สายการผลิต + เขาวงกต ${p.size}x${p.size} ด่านที่ ${p.levelNumber}${p.hazard ? " (ระวังกับดัก)" : ""}`;
   const description = isFinale
-    ? `ด่านสรุปสุดท้าย: ประมวลผลสินค้า ${p.itemCount} ชิ้นบนสายพานให้ครบ แล้วหุ่นยนต์ AGV จะออกเดินทางผ่านเขาวงกต ${p.size}x${p.size} ที่มีกับดักไปยังเป้าหมาย`
-    : `ประมวลผลสินค้า ${p.itemCount} ชิ้นบนสายพานให้ครบก่อน แล้วหุ่นยนต์ AGV จะออกเดินทางผ่านเขาวงกต ${p.size}x${p.size}${p.hazard ? " (มีกับดัก)" : ""}ไปยังเป้าหมาย`;
+    ? `ด่านสรุปสุดท้าย: นับสินค้า ${p.itemCount} ชิ้นบนสายพานให้ครบ รอสัญญาณจ่ายสินค้าพร้อม (นับครบ + รอเวลา + ถังน้ำเต็มเกณฑ์) แล้วหุ่นยนต์ AGV จะออกเดินทางผ่านเขาวงกต ${p.size}x${p.size} ที่มีกับดักไปยังเป้าหมาย`
+    : `นับสินค้า ${p.itemCount} ชิ้นบนสายพานให้ครบก่อน รอสัญญาณจ่ายสินค้าพร้อม (นับครบ + รอเวลา + ถังน้ำเต็มเกณฑ์) แล้วหุ่นยนต์ AGV จะออกเดินทางผ่านเขาวงกต ${p.size}x${p.size}${p.hazard ? " (มีกับดัก)" : ""}ไปยังเป้าหมาย`;
+
+  // Task 4e: count -> wait -> dispatch, matching the spec's own example.
+  // Fixed 5-second wait (WAIT_TICKS) across every level, same as the spec's
+  // literal wording; tank threshold ramps with item count so later
+  // (bigger-batch) levels also need a slightly fuller tank before dispatch.
+  const waitTicks = WAIT_SECONDS * TICKS_PER_SECOND;
+  const tankThreshold = 200 + (p.itemCount - 1) * 150;
 
   const factoryTicksEstimate = Math.ceil((100 + p.itemCount * 18) / 3) + 15;
-  const timeLimitTicks = factoryTicksEstimate + base.solveTicks + p.size * 2 + 20;
+  const tankTicks = Math.ceil(tankThreshold / 40) + 10;
+  const timeLimitTicks = Math.max(factoryTicksEstimate, tankTicks) + waitTicks + base.solveTicks + p.size * 2 + 20;
 
   return {
     levelNumber: p.levelNumber,
     title,
     description,
-    hints: HINTS,
+    hints: p.hazard ? [...HINTS, HAZARD_HINT] : HINTS,
     mapLayout: base.map,
     robotStart: base.start,
     factoryInitial: factory(items),
     successConditions: [
       { kind: "bit", address: "C0.DN", expected: true },
+      { kind: "bit", address: "Y7", expected: true },
       { kind: "process_items", target: p.itemCount },
       { kind: "reach_goal" },
     ],
     timeLimitTicks,
-    solution: hybridSolution(p.itemCount),
+    solution: hybridSolution(p.itemCount, waitTicks, tankThreshold),
   };
 });
 

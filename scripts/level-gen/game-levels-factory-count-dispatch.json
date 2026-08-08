@@ -1,0 +1,4390 @@
+[
+  {
+    "level_number": 51,
+    "game_type": "FACTORY",
+    "title": "แนะนำนับและจ่ายสินค้า",
+    "description": "นับสินค้าให้ครบ 3 ชิ้นด้วยตัวนับ แล้วรอ 2 วินาที ก่อนเปิดสัญญาณจ่ายสินค้า (Y7)",
+    "hints": [
+      "ใช้ CTU ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+      "ต่อ NO(C0.DN) เข้า TON ชื่อ T0 เพื่อเริ่มหน่วงเวลาทันทีที่นับครบ",
+      "Y7 (สัญญาณจ่ายสินค้า) ต้องติดก็ต่อเมื่อ C0.DN ติด, T0.DN ติด, และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ - ทั้งสามเงื่อนไขต้องจริงพร้อมกัน (ต่ออนุกรมกันทั้งหมด)",
+      "ถังน้ำเติมเองอัตโนมัติตลอดเวลา ไม่ต้องเปิดวาล์วใดๆ - แค่ตรวจสอบ AI1 ด้วย CMP (>=)"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": 16
+        },
+        {
+          "id": "b",
+          "position": 28
+        },
+        {
+          "id": "c",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 3
+      },
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y7",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 58,
+    "ticks_per_second": null,
+    "reference_grid_program_json": {
+      "grids": [
+        {
+          "id": "f7_1",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NC",
+                  "address": "X9"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y0"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_2",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "X0"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COUNTER",
+                  "variant": "CTU",
+                  "address": "C0",
+                  "preset": 3
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_3",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "TIMER",
+                  "variant": "TON",
+                  "address": "T0",
+                  "preset": 10
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_4",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "T0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": {
+                  "kind": "COMPARE",
+                  "operator": ">=",
+                  "sourceA": "AI1",
+                  "sourceB": {
+                    "kind": "constant",
+                    "value": 200
+                  }
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y7"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level_number": 52,
+    "game_type": "FACTORY",
+    "title": "ล็อตใหญ่ขึ้น",
+    "description": "นับสินค้าให้ครบ 5 ชิ้น แล้วรอ 3 วินาที ก่อนเปิดสัญญาณจ่ายสินค้า",
+    "hints": [
+      "ใช้ CTU ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+      "ต่อ NO(C0.DN) เข้า TON ชื่อ T0 เพื่อเริ่มหน่วงเวลาทันทีที่นับครบ",
+      "Y7 (สัญญาณจ่ายสินค้า) ต้องติดก็ต่อเมื่อ C0.DN ติด, T0.DN ติด, และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ - ทั้งสามเงื่อนไขต้องจริงพร้อมกัน (ต่ออนุกรมกันทั้งหมด)",
+      "ถังน้ำเติมเองอัตโนมัติตลอดเวลา ไม่ต้องเปิดวาล์วใดๆ - แค่ตรวจสอบ AI1 ด้วย CMP (>=)"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": -8
+        },
+        {
+          "id": "b",
+          "position": 4
+        },
+        {
+          "id": "c",
+          "position": 16
+        },
+        {
+          "id": "d",
+          "position": 28
+        },
+        {
+          "id": "e",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 5
+      },
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y7",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 66,
+    "ticks_per_second": null,
+    "reference_grid_program_json": {
+      "grids": [
+        {
+          "id": "f7_5",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NC",
+                  "address": "X9"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y0"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_6",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "X0"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COUNTER",
+                  "variant": "CTU",
+                  "address": "C0",
+                  "preset": 5
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_7",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "TIMER",
+                  "variant": "TON",
+                  "address": "T0",
+                  "preset": 15
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_8",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "T0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": {
+                  "kind": "COMPARE",
+                  "operator": ">=",
+                  "sourceA": "AI1",
+                  "sourceB": {
+                    "kind": "constant",
+                    "value": 400
+                  }
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y7"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level_number": 53,
+    "game_type": "FACTORY",
+    "title": "รอเต็ม 5 วินาที",
+    "description": "นับสินค้าให้ครบ 5 ชิ้น แล้วรอให้ครบ 5 วินาทีเต็มก่อนเปิดสัญญาณจ่ายสินค้า",
+    "hints": [
+      "ใช้ CTU ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+      "ต่อ NO(C0.DN) เข้า TON ชื่อ T0 เพื่อเริ่มหน่วงเวลาทันทีที่นับครบ",
+      "Y7 (สัญญาณจ่ายสินค้า) ต้องติดก็ต่อเมื่อ C0.DN ติด, T0.DN ติด, และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ - ทั้งสามเงื่อนไขต้องจริงพร้อมกัน (ต่ออนุกรมกันทั้งหมด)",
+      "ถังน้ำเติมเองอัตโนมัติตลอดเวลา ไม่ต้องเปิดวาล์วใดๆ - แค่ตรวจสอบ AI1 ด้วย CMP (>=)"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": -8
+        },
+        {
+          "id": "b",
+          "position": 4
+        },
+        {
+          "id": "c",
+          "position": 16
+        },
+        {
+          "id": "d",
+          "position": 28
+        },
+        {
+          "id": "e",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 5
+      },
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y7",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 76,
+    "ticks_per_second": null,
+    "reference_grid_program_json": {
+      "grids": [
+        {
+          "id": "f7_9",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NC",
+                  "address": "X9"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y0"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_10",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "X0"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COUNTER",
+                  "variant": "CTU",
+                  "address": "C0",
+                  "preset": 5
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_11",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "TIMER",
+                  "variant": "TON",
+                  "address": "T0",
+                  "preset": 25
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_12",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "T0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": {
+                  "kind": "COMPARE",
+                  "operator": ">=",
+                  "sourceA": "AI1",
+                  "sourceB": {
+                    "kind": "constant",
+                    "value": 600
+                  }
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y7"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level_number": 54,
+    "game_type": "FACTORY",
+    "title": "เพิ่มเงื่อนไขถังน้ำ",
+    "description": "นับสินค้าให้ครบ 8 ชิ้น รอ 5 วินาที และระดับถังน้ำ (AI1) ต้องถึงเกณฑ์ด้วย - ต้องจริงทั้งสามเงื่อนไขพร้อมกัน",
+    "hints": [
+      "ใช้ CTU ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+      "ต่อ NO(C0.DN) เข้า TON ชื่อ T0 เพื่อเริ่มหน่วงเวลาทันทีที่นับครบ",
+      "Y7 (สัญญาณจ่ายสินค้า) ต้องติดก็ต่อเมื่อ C0.DN ติด, T0.DN ติด, และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ - ทั้งสามเงื่อนไขต้องจริงพร้อมกัน (ต่ออนุกรมกันทั้งหมด)",
+      "ถังน้ำเติมเองอัตโนมัติตลอดเวลา ไม่ต้องเปิดวาล์วใดๆ - แค่ตรวจสอบ AI1 ด้วย CMP (>=)"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": -44
+        },
+        {
+          "id": "b",
+          "position": -32
+        },
+        {
+          "id": "c",
+          "position": -20
+        },
+        {
+          "id": "d",
+          "position": -8
+        },
+        {
+          "id": "e",
+          "position": 4
+        },
+        {
+          "id": "f",
+          "position": 16
+        },
+        {
+          "id": "g",
+          "position": 28
+        },
+        {
+          "id": "h",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 8
+      },
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y7",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 88,
+    "ticks_per_second": null,
+    "reference_grid_program_json": {
+      "grids": [
+        {
+          "id": "f7_13",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NC",
+                  "address": "X9"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y0"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_14",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "X0"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COUNTER",
+                  "variant": "CTU",
+                  "address": "C0",
+                  "preset": 8
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_15",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "TIMER",
+                  "variant": "TON",
+                  "address": "T0",
+                  "preset": 25
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_16",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "T0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": {
+                  "kind": "COMPARE",
+                  "operator": ">=",
+                  "sourceA": "AI1",
+                  "sourceB": {
+                    "kind": "constant",
+                    "value": 800
+                  }
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y7"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level_number": 55,
+    "game_type": "FACTORY",
+    "title": "เกณฑ์ถังน้ำสูงขึ้น",
+    "description": "เหมือนด่านก่อนหน้า แต่เกณฑ์ถังน้ำสูงขึ้น",
+    "hints": [
+      "ใช้ CTU ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+      "ต่อ NO(C0.DN) เข้า TON ชื่อ T0 เพื่อเริ่มหน่วงเวลาทันทีที่นับครบ",
+      "Y7 (สัญญาณจ่ายสินค้า) ต้องติดก็ต่อเมื่อ C0.DN ติด, T0.DN ติด, และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ - ทั้งสามเงื่อนไขต้องจริงพร้อมกัน (ต่ออนุกรมกันทั้งหมด)",
+      "ถังน้ำเติมเองอัตโนมัติตลอดเวลา ไม่ต้องเปิดวาล์วใดๆ - แค่ตรวจสอบ AI1 ด้วย CMP (>=)"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": -44
+        },
+        {
+          "id": "b",
+          "position": -32
+        },
+        {
+          "id": "c",
+          "position": -20
+        },
+        {
+          "id": "d",
+          "position": -8
+        },
+        {
+          "id": "e",
+          "position": 4
+        },
+        {
+          "id": "f",
+          "position": 16
+        },
+        {
+          "id": "g",
+          "position": 28
+        },
+        {
+          "id": "h",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 8
+      },
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y7",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 88,
+    "ticks_per_second": null,
+    "reference_grid_program_json": {
+      "grids": [
+        {
+          "id": "f7_17",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NC",
+                  "address": "X9"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y0"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_18",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "X0"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COUNTER",
+                  "variant": "CTU",
+                  "address": "C0",
+                  "preset": 8
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_19",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "TIMER",
+                  "variant": "TON",
+                  "address": "T0",
+                  "preset": 25
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_20",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "T0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": {
+                  "kind": "COMPARE",
+                  "operator": ">=",
+                  "sourceA": "AI1",
+                  "sourceB": {
+                    "kind": "constant",
+                    "value": 1000
+                  }
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y7"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level_number": 56,
+    "game_type": "FACTORY",
+    "title": "นับสิบชิ้น รอห้าวินาที",
+    "description": "นับสินค้าให้ครบ 10 ชิ้น แล้วรอ 5 วินาที ก่อนเปิดสัญญาณจ่ายสินค้า (ตามสเปคมาตรฐาน)",
+    "hints": [
+      "ใช้ CTU ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+      "ต่อ NO(C0.DN) เข้า TON ชื่อ T0 เพื่อเริ่มหน่วงเวลาทันทีที่นับครบ",
+      "Y7 (สัญญาณจ่ายสินค้า) ต้องติดก็ต่อเมื่อ C0.DN ติด, T0.DN ติด, และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ - ทั้งสามเงื่อนไขต้องจริงพร้อมกัน (ต่ออนุกรมกันทั้งหมด)",
+      "ถังน้ำเติมเองอัตโนมัติตลอดเวลา ไม่ต้องเปิดวาล์วใดๆ - แค่ตรวจสอบ AI1 ด้วย CMP (>=)"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": -68
+        },
+        {
+          "id": "b",
+          "position": -56
+        },
+        {
+          "id": "c",
+          "position": -44
+        },
+        {
+          "id": "d",
+          "position": -32
+        },
+        {
+          "id": "e",
+          "position": -20
+        },
+        {
+          "id": "f",
+          "position": -8
+        },
+        {
+          "id": "g",
+          "position": 4
+        },
+        {
+          "id": "h",
+          "position": 16
+        },
+        {
+          "id": "i",
+          "position": 28
+        },
+        {
+          "id": "j",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 10
+      },
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y7",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 96,
+    "ticks_per_second": null,
+    "reference_grid_program_json": {
+      "grids": [
+        {
+          "id": "f7_21",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NC",
+                  "address": "X9"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y0"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_22",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "X0"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COUNTER",
+                  "variant": "CTU",
+                  "address": "C0",
+                  "preset": 10
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_23",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "TIMER",
+                  "variant": "TON",
+                  "address": "T0",
+                  "preset": 25
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_24",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "T0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": {
+                  "kind": "COMPARE",
+                  "operator": ">=",
+                  "sourceA": "AI1",
+                  "sourceB": {
+                    "kind": "constant",
+                    "value": 1000
+                  }
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y7"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level_number": 57,
+    "game_type": "FACTORY",
+    "title": "ล็อตสิบชิ้น รอนานขึ้น",
+    "description": "นับสินค้าให้ครบ 10 ชิ้น รอ 6 วินาที และเกณฑ์ถังน้ำสูงขึ้น",
+    "hints": [
+      "ใช้ CTU ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+      "ต่อ NO(C0.DN) เข้า TON ชื่อ T0 เพื่อเริ่มหน่วงเวลาทันทีที่นับครบ",
+      "Y7 (สัญญาณจ่ายสินค้า) ต้องติดก็ต่อเมื่อ C0.DN ติด, T0.DN ติด, และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ - ทั้งสามเงื่อนไขต้องจริงพร้อมกัน (ต่ออนุกรมกันทั้งหมด)",
+      "ถังน้ำเติมเองอัตโนมัติตลอดเวลา ไม่ต้องเปิดวาล์วใดๆ - แค่ตรวจสอบ AI1 ด้วย CMP (>=)"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": -68
+        },
+        {
+          "id": "b",
+          "position": -56
+        },
+        {
+          "id": "c",
+          "position": -44
+        },
+        {
+          "id": "d",
+          "position": -32
+        },
+        {
+          "id": "e",
+          "position": -20
+        },
+        {
+          "id": "f",
+          "position": -8
+        },
+        {
+          "id": "g",
+          "position": 4
+        },
+        {
+          "id": "h",
+          "position": 16
+        },
+        {
+          "id": "i",
+          "position": 28
+        },
+        {
+          "id": "j",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 10
+      },
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y7",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 101,
+    "ticks_per_second": null,
+    "reference_grid_program_json": {
+      "grids": [
+        {
+          "id": "f7_25",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NC",
+                  "address": "X9"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y0"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_26",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "X0"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COUNTER",
+                  "variant": "CTU",
+                  "address": "C0",
+                  "preset": 10
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_27",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "TIMER",
+                  "variant": "TON",
+                  "address": "T0",
+                  "preset": 30
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_28",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "T0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": {
+                  "kind": "COMPARE",
+                  "operator": ">=",
+                  "sourceA": "AI1",
+                  "sourceB": {
+                    "kind": "constant",
+                    "value": 1200
+                  }
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y7"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level_number": 58,
+    "game_type": "FACTORY",
+    "title": "บทสรุปหมวดนับและจ่ายสินค้า",
+    "description": "ด่านสรุป: นับสินค้าให้ครบ 12 ชิ้น รอ 5 วินาที และระดับถังน้ำต้องถึงเกณฑ์สูงสุด ก่อนเปิดสัญญาณจ่ายสินค้า",
+    "hints": [
+      "ใช้ CTU ชื่อ C0 นับจำนวนชิ้นงานที่ผ่านเซนเซอร์ (NO(X0)) จนครบ - C0.DN จะติดเมื่อนับครบ",
+      "ต่อ NO(C0.DN) เข้า TON ชื่อ T0 เพื่อเริ่มหน่วงเวลาทันทีที่นับครบ",
+      "Y7 (สัญญาณจ่ายสินค้า) ต้องติดก็ต่อเมื่อ C0.DN ติด, T0.DN ติด, และ AI1 (ระดับถังน้ำ) ถึงเกณฑ์ - ทั้งสามเงื่อนไขต้องจริงพร้อมกัน (ต่ออนุกรมกันทั้งหมด)",
+      "ถังน้ำเติมเองอัตโนมัติตลอดเวลา ไม่ต้องเปิดวาล์วใดๆ - แค่ตรวจสอบ AI1 ด้วย CMP (>=)"
+    ],
+    "map_layout_json": null,
+    "robot_start_json": null,
+    "factory_initial_json": {
+      "conveyorRunning": false,
+      "items": [
+        {
+          "id": "a",
+          "position": -92
+        },
+        {
+          "id": "b",
+          "position": -80
+        },
+        {
+          "id": "c",
+          "position": -68
+        },
+        {
+          "id": "d",
+          "position": -56
+        },
+        {
+          "id": "e",
+          "position": -44
+        },
+        {
+          "id": "f",
+          "position": -32
+        },
+        {
+          "id": "g",
+          "position": -20
+        },
+        {
+          "id": "h",
+          "position": -8
+        },
+        {
+          "id": "i",
+          "position": 4
+        },
+        {
+          "id": "j",
+          "position": 16
+        },
+        {
+          "id": "k",
+          "position": 28
+        },
+        {
+          "id": "l",
+          "position": 40
+        }
+      ],
+      "tankLevel": 0,
+      "pusherExtended": false,
+      "heaterOn": false,
+      "temperature": 0
+    },
+    "success_conditions_json": [
+      {
+        "kind": "process_items",
+        "target": 12
+      },
+      {
+        "kind": "bit",
+        "address": "C0.DN",
+        "expected": true
+      },
+      {
+        "kind": "bit",
+        "address": "Y7",
+        "expected": true
+      }
+    ],
+    "safety_constraints_json": [],
+    "time_limit_ticks": 104,
+    "ticks_per_second": null,
+    "reference_grid_program_json": {
+      "grids": [
+        {
+          "id": "f7_29",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NC",
+                  "address": "X9"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y0"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_30",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "X0"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COUNTER",
+                  "variant": "CTU",
+                  "address": "C0",
+                  "preset": 12
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_31",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "TIMER",
+                  "variant": "TON",
+                  "address": "T0",
+                  "preset": 25
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        },
+        {
+          "id": "f7_32",
+          "rowCount": 1,
+          "cells": [
+            [
+              {
+                "row": 0,
+                "col": 0,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "C0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 1,
+                "node": {
+                  "kind": "CONTACT",
+                  "type": "NO",
+                  "address": "T0.DN"
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 2,
+                "node": {
+                  "kind": "COMPARE",
+                  "operator": ">=",
+                  "sourceA": "AI1",
+                  "sourceB": {
+                    "kind": "constant",
+                    "value": 1400
+                  }
+                },
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 3,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 4,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 5,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 6,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 7,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 8,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 9,
+                "node": null,
+                "connectLeft": true,
+                "connectRight": true,
+                "connectTop": false,
+                "connectBottom": false
+              },
+              {
+                "row": 0,
+                "col": 10,
+                "node": {
+                  "kind": "COIL",
+                  "address": "Y7"
+                },
+                "connectLeft": true,
+                "connectRight": false,
+                "connectTop": false,
+                "connectBottom": false
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

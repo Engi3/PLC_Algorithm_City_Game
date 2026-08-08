@@ -24,13 +24,14 @@
  * generateHazardMaze's own comment for why a "swapped wiring" reachability
  * proof was tried and dropped.
  */
-import type { MazeMap, MazeRobotState, MazeTile } from "../../src/lib/games/maze-types";
+import type { Direction, MazeMap, MazeRobotState, MazeTile } from "../../src/lib/games/maze-types";
 import { createMazeGameState, mazeBinding } from "../../src/lib/games/maze-plc-binding";
 import { runGridScan } from "../../src/lib/ladder/grid-engine";
 import { createEmptyMemory } from "../../src/lib/ladder/types";
-import type { GridProgram } from "../../src/lib/ladder/grid-types";
+import { COIL_COLUMN, type GridProgram } from "../../src/lib/ladder/grid-types";
 import { evaluateGameLevelTick, type GameRunState } from "../../src/lib/games/evaluate-game-level";
 import type { GameLevelSpec } from "../../src/lib/games/game-level-types";
+import { NO, NC, COIL, grid as buildGrid, place, wireH, feedLeftRail, tieVertical, program, seriesRung } from "./grid-builders";
 
 /** Deterministic PRNG (mulberry32) so a "bad" maze can be reproduced/debugged, and so the whole batch is reproducible from one base seed. */
 function mulberry32(seed: number) {
@@ -138,56 +139,52 @@ function buildTileGrid(passages: Passages, rooms: number): MazeTile[][] {
   return grid;
 }
 
-const decisionProgram: GridProgram = buildDecisionProgram();
+/** Exported (Task 4c) so new tier scripts (generate-maze-massive.ts) can reuse the canonical hazard-aware circuit instead of hand-duplicating it a third time. */
+export const decisionProgram: GridProgram = buildDecisionProgram();
 const swappedProgram: GridProgram = buildDecisionProgram(true);
 
+/**
+ * Task 4b: "Pattern D+H" - hazard-aware wall-following. Ahead being blocked
+ * is no longer read straight off X0 (wallAhead) - a HAZARD tile reads as
+ * "not a wall" to X0 by design (maze-plc-binding.ts's readMazeTile check is
+ * strictly === "WALL"), so a pre-Task-4b circuit that only ever wired X0
+ * would see ahead as clear and walk straight into a hazard. M0 computes the
+ * real "ahead blocked" condition as X0 OR X3 (hazardAhead) via a genuine
+ * parallel-contact branch (first grid below), and every downstream
+ * forward/turn decision reads M0 instead of X0 directly - forcing X3 to
+ * actually be wired for a maze with a hazard on the solve path's own
+ * turning points to be solvable at all (see generateHazardMaze).
+ */
 function buildDecisionProgram(swapped = false): GridProgram {
-  // Local, minimal re-implementation of Pattern D (see generate-game-levels.ts)
-  // to avoid a circular import into the shared grid-builders module.
-  const GRID_COLUMNS = 11;
-  const COIL_COLUMN = 10;
-  function emptyRow(rowIndex: number) {
-    return Array.from({ length: GRID_COLUMNS }, (_, col) => ({
-      row: rowIndex,
-      col,
-      node: null as import("../../src/lib/ladder/grid-types").GridNode | null,
-      connectLeft: false,
-      connectRight: false,
-      connectTop: false,
-      connectBottom: false,
-    }));
-  }
-  function row(idx: number, instr: import("../../src/lib/ladder/grid-types").GridNode[], coil: import("../../src/lib/ladder/grid-types").GridNode) {
-    const cells = emptyRow(idx);
-    instr.forEach((n, c) => (cells[c].node = n));
-    cells[COIL_COLUMN].node = coil;
-    cells[0].connectLeft = true;
-    for (let c = 0; c < COIL_COLUMN; c++) cells[c].connectRight = true;
-    return cells;
-  }
   const rightAddr = swapped ? "Y1" : "Y2";
   const leftAddr = swapped ? "Y2" : "Y1";
-  const rows = [
-    row(0, [{ kind: "CONTACT", type: "NC", address: "X0" }], { kind: "COIL", address: "Y0" }),
-    row(
-      1,
-      [
-        { kind: "CONTACT", type: "NO", address: "X0" },
-        { kind: "CONTACT", type: "NC", address: "X2" },
-      ],
-      { kind: "COIL", address: rightAddr }
-    ),
-    row(
-      2,
-      [
-        { kind: "CONTACT", type: "NO", address: "X0" },
-        { kind: "CONTACT", type: "NO", address: "X2" },
-      ],
-      { kind: "COIL", address: leftAddr }
-    ),
-  ];
-  return { grids: [{ id: "g", rowCount: 3, cells: rows }] };
+
+  const blocked = buildGrid("blocked", 2);
+  place(blocked, 0, 0, NO("X0"));
+  place(blocked, 1, 0, NO("X3"));
+  wireH(blocked, 0, 0, 1);
+  wireH(blocked, 1, 0, 1);
+  tieVertical(blocked, 0, 1);
+  wireH(blocked, 0, 1, COIL_COLUMN);
+  place(blocked, 0, COIL_COLUMN, COIL("M0"));
+  feedLeftRail(blocked, 0);
+  feedLeftRail(blocked, 1);
+
+  const forward = seriesRung("forward", [NC("M0")], COIL("Y0"));
+  const turnRight = seriesRung("turnRight", [NO("M0"), NC("X2")], COIL(rightAddr));
+  const turnLeft = seriesRung("turnLeft", [NO("M0"), NO("X2")], COIL(leftAddr));
+
+  return program(blocked, forward, turnRight, turnLeft);
 }
+
+/** Pre-Task-4b reference circuit (X0-only, never wires X3) - kept solely so generateHazardMaze can assert a hazard it just placed actually defeats an old-style circuit, proving the mechanic is load-bearing rather than decorative. Never shipped. */
+function buildLegacyDecisionProgram(): GridProgram {
+  const forward = seriesRung("forward", [NC("X0")], COIL("Y0"));
+  const turnRight = seriesRung("turnRight", [NO("X0"), NC("X2")], COIL("Y2"));
+  const turnLeft = seriesRung("turnLeft", [NO("X0"), NO("X2")], COIL("Y1"));
+  return program(forward, turnRight, turnLeft);
+}
+const legacyDecisionProgram: GridProgram = buildLegacyDecisionProgram();
 
 const DIR_DELTA: Record<string, { dx: number; dy: number }> = {
   N: { dx: 0, dy: -1 },
@@ -198,7 +195,7 @@ const DIR_DELTA: Record<string, { dx: number; dy: number }> = {
 const TURN_RIGHT: Record<string, string> = { N: "E", E: "S", S: "W", W: "N" };
 const TURN_LEFT: Record<string, string> = { N: "W", W: "S", S: "E", E: "N" };
 
-type TurnPoint = { x: number; y: number; wrongDx: number; wrongDy: number; chosenRight: boolean };
+type TurnPoint = { x: number; y: number; direction: Direction; wrongDx: number; wrongDy: number; chosenRight: boolean };
 
 /** Replays the correct solution and records, at every tick a turn command fires, the position and the direction NOT taken - candidate hazard-spur locations, in path order (earliest first). */
 export function recordTurnPoints(map: MazeMap, start: MazeRobotState, maxTicks: number): TurnPoint[] {
@@ -226,7 +223,7 @@ export function recordTurnPoints(map: MazeMap, start: MazeRobotState, maxTicks: 
       const chosenRight = !!nextMemory.coils.Y2;
       const wrongHeading = chosenRight ? TURN_LEFT[robotBefore.direction] : TURN_RIGHT[robotBefore.direction];
       const d = DIR_DELTA[wrongHeading];
-      turns.push({ x: robotBefore.x, y: robotBefore.y, wrongDx: d.dx, wrongDy: d.dy, chosenRight });
+      turns.push({ x: robotBefore.x, y: robotBefore.y, direction: robotBefore.direction, wrongDx: d.dx, wrongDy: d.dy, chosenRight });
     }
     run = { maze: mazeBinding.step(run.maze!, nextMemory.coils, nextMemory) };
     outcome = evaluateGameLevelTick(spec, run, inputs, nextMemory, analogInputs, tick);
@@ -315,15 +312,22 @@ export function generateDifficultyMaze(seed: number, size: number, minTicks: num
 }
 
 /**
- * Same as generateDifficultyMaze, but also carves one dead-end HAZARD spur
- * off a junction on the true solve path. The "swapped Y1/Y2" mistake was
- * tried as a reachability proof for the hazard but dropped: that wiring
- * bug steers the robot toward every wall it detects, which deadlocks/
- * oscillates almost immediately rather than reaching any specific spur -
- * confirmed empirically (0/90 candidates reached a hazard within budget
- * across 50 seeds in scratch testing). What's load-bearing for fairness is
- * only that the CORRECT solution never enters the hazard; that's the one
- * property still verified by simulation below.
+ * Task 4b redesign: same as generateDifficultyMaze, but retags the WALL
+ * tile directly AHEAD of one recorded turn point as HAZARD instead of
+ * carving a new dead-end spur. This is the tile Pattern D+H's own turn
+ * decision fires on (X0/X3 -> M0 -> turn), so it's guaranteed to sit ON
+ * the real solve path rather than off to the side of it - the prior
+ * design (see git history) placed the hazard on the turn's NOT-taken
+ * side, which the reference circuit structurally never approached,
+ * making the sensor decorative (every level solvable by the exact same
+ * X0-only circuit regardless of hazard placement). Retagging the ahead
+ * tile keeps the maze's perfect-tree topology and difficulty untouched
+ * (same tile, same WALL->HAZARD swap, no new passages) while requiring
+ * X3 to be wired for the level to be solvable at all: X0 alone reads a
+ * HAZARD tile as clear (readMazeTile's === "WALL" check), so a
+ * legacyDecisionProgram-style circuit drives forward and fails - asserted
+ * below rather than assumed, since that assertion is the whole point of
+ * this mechanic.
  */
 export function generateHazardMaze(seed: number, size: number, minTicks: number, maxTicks: number, maxAttempts = 500): GeneratedMaze {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -338,27 +342,26 @@ export function generateHazardMaze(seed: number, size: number, minTicks: number,
 
     const { map, start } = base;
     const turns = recordTurnPoints(map, start, maxTicks + 10);
-    // Only "chose right" turns are candidates: the wrong (left) side is a
-    // direction Pattern D's own contacts never sense (only X0-ahead/X2-
-    // right are read), so carving a hazard there can't also corrupt the
-    // CORRECT solver's own wall-sensing - carving into a "chose left"
-    // turn's wrong (right) side means overwriting the very wall (X2)
-    // that decision depended on, flipping the correct solver's own
-    // choice too (confirmed empirically - see the scratch
-    // _debug-hazard2.ts session this was diagnosed with).
     for (const t of turns) {
-      if (!t.chosenRight) continue;
-      const nx = t.x + t.wrongDx;
-      const ny = t.y + t.wrongDy;
+      const d = DIR_DELTA[t.direction];
+      const nx = t.x + d.dx;
+      const ny = t.y + d.dy;
       if (nx < 0 || nx >= size || ny < 0 || ny >= size) continue;
       if (map[ny][nx] !== "WALL") continue;
-      const spurMap = map.map((r) => [...r]) as MazeMap;
-      spurMap[ny][nx] = "HAZARD";
+      const hazardMap = map.map((r) => [...r]) as MazeMap;
+      hazardMap[ny][nx] = "HAZARD";
 
-      const correct = simulate(spurMap, start, decisionProgram, maxTicks + 10);
+      const correct = simulate(hazardMap, start, decisionProgram, maxTicks + 10);
       if (!correct.won) continue;
 
-      return { map: spurMap, start, solveTicks: correct.ticks };
+      const legacy = simulate(hazardMap, start, legacyDecisionProgram, maxTicks + 10);
+      if (legacy.won) {
+        throw new Error(
+          `generateHazardMaze: hazard at (${nx},${ny}) did not defeat the legacy X0-only circuit - mechanic isn't load-bearing here (seed ${seed})`
+        );
+      }
+
+      return { map: hazardMap, start, solveTicks: correct.ticks };
     }
   }
   throw new Error(`generateHazardMaze: no valid hazard placement found after ${maxAttempts} attempts (seed ${seed})`);
