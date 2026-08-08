@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   clampAnalogValue,
   createEmptyMemory,
@@ -8,7 +8,7 @@ import {
   type Inputs,
   type SimMemory,
 } from "./types";
-import { runGridScan } from "./grid-engine";
+import { evalGridFlow, runGridScan, type GridFlowResult } from "./grid-engine";
 import {
   COIL_COLUMN,
   GRID_COLUMNS,
@@ -170,68 +170,120 @@ function normalizeGridProgram(program: GridProgram): GridProgram {
  * equivalent in the old model) are genuinely different. Task 3 adds live
  * simulation state (inputs/analogInputs/memory/running), scanned with
  * runGridScan instead of the legacy runScan.
+ *
+ * Task 7 (perf): every function below is a stable (`useCallback([])`)
+ * identity that reads its inputs from refs mirroring the latest
+ * gridProgram/inputs/memory/analogInputs, instead of closing over those
+ * state variables directly - the same "ref-mirror" pattern
+ * use-game-plc-bridge.ts already used correctly. Without this, every one of
+ * these ~20 functions was a brand-new closure on every render (since
+ * `memory` alone changes every single scan tick), which meant every
+ * consumer - GridEditorSurface, GridRungEditor, all ~132-792 GridCellView
+ * instances - received new callback props every tick and could never
+ * actually skip a re-render even with React.memo added, because "new
+ * function reference" always fails a shallow prop-equality check regardless
+ * of whether the function's *behavior* changed. `flows` (the per-cell
+ * power/conduct result runGridScan already computes) is now kept in state
+ * too, so GridEditorSurface can read it directly instead of re-running
+ * evalGridFlow from scratch per rung per render.
  */
 export function useLadderGrid(initial?: GridProgram) {
   const [gridProgram, setGridProgram] = useState<GridProgram>(() => normalizeGridProgram(initial ?? createEmptyGridProgram()));
   const [inputs, setInputs] = useState<Inputs>({});
   const [analogInputs, setAnalogInputs] = useState<AnalogInputs>({});
   const [memory, setMemory] = useState<SimMemory>(() => createEmptyMemory());
+  // Computed eagerly (not []) so the very first render already shows correct
+  // per-cell power state (e.g. an NC contact conducting by default) instead
+  // of an empty flash until the first edit/tick - matches what the old
+  // inline `evalGridFlow` call in GridEditorSurface used to produce on that
+  // same first render.
+  const [flows, setFlows] = useState<GridFlowResult[]>(() => gridProgram.grids.map((g) => evalGridFlow(g, {}, createEmptyMemory(), {})));
   const [running, setRunning] = useState(false);
+
+  // Mirrors of the latest state, read by every stable callback below instead
+  // of closing over the state variables directly - updated every render
+  // (not in an effect), same pattern use-game-plc-bridge.ts's runOneTick
+  // already relies on.
+  const gridProgramRef = useRef(gridProgram);
+  const inputsRef = useRef(inputs);
+  const analogInputsRef = useRef(analogInputs);
+  const memoryRef = useRef(memory);
+  gridProgramRef.current = gridProgram;
+  inputsRef.current = inputs;
+  analogInputsRef.current = analogInputs;
+  memoryRef.current = memory;
 
   useEffect(() => {
     if (!running) return;
     const interval = setInterval(() => {
-      setMemory((prevMemory) => runGridScan(gridProgram, inputs, prevMemory, { tick: true }, analogInputs).memory);
+      setMemory((prevMemory) => {
+        const result = runGridScan(gridProgramRef.current, inputsRef.current, prevMemory, { tick: true }, analogInputsRef.current);
+        setFlows(result.flows);
+        return result.memory;
+      });
     }, TICK_MS);
     return () => clearInterval(interval);
-  }, [running, gridProgram, inputs, analogInputs]);
+    // Only `running` needs to resubscribe the interval - gridProgram/inputs/
+    // analogInputs are read fresh from refs every tick, so an edit made
+    // mid-RUN no longer tears down and recreates the interval.
+  }, [running]);
 
   /** Applies a program edit and immediately re-evaluates memory (tick: false), same as use-ladder-program's updateProgram. */
-  function updateGridProgram(updater: (prev: GridProgram) => GridProgram) {
-    const next = normalizeGridProgram(updater(gridProgram));
-    const { memory: newMemory } = runGridScan(next, inputs, memory, { tick: false }, analogInputs);
+  const updateGridProgram = useCallback((updater: (prev: GridProgram) => GridProgram) => {
+    const next = normalizeGridProgram(updater(gridProgramRef.current));
+    const result = runGridScan(next, inputsRef.current, memoryRef.current, { tick: false }, analogInputsRef.current);
     setGridProgram(next);
-    setMemory(newMemory);
-  }
+    setMemory(result.memory);
+    setFlows(result.flows);
+  }, []);
 
-  function addRung() {
+  const addRung = useCallback(() => {
     updateGridProgram((prev) => {
       if (prev.grids.length >= MAX_GRID_RUNGS) return prev;
       return { grids: [...prev.grids, createEmptyGrid(crypto.randomUUID())] };
     });
-  }
+  }, [updateGridProgram]);
 
-  function removeRung(rungIndex: number) {
-    updateGridProgram((prev) => ({ grids: prev.grids.filter((_, i) => i !== rungIndex) }));
-  }
+  const removeRung = useCallback(
+    (rungIndex: number) => {
+      updateGridProgram((prev) => ({ grids: prev.grids.filter((_, i) => i !== rungIndex) }));
+    },
+    [updateGridProgram]
+  );
 
   /** Inserts a new empty branch row directly below `afterRow` within a rung, for wiring a parallel/OR path. */
-  function insertRow(rungIndex: number, afterRow: number) {
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((grid, gi) => {
-        if (gi !== rungIndex || grid.rowCount >= MAX_ROWS_PER_RUNG) return grid;
-        const newRows = createEmptyGridRows(grid.rowCount + 1);
-        // Copy rows before and after the insertion point, renumbering as we go.
-        for (let r = 0; r <= afterRow; r++) {
-          newRows[r] = grid.cells[r].map((c) => ({ ...c, row: r }));
-        }
-        for (let r = afterRow + 1; r < grid.rowCount; r++) {
-          newRows[r + 1] = grid.cells[r].map((c) => ({ ...c, row: r + 1 }));
-        }
-        return { ...grid, rowCount: grid.rowCount + 1, cells: newRows };
-      }),
-    }));
-  }
+  const insertRow = useCallback(
+    (rungIndex: number, afterRow: number) => {
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((grid, gi) => {
+          if (gi !== rungIndex || grid.rowCount >= MAX_ROWS_PER_RUNG) return grid;
+          const newRows = createEmptyGridRows(grid.rowCount + 1);
+          // Copy rows before and after the insertion point, renumbering as we go.
+          for (let r = 0; r <= afterRow; r++) {
+            newRows[r] = grid.cells[r].map((c) => ({ ...c, row: r }));
+          }
+          for (let r = afterRow + 1; r < grid.rowCount; r++) {
+            newRows[r + 1] = grid.cells[r].map((c) => ({ ...c, row: r + 1 }));
+          }
+          return { ...grid, rowCount: grid.rowCount + 1, cells: newRows };
+        }),
+      }));
+    },
+    [updateGridProgram]
+  );
 
-  function deleteRow(rungIndex: number, row: number) {
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((grid, gi) => {
-        if (gi !== rungIndex || grid.rowCount <= 1) return grid;
-        const remaining = grid.cells.filter((_, r) => r !== row).map((rowCells, newR) => rowCells.map((c) => ({ ...c, row: newR })));
-        return { ...grid, rowCount: grid.rowCount - 1, cells: remaining };
-      }),
-    }));
-  }
+  const deleteRow = useCallback(
+    (rungIndex: number, row: number) => {
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((grid, gi) => {
+          if (gi !== rungIndex || grid.rowCount <= 1) return grid;
+          const remaining = grid.cells.filter((_, r) => r !== row).map((rowCells, newR) => rowCells.map((c) => ({ ...c, row: newR })));
+          return { ...grid, rowCount: grid.rowCount - 1, cells: remaining };
+        }),
+      }));
+    },
+    [updateGridProgram]
+  );
 
   /**
    * GX Works UX overhaul Task 3 "Smart Latching": wraps the contact at
@@ -253,80 +305,89 @@ export function useLadderGrid(initial?: GridProgram) {
    * that, Task 1's drag-to-connect ports and this task's border-click
    * vertical toggle already cover the fully manual case.
    */
-  function wrapWithSelfHold(rungIndex: number, row: number): boolean {
-    const grid = gridProgram.grids[rungIndex];
-    if (!grid) return false;
-    if (!grid.cells[row]?.[0]?.node) return false;
-    if (grid.rowCount >= MAX_ROWS_PER_RUNG) return false;
+  const wrapWithSelfHold = useCallback(
+    (rungIndex: number, row: number): boolean => {
+      const grid = gridProgramRef.current.grids[rungIndex];
+      if (!grid) return false;
+      if (!grid.cells[row]?.[0]?.node) return false;
+      if (grid.rowCount >= MAX_ROWS_PER_RUNG) return false;
 
-    let holdAddress: string | null = null;
-    for (let r = 0; r < grid.rowCount; r++) {
-      const coilNode = grid.cells[r][COIL_COLUMN].node;
-      if (coilNode && isCoilNode(coilNode) && coilNode.address) {
-        holdAddress = coilNode.address;
-        break;
+      let holdAddress: string | null = null;
+      for (let r = 0; r < grid.rowCount; r++) {
+        const coilNode = grid.cells[r][COIL_COLUMN].node;
+        if (coilNode && isCoilNode(coilNode) && coilNode.address) {
+          holdAddress = coilNode.address;
+          break;
+        }
       }
-    }
 
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((g, gi) => {
-        if (gi !== rungIndex) return g;
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((g, gi) => {
+          if (gi !== rungIndex) return g;
 
-        const newRows: GridCell[][] = [];
-        for (let r = 0; r <= row; r++) {
-          newRows.push(g.cells[r].map((c) => ({ ...c, row: r })));
-        }
-        newRows.push(createEmptyGridRows(1)[0].map((c) => ({ ...c, row: row + 1 })));
-        for (let r = row + 1; r < g.rowCount; r++) {
-          newRows.push(g.cells[r].map((c) => ({ ...c, row: r + 1 })));
-        }
+          const newRows: GridCell[][] = [];
+          for (let r = 0; r <= row; r++) {
+            newRows.push(g.cells[r].map((c) => ({ ...c, row: r })));
+          }
+          newRows.push(createEmptyGridRows(1)[0].map((c) => ({ ...c, row: row + 1 })));
+          for (let r = row + 1; r < g.rowCount; r++) {
+            newRows.push(g.cells[r].map((c) => ({ ...c, row: r + 1 })));
+          }
 
-        const newRow = row + 1;
-        newRows[newRow][0] = {
-          ...newRows[newRow][0],
-          node: { kind: "CONTACT", type: "NO", address: holdAddress },
-          connectLeft: true,
-          connectRight: true,
-        };
-        // Merge tie one column past the wrapped contact, rejoining whatever the original row already continues with (more contacts, or straight to the coil).
-        newRows[row][1] = { ...newRows[row][1], connectBottom: true };
-        newRows[newRow][1] = { ...newRows[newRow][1], connectTop: true, connectLeft: true };
+          const newRow = row + 1;
+          newRows[newRow][0] = {
+            ...newRows[newRow][0],
+            node: { kind: "CONTACT", type: "NO", address: holdAddress },
+            connectLeft: true,
+            connectRight: true,
+          };
+          // Merge tie one column past the wrapped contact, rejoining whatever the original row already continues with (more contacts, or straight to the coil).
+          newRows[row][1] = { ...newRows[row][1], connectBottom: true };
+          newRows[newRow][1] = { ...newRows[newRow][1], connectTop: true, connectLeft: true };
 
-        return { ...g, rowCount: g.rowCount + 1, cells: newRows };
-      }),
-    }));
-    return true;
-  }
+          return { ...g, rowCount: g.rowCount + 1, cells: newRows };
+        }),
+      }));
+      return true;
+    },
+    [updateGridProgram]
+  );
 
   /** GX Works UX overhaul Task 2: placing a node auto-wires the row from the rail through it (see autoWireRow) - no manual wiring step needed for the common straight-series case. */
-  function placeNode(rungIndex: number, row: number, col: number, node: GridNode) {
-    // Instruction nodes only belong left of the coil column; coil-kind nodes only belong in it.
-    if (col === COIL_COLUMN && !isCoilNode(node)) return;
-    if (col !== COIL_COLUMN && isCoilNode(node)) return;
+  const placeNode = useCallback(
+    (rungIndex: number, row: number, col: number, node: GridNode) => {
+      // Instruction nodes only belong left of the coil column; coil-kind nodes only belong in it.
+      if (col === COIL_COLUMN && !isCoilNode(node)) return;
+      if (col !== COIL_COLUMN && isCoilNode(node)) return;
 
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((grid, gi) => {
-        if (gi !== rungIndex) return grid;
-        const cells = grid.cells.map((rowCells) => rowCells.map((cell) => ({ ...cell })));
-        cells[row][col].node = node;
-        autoWireRow(cells, row, col);
-        return { ...grid, cells };
-      }),
-    }));
-  }
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((grid, gi) => {
+          if (gi !== rungIndex) return grid;
+          const cells = grid.cells.map((rowCells) => rowCells.map((cell) => ({ ...cell })));
+          cells[row][col].node = node;
+          autoWireRow(cells, row, col);
+          return { ...grid, cells };
+        }),
+      }));
+    },
+    [updateGridProgram]
+  );
 
   /** GX Works UX overhaul Task 2: removing a node auto-retracts any horizontal wire tail left dangling with nothing beyond it (see autoCleanupRow). */
-  function removeNode(rungIndex: number, row: number, col: number) {
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((grid, gi) => {
-        if (gi !== rungIndex) return grid;
-        const cells = grid.cells.map((rowCells) => rowCells.map((cell) => ({ ...cell })));
-        cells[row][col].node = null;
-        autoCleanupRow(cells, row);
-        return { ...grid, cells };
-      }),
-    }));
-  }
+  const removeNode = useCallback(
+    (rungIndex: number, row: number, col: number) => {
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((grid, gi) => {
+          if (gi !== rungIndex) return grid;
+          const cells = grid.cells.map((rowCells) => rowCells.map((cell) => ({ ...cell })));
+          cells[row][col].node = null;
+          autoCleanupRow(cells, row);
+          return { ...grid, cells };
+        }),
+      }));
+    },
+    [updateGridProgram]
+  );
 
   /**
    * UX/UI refinement, Task 2: relocates an already-placed block to a
@@ -344,52 +405,58 @@ export function useLadderGrid(initial?: GridProgram) {
    * callers are expected to have already checked these via a plain read of
    * gridProgram before calling, same as connectPorts's own contract.
    */
-  function moveNode(fromRungIndex: number, from: CellCoord, toRungIndex: number, to: CellCoord): boolean {
-    if (fromRungIndex === toRungIndex && from.row === to.row && from.col === to.col) return false;
-    const sourceGrid = gridProgram.grids[fromRungIndex];
-    const targetGrid = gridProgram.grids[toRungIndex];
-    if (!sourceGrid || !targetGrid) return false;
-    const node = sourceGrid.cells[from.row]?.[from.col]?.node;
-    if (!node) return false;
-    if (to.row < 0 || to.row >= targetGrid.rowCount || to.col < 0 || to.col >= GRID_COLUMNS) return false;
-    if (targetGrid.cells[to.row][to.col].node) return false;
-    if (isCoilNode(node) !== (to.col === COIL_COLUMN)) return false;
+  const moveNode = useCallback(
+    (fromRungIndex: number, from: CellCoord, toRungIndex: number, to: CellCoord): boolean => {
+      if (fromRungIndex === toRungIndex && from.row === to.row && from.col === to.col) return false;
+      const sourceGrid = gridProgramRef.current.grids[fromRungIndex];
+      const targetGrid = gridProgramRef.current.grids[toRungIndex];
+      if (!sourceGrid || !targetGrid) return false;
+      const node = sourceGrid.cells[from.row]?.[from.col]?.node;
+      if (!node) return false;
+      if (to.row < 0 || to.row >= targetGrid.rowCount || to.col < 0 || to.col >= GRID_COLUMNS) return false;
+      if (targetGrid.cells[to.row][to.col].node) return false;
+      if (isCoilNode(node) !== (to.col === COIL_COLUMN)) return false;
 
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((grid, gi) => {
-        if (gi !== fromRungIndex && gi !== toRungIndex) return grid;
-        const cells = grid.cells.map((rowCells) => rowCells.map((cell) => ({ ...cell })));
-        if (gi === fromRungIndex) {
-          cells[from.row][from.col].node = null;
-          autoCleanupRow(cells, from.row);
-        }
-        if (gi === toRungIndex) {
-          cells[to.row][to.col].node = node;
-          autoWireRow(cells, to.row, to.col);
-        }
-        return { ...grid, cells };
-      }),
-    }));
-    return true;
-  }
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((grid, gi) => {
+          if (gi !== fromRungIndex && gi !== toRungIndex) return grid;
+          const cells = grid.cells.map((rowCells) => rowCells.map((cell) => ({ ...cell })));
+          if (gi === fromRungIndex) {
+            cells[from.row][from.col].node = null;
+            autoCleanupRow(cells, from.row);
+          }
+          if (gi === toRungIndex) {
+            cells[to.row][to.col].node = node;
+            autoWireRow(cells, to.row, to.col);
+          }
+          return { ...grid, cells };
+        }),
+      }));
+      return true;
+    },
+    [updateGridProgram]
+  );
 
-  function updateNode(rungIndex: number, row: number, col: number, patch: Record<string, unknown>) {
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((grid, gi) => {
-        if (gi !== rungIndex) return grid;
-        const cells = grid.cells.map((rowCells, r) => {
-          if (r !== row) return rowCells;
-          return rowCells.map((cell, c) => {
-            const node = cell.node;
-            if (c !== col || !node) return cell;
-            const updatedNode: GridNode = { ...node, ...patch };
-            return { ...cell, node: updatedNode };
+  const updateNode = useCallback(
+    (rungIndex: number, row: number, col: number, patch: Record<string, unknown>) => {
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((grid, gi) => {
+          if (gi !== rungIndex) return grid;
+          const cells = grid.cells.map((rowCells, r) => {
+            if (r !== row) return rowCells;
+            return rowCells.map((cell, c) => {
+              const node = cell.node;
+              if (c !== col || !node) return cell;
+              const updatedNode: GridNode = { ...node, ...patch };
+              return { ...cell, node: updatedNode };
+            });
           });
-        });
-        return { ...grid, cells };
-      }),
-    }));
-  }
+          return { ...grid, cells };
+        }),
+      }));
+    },
+    [updateGridProgram]
+  );
 
   /**
    * Toggles the horizontal wire segment feeding INTO (row, col) from its
@@ -398,40 +465,46 @@ export function useLadderGrid(initial?: GridProgram) {
    * cell owns the wire segment rendered on its own left edge). col=0 has no
    * left neighbor to pair with, so it only ever toggles its own connectLeft.
    */
-  function toggleHorizontalWire(rungIndex: number, row: number, col: number) {
-    if (col < 0 || col >= GRID_COLUMNS) return;
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((grid, gi) => {
-        if (gi !== rungIndex) return grid;
-        const next = !grid.cells[row][col].connectLeft;
-        const cells = grid.cells.map((rowCells, r) => {
-          if (r !== row) return rowCells;
-          return rowCells.map((cell, c) => {
-            if (c === col) return { ...cell, connectLeft: next };
-            if (c === col - 1) return { ...cell, connectRight: next };
-            return cell;
+  const toggleHorizontalWire = useCallback(
+    (rungIndex: number, row: number, col: number) => {
+      if (col < 0 || col >= GRID_COLUMNS) return;
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((grid, gi) => {
+          if (gi !== rungIndex) return grid;
+          const next = !grid.cells[row][col].connectLeft;
+          const cells = grid.cells.map((rowCells, r) => {
+            if (r !== row) return rowCells;
+            return rowCells.map((cell, c) => {
+              if (c === col) return { ...cell, connectLeft: next };
+              if (c === col - 1) return { ...cell, connectRight: next };
+              return cell;
+            });
           });
-        });
-        return { ...grid, cells };
-      }),
-    }));
-  }
+          return { ...grid, cells };
+        }),
+      }));
+    },
+    [updateGridProgram]
+  );
 
   /** Toggles the vertical wire segment between (row, col) and (row+1, col) - how parallel/OR branch links are drawn. */
-  function toggleVerticalWire(rungIndex: number, row: number, col: number) {
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((grid, gi) => {
-        if (gi !== rungIndex || row >= grid.rowCount - 1) return grid;
-        const next = !grid.cells[row][col].connectBottom;
-        const cells = grid.cells.map((rowCells, r) => {
-          if (r === row) return rowCells.map((cell, c) => (c === col ? { ...cell, connectBottom: next } : cell));
-          if (r === row + 1) return rowCells.map((cell, c) => (c === col ? { ...cell, connectTop: next } : cell));
-          return rowCells;
-        });
-        return { ...grid, cells };
-      }),
-    }));
-  }
+  const toggleVerticalWire = useCallback(
+    (rungIndex: number, row: number, col: number) => {
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((grid, gi) => {
+          if (gi !== rungIndex || row >= grid.rowCount - 1) return grid;
+          const next = !grid.cells[row][col].connectBottom;
+          const cells = grid.cells.map((rowCells, r) => {
+            if (r === row) return rowCells.map((cell, c) => (c === col ? { ...cell, connectBottom: next } : cell));
+            if (r === row + 1) return rowCells.map((cell, c) => (c === col ? { ...cell, connectTop: next } : cell));
+            return rowCells;
+          });
+          return { ...grid, cells };
+        }),
+      }));
+    },
+    [updateGridProgram]
+  );
 
   /**
    * GX Works UX overhaul, Task 1: connects two cells' ports with an
@@ -449,92 +522,102 @@ export function useLadderGrid(initial?: GridProgram) {
    * port to grab. A genuinely empty, unwired cell still can't act as an
    * endpoint - there's nothing there to connect to or from.
    */
-  function connectPorts(rungIndex: number, from: CellCoord, to: CellCoord): boolean {
-    if (from.row === to.row && from.col === to.col) return false;
-    const grid = gridProgram.grids[rungIndex];
-    if (!grid) return false;
-    if (from.row < 0 || from.row >= grid.rowCount || to.row < 0 || to.row >= grid.rowCount) return false;
-    if (from.col < 0 || from.col >= GRID_COLUMNS || to.col < 0 || to.col >= GRID_COLUMNS) return false;
-    const fromCell = grid.cells[from.row][from.col];
-    const toCell = grid.cells[to.row][to.col];
-    if (!(fromCell.node || cellHasWire(fromCell)) || !(toCell.node || cellHasWire(toCell))) return false;
+  const connectPorts = useCallback(
+    (rungIndex: number, from: CellCoord, to: CellCoord): boolean => {
+      if (from.row === to.row && from.col === to.col) return false;
+      const grid = gridProgramRef.current.grids[rungIndex];
+      if (!grid) return false;
+      if (from.row < 0 || from.row >= grid.rowCount || to.row < 0 || to.row >= grid.rowCount) return false;
+      if (from.col < 0 || from.col >= GRID_COLUMNS || to.col < 0 || to.col >= GRID_COLUMNS) return false;
+      const fromCell = grid.cells[from.row][from.col];
+      const toCell = grid.cells[to.row][to.col];
+      if (!(fromCell.node || cellHasWire(fromCell)) || !(toCell.node || cellHasWire(toCell))) return false;
 
-    function pathIsClear(candidate: CellCoord[]): boolean {
-      for (let i = 1; i < candidate.length - 1; i++) {
-        if (grid.cells[candidate[i].row][candidate[i].col].node) return false;
-      }
-      return true;
-    }
-    // Try both elbow orders and use whichever one doesn't collide with an
-    // already-placed block - see computeManhattanPath's comment for why a
-    // single fixed order made OR-branch wiring direction-dependent.
-    const hFirst = computeManhattanPath(from, to, "h-first");
-    const vFirst = computeManhattanPath(from, to, "v-first");
-    const path = pathIsClear(hFirst) ? hFirst : pathIsClear(vFirst) ? vFirst : null;
-    if (!path) return false;
-
-    updateGridProgram((prev) => ({
-      grids: prev.grids.map((g, gi) => {
-        if (gi !== rungIndex) return g;
-        const cells = g.cells.map((row) => row.map((cell) => ({ ...cell })));
-        for (let i = 0; i < path.length - 1; i++) {
-          const a = path[i];
-          const b = path[i + 1];
-          if (a.row === b.row) {
-            const left = a.col < b.col ? a : b;
-            const right = a.col < b.col ? b : a;
-            cells[left.row][left.col].connectRight = true;
-            cells[right.row][right.col].connectLeft = true;
-          } else {
-            const top = a.row < b.row ? a : b;
-            const bottom = a.row < b.row ? b : a;
-            cells[top.row][top.col].connectBottom = true;
-            cells[bottom.row][bottom.col].connectTop = true;
-          }
+      function pathIsClear(candidate: CellCoord[]): boolean {
+        for (let i = 1; i < candidate.length - 1; i++) {
+          if (grid.cells[candidate[i].row][candidate[i].col].node) return false;
         }
-        return { ...g, cells };
-      }),
-    }));
-    return true;
-  }
+        return true;
+      }
+      // Try both elbow orders and use whichever one doesn't collide with an
+      // already-placed block - see computeManhattanPath's comment for why a
+      // single fixed order made OR-branch wiring direction-dependent.
+      const hFirst = computeManhattanPath(from, to, "h-first");
+      const vFirst = computeManhattanPath(from, to, "v-first");
+      const path = pathIsClear(hFirst) ? hFirst : pathIsClear(vFirst) ? vFirst : null;
+      if (!path) return false;
 
-  function toggleInput(address: string) {
-    const nextInputs = { ...inputs, [address]: !inputs[address] };
-    const { memory: newMemory } = runGridScan(gridProgram, nextInputs, memory, { tick: false }, analogInputs);
+      updateGridProgram((prev) => ({
+        grids: prev.grids.map((g, gi) => {
+          if (gi !== rungIndex) return g;
+          const cells = g.cells.map((row) => row.map((cell) => ({ ...cell })));
+          for (let i = 0; i < path.length - 1; i++) {
+            const a = path[i];
+            const b = path[i + 1];
+            if (a.row === b.row) {
+              const left = a.col < b.col ? a : b;
+              const right = a.col < b.col ? b : a;
+              cells[left.row][left.col].connectRight = true;
+              cells[right.row][right.col].connectLeft = true;
+            } else {
+              const top = a.row < b.row ? a : b;
+              const bottom = a.row < b.row ? b : a;
+              cells[top.row][top.col].connectBottom = true;
+              cells[bottom.row][bottom.col].connectTop = true;
+            }
+          }
+          return { ...g, cells };
+        }),
+      }));
+      return true;
+    },
+    [updateGridProgram]
+  );
+
+  const toggleInput = useCallback((address: string) => {
+    const nextInputs = { ...inputsRef.current, [address]: !inputsRef.current[address] };
+    const result = runGridScan(gridProgramRef.current, nextInputs, memoryRef.current, { tick: false }, analogInputsRef.current);
     setInputs(nextInputs);
-    setMemory(newMemory);
-  }
+    setMemory(result.memory);
+    setFlows(result.flows);
+  }, []);
 
   /** Sets an input to an explicit value, e.g. press/release for a momentary button (vs toggleInput's click-to-flip). */
-  function setInputValue(address: string, value: boolean) {
-    const nextInputs = { ...inputs, [address]: value };
-    const { memory: newMemory } = runGridScan(gridProgram, nextInputs, memory, { tick: false }, analogInputs);
+  const setInputValue = useCallback((address: string, value: boolean) => {
+    const nextInputs = { ...inputsRef.current, [address]: value };
+    const result = runGridScan(gridProgramRef.current, nextInputs, memoryRef.current, { tick: false }, analogInputsRef.current);
     setInputs(nextInputs);
-    setMemory(newMemory);
-  }
+    setMemory(result.memory);
+    setFlows(result.flows);
+  }, []);
 
   /** Sets an AI0-AI15 analog value (clamped 0-32767) and re-evaluates immediately. */
-  function setAnalogInput(address: string, value: number) {
-    const nextAnalogInputs = { ...analogInputs, [address]: clampAnalogValue(value) };
-    const { memory: newMemory } = runGridScan(gridProgram, inputs, memory, { tick: false }, nextAnalogInputs);
+  const setAnalogInput = useCallback((address: string, value: number) => {
+    const nextAnalogInputs = { ...analogInputsRef.current, [address]: clampAnalogValue(value) };
+    const result = runGridScan(gridProgramRef.current, inputsRef.current, memoryRef.current, { tick: false }, nextAnalogInputs);
     setAnalogInputs(nextAnalogInputs);
-    setMemory(newMemory);
-  }
+    setMemory(result.memory);
+    setFlows(result.flows);
+  }, []);
 
-  function step() {
-    setMemory((prev) => runGridScan(gridProgram, inputs, prev, { tick: true }, analogInputs).memory);
-  }
+  const step = useCallback(() => {
+    setMemory((prev) => {
+      const result = runGridScan(gridProgramRef.current, inputsRef.current, prev, { tick: true }, analogInputsRef.current);
+      setFlows(result.flows);
+      return result.memory;
+    });
+  }, []);
 
   /**
    * Task 4's Stop behavior, ported from use-ladder-program's haltOutputs:
    * immediately drops plain COIL outputs and clears each TIMER's EN flag,
    * leaving timer/counter accumulators and SET-latched coils untouched.
    */
-  function haltOutputs() {
+  const haltOutputs = useCallback(() => {
     setMemory((prev) => {
       const coils = { ...prev.coils };
       const timers = { ...prev.timers };
-      for (const grid of gridProgram.grids) {
+      for (const grid of gridProgramRef.current.grids) {
         for (let r = 0; r < grid.rowCount; r++) {
           const node = grid.cells[r][COIL_COLUMN].node;
           if (!node || !isCoilNode(node) || !node.address) continue;
@@ -547,36 +630,40 @@ export function useLadderGrid(initial?: GridProgram) {
       }
       return { ...prev, coils, timers };
     });
-  }
+  }, []);
 
   /** RUN starts the scan loop; STOP halts it and de-energizes non-latched outputs (see haltOutputs). */
-  function toggleRunning() {
-    if (running) {
-      haltOutputs();
-      setRunning(false);
-    } else {
-      setRunning(true);
-    }
-  }
+  const toggleRunning = useCallback(() => {
+    setRunning((prevRunning) => {
+      if (prevRunning) {
+        haltOutputs();
+        return false;
+      }
+      return true;
+    });
+  }, [haltOutputs]);
 
-  function loadGridProgram(next: GridProgram) {
-    const { memory: newMemory } = runGridScan(next, inputs, createEmptyMemory(), { tick: false }, analogInputs);
+  const loadGridProgram = useCallback((next: GridProgram) => {
+    const result = runGridScan(next, inputsRef.current, createEmptyMemory(), { tick: false }, analogInputsRef.current);
     setGridProgram(next);
-    setMemory(newMemory);
-  }
+    setMemory(result.memory);
+    setFlows(result.flows);
+  }, []);
 
-  function reset() {
+  const reset = useCallback(() => {
     setInputs({});
     setAnalogInputs({});
     setMemory(createEmptyMemory());
+    setFlows([]);
     setRunning(false);
-  }
+  }, []);
 
   return {
     gridProgram,
     inputs,
     analogInputs,
     memory,
+    flows,
     running,
     toggleRunning,
     toggleInput,

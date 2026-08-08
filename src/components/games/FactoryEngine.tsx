@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import type { FactoryState } from "@/lib/games/factory-types";
 
 const VIEW_W = 600;
@@ -30,7 +31,7 @@ function itemX(position: number): number {
  * time lives elsewhere (useGamePlcBridge) - this component never mutates
  * its own state.
  */
-export default function FactoryEngine({ state, width, height }: { state: FactoryState; width?: number; height?: number }) {
+function FactoryEngine({ state, width, height }: { state: FactoryState; width?: number; height?: number }) {
   const fillRatio = Math.min(1, Math.max(0, state.tankLevel / 9999));
   const fillHeight = TANK_H * fillRatio;
 
@@ -129,3 +130,15 @@ export default function FactoryEngine({ state, width, height }: { state: Factory
     </svg>
   );
 }
+
+/**
+ * Task 7 (perf): cheap by construction already (a fixed ~20 SVG shapes plus
+ * one rect per belt item, not scaling with any world size), but a plain
+ * default shallow-props memo is still a free win in Hybrid levels - only
+ * ONE of Maze/Factory is actually being ticked at a time there
+ * (use-game-level-play.ts's phaseRef), so the inactive domain's `state`
+ * object reference legitimately stays stable across ticks and this now
+ * correctly skips re-rendering during the Maze/AGV phase instead of doing
+ * so unconditionally every tick regardless of which domain is live.
+ */
+export default memo(FactoryEngine);

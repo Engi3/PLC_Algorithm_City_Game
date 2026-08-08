@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { runGridScan } from "@/lib/ladder/grid-engine";
+import { runGridScan, type GridFlowResult } from "@/lib/ladder/grid-engine";
 import { createEmptyMemory, type AnalogInputs, type Inputs, type SimMemory } from "@/lib/ladder/types";
 import type { GridProgram } from "@/lib/ladder/grid-types";
 
@@ -22,6 +22,8 @@ export type GamePlcBinding<TGameState> = {
 export type GamePlcBridge<TGameState> = {
   gameState: TGameState;
   memory: SimMemory;
+  /** Per-cell power/conduct result from the most recent scan (Task 7) - threaded through so a consumer feeding this into GridEditorSurface can skip re-running evalGridFlow itself. */
+  flows: GridFlowResult[];
   /** Sensor state as of the most recent tick - exposed so a caller can drive a live IoPanel-style readout the same way GridEditorSurface already shows manually-toggled inputs. */
   inputs: Inputs;
   analogInputs: AnalogInputs;
@@ -82,6 +84,7 @@ export function useGamePlcBridge<TGameState>(
 ): GamePlcBridge<TGameState> {
   const [gameState, setGameState] = useState(initialState);
   const [memory, setMemory] = useState<SimMemory>(() => createEmptyMemory());
+  const [flows, setFlows] = useState<GridFlowResult[]>(() => []);
   const [inputs, setInputs] = useState<Inputs>({});
   const [analogInputs, setAnalogInputs] = useState<AnalogInputs>({});
   const [running, setRunning] = useState(false);
@@ -105,7 +108,7 @@ export function useGamePlcBridge<TGameState>(
 
   const runOneTick = useCallback(() => {
     const { inputs, analogInputs } = bindingRef.current.readInputs(gameStateRef.current);
-    const { memory: nextMemory } = runGridScan(programRef.current, inputs, memoryRef.current, { tick: true }, analogInputs);
+    const { memory: nextMemory, flows: nextFlows } = runGridScan(programRef.current, inputs, memoryRef.current, { tick: true }, analogInputs);
     const nextState = bindingRef.current.step(gameStateRef.current, nextMemory.coils, nextMemory);
     // Written synchronously (not just via setState) so several ticks queued
     // in the same rAF frame's catch-up loop each see the previous tick's
@@ -114,6 +117,7 @@ export function useGamePlcBridge<TGameState>(
     gameStateRef.current = nextState;
     ticksElapsedRef.current += 1;
     setMemory(nextMemory);
+    setFlows(nextFlows);
     setGameState(nextState);
     setInputs(inputs);
     setAnalogInputs(analogInputs);
@@ -141,24 +145,30 @@ export function useGamePlcBridge<TGameState>(
     return () => cancelAnimationFrame(raf);
   }, [running, runOneTick, options?.ticksPerSecond]);
 
+  const toggleRunning = useCallback(() => setRunning((r) => !r), []);
+  const stop = useCallback(() => setRunning(false), []);
+  const reset = useCallback((state: TGameState) => {
+    setRunning(false);
+    gameStateRef.current = state;
+    memoryRef.current = createEmptyMemory();
+    ticksElapsedRef.current = 0;
+    setGameState(state);
+    setMemory(memoryRef.current);
+    setFlows([]);
+    setInputs({});
+    setAnalogInputs({});
+  }, []);
+
   return {
     gameState,
     memory,
+    flows,
     inputs,
     analogInputs,
     running,
-    toggleRunning: () => setRunning((r) => !r),
-    stop: () => setRunning(false),
+    toggleRunning,
+    stop,
     step: runOneTick,
-    reset: (state: TGameState) => {
-      setRunning(false);
-      gameStateRef.current = state;
-      memoryRef.current = createEmptyMemory();
-      ticksElapsedRef.current = 0;
-      setGameState(state);
-      setMemory(memoryRef.current);
-      setInputs({});
-      setAnalogInputs({});
-    },
+    reset,
   };
 }

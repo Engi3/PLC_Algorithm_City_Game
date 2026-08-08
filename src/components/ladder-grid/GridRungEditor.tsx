@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { GRID_COLUMNS, COIL_COLUMN, type GridNode, type LadderGrid } from "@/lib/ladder/grid-types";
 import { MAX_ROWS_PER_RUNG } from "@/lib/ladder/use-ladder-grid";
 import type { CounterVariant, DeclaredVariable, TimerVariant } from "@/lib/ladder/types";
@@ -37,7 +38,7 @@ function VerticalWireToggle({ connected, energized, onToggle }: { connected: boo
   );
 }
 
-export default function GridRungEditor({
+function GridRungEditor({
   index,
   grid,
   activeTool,
@@ -198,3 +199,45 @@ export default function GridRungEditor({
     </div>
   );
 }
+
+/** Task 7 (perf): value-compares two scans' flow results cell-by-cell (up to 6x11=66 booleans) - runGridScan/evalGridFlow allocates a brand-new GridFlowResult every scan regardless of whether anything in THIS rung actually changed, so a reference check would never bail. Cheap relative to the render + reconciliation work it lets React skip for the whole rung's ~11-66 GridCellView children. */
+function flowsEqual(a?: GridFlowResult, b?: GridFlowResult): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  for (let r = 0; r < a.length; r++) {
+    const rowA = a[r];
+    const rowB = b[r];
+    if (rowA.length !== rowB.length) return false;
+    for (let c = 0; c < rowA.length; c++) {
+      if (rowA[c].powered !== rowB[c].powered || rowA[c].conducts !== rowB[c].conducts) return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Deliberately excludes every callback prop from the comparison (same
+ * reasoning as GridCellView's cellPropsEqual) - each is a pure positional
+ * dispatcher closing over this rung's own stable `index` and a stable
+ * underlying grid-mutation function, so identity churn from GridEditorSurface
+ * recreating them inline every render doesn't reflect an actual behavior
+ * change worth re-rendering ~11-66 child cells for.
+ */
+function rungPropsEqual(prev: Parameters<typeof GridRungEditor>[0], next: Parameters<typeof GridRungEditor>[0]): boolean {
+  return (
+    prev.grid === next.grid &&
+    prev.activeTool === next.activeTool &&
+    prev.addressOptions === next.addressOptions &&
+    prev.numericOptions === next.numericOptions &&
+    prev.customVariables === next.customVariables &&
+    flowsEqual(prev.flow, next.flow) &&
+    (prev.selectedCell?.row ?? -1) === (next.selectedCell?.row ?? -1) &&
+    (prev.selectedCell?.col ?? -1) === (next.selectedCell?.col ?? -1) &&
+    (prev.pendingTapPort?.rungIndex ?? -1) === (next.pendingTapPort?.rungIndex ?? -1) &&
+    (prev.pendingTapPort?.row ?? -1) === (next.pendingTapPort?.row ?? -1) &&
+    (prev.pendingTapPort?.col ?? -1) === (next.pendingTapPort?.col ?? -1)
+  );
+}
+
+export default memo(GridRungEditor, rungPropsEqual);

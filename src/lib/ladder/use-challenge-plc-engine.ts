@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createEmptyMemory, type AnalogInputs, type Inputs, type SimMemory } from "./types";
-import { runGridScan } from "./grid-engine";
+import { runGridScan, type GridFlowResult } from "./grid-engine";
 import type { GridProgram } from "./grid-types";
 import { checkAll, findSafetyViolation, type SafetyFault } from "./challenge-eval";
 import type { ChallengeTestCase } from "./challenge-types";
@@ -25,6 +25,7 @@ const AUTO_PLAY_INTERVAL_MS = 450;
 
 type EngineState = {
   memory: SimMemory;
+  flows: GridFlowResult[];
   inputs: Inputs;
   analogInputs: AnalogInputs;
   stageIndex: number;
@@ -40,6 +41,7 @@ type EngineState = {
 function initialState(stageCount: number): EngineState {
   return {
     memory: createEmptyMemory(),
+    flows: [],
     inputs: {},
     analogInputs: {},
     stageIndex: 0,
@@ -77,7 +79,7 @@ function advance(program: GridProgram, testCase: ChallengeTestCase, state: Engin
   if (!state.frameSettled) {
     const inputs = frame.inputs;
     const analogInputs = frame.analogInputs ?? {};
-    const memory = runGridScan(program, inputs, state.memory, { tick: false }, analogInputs).memory;
+    const { memory, flows } = runGridScan(program, inputs, state.memory, { tick: false }, analogInputs);
     const violated = findSafetyViolation(safetyConstraints, inputs, memory, analogInputs);
     if (violated) {
       return {
@@ -85,23 +87,25 @@ function advance(program: GridProgram, testCase: ChallengeTestCase, state: Engin
         inputs,
         analogInputs,
         memory,
+        flows,
         fault: { constraintId: violated.id, description: violated.description, atStageId: stage.id },
       };
     }
-    return { ...state, inputs, analogInputs, memory, frameSettled: true, ticksRemaining: frame.ticks };
+    return { ...state, inputs, analogInputs, memory, flows, frameSettled: true, ticksRemaining: frame.ticks };
   }
 
   if (state.ticksRemaining > 0) {
-    const memory = runGridScan(program, state.inputs, state.memory, { tick: true }, state.analogInputs).memory;
+    const { memory, flows } = runGridScan(program, state.inputs, state.memory, { tick: true }, state.analogInputs);
     const violated = findSafetyViolation(safetyConstraints, state.inputs, memory, state.analogInputs);
     if (violated) {
       return {
         ...state,
         memory,
+        flows,
         fault: { constraintId: violated.id, description: violated.description, atStageId: stage.id },
       };
     }
-    return { ...state, memory, ticksRemaining: state.ticksRemaining - 1 };
+    return { ...state, memory, flows, ticksRemaining: state.ticksRemaining - 1 };
   }
 
   if (state.frameIndex + 1 < stage.frames.length) {
@@ -161,6 +165,7 @@ export function useChallengePlcEngine(program: GridProgram, testCase: ChallengeT
     inputs: state.inputs,
     analogInputs: state.analogInputs,
     memory: state.memory,
+    flows: state.flows,
     stageStatuses: state.stageStatuses,
     currentStageIndex: state.stageIndex,
     fault: state.fault,

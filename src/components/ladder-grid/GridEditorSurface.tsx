@@ -8,7 +8,6 @@ import {
   numericAddressOptions,
 } from "@/lib/ladder/types";
 import { COIL_COLUMN, isCoilNode, type GridNode } from "@/lib/ladder/grid-types";
-import { evalGridFlow } from "@/lib/ladder/grid-engine";
 import { MAX_GRID_RUNGS, MAX_ROWS_PER_RUNG, type LadderGridApi } from "@/lib/ladder/use-ladder-grid";
 import type { VariablePoolApi } from "@/lib/ladder/use-variable-pool";
 import { gridProgramToProgram } from "@/lib/ladder/grid-adapter";
@@ -633,7 +632,7 @@ export default function GridEditorSurface({
               numericOptions={numericOptions}
               addressTaken={(address, row, col) => addressTakenFor(i, col === COIL_COLUMN)(address, row)}
               customVariables={pool.customVariables}
-              flow={evalGridFlow(g, grid.inputs, grid.memory, grid.analogInputs)}
+              flow={grid.flows[i]}
               selectedCell={selectedCell && selectedCell.rungIndex === i ? selectedCell : null}
               onSelectCell={(row, col) => {
                 setSelectedCell({ rungIndex: i, row, col });

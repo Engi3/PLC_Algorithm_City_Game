@@ -39,6 +39,7 @@ export default function ReferenceSolutionModal({
     inputs: play.bridge.inputs,
     analogInputs: play.bridge.analogInputs,
     memory: play.bridge.memory,
+    flows: play.bridge.flows,
     running: play.bridge.running,
     toggleRunning: play.bridge.toggleRunning,
     step: play.bridge.step,

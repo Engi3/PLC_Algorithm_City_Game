@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   DEFAULT_COUNTER_PRESET,
   DEFAULT_TIMER_PRESET,
@@ -138,7 +139,7 @@ function ContactSymbol({ node, color }: { node: GridInstructionNode; color: stri
   );
 }
 
-export default function GridCellView({
+function GridCellView({
   rungIndex,
   cell,
   isCoilColumn,
@@ -445,3 +446,45 @@ export default function GridCellView({
     </div>
   );
 }
+
+/**
+ * Task 7 (perf): the highest-cardinality component in the editor (up to
+ * ~132-792 instances depending on how many rungs/branch-rows are in use) -
+ * without this memo, every single one re-rendered on every scan tick (10Hz
+ * RUN, or a Game Mode tick), regardless of whether that specific cell's own
+ * conduction state changed. Deliberately does NOT compare the callback
+ * props (onSelect/onPlace/onRemove/onUpdateAddress/onUpdateVariant/
+ * onUpdatePreset/onUpdateComparison/onToggleLeftWire/
+ * onPortDragStart/onBlockDragStart/consumeDragSuppression/
+ * onCellContextMenu/addressTaken) - GridRungEditor/GridEditorSurface still
+ * recreate these as fresh closures every render (a separate, lower-value
+ * fix left for later), but every one of them is a pure positional
+ * dispatcher closing over this cell's own (rungIndex, row, col) and a
+ * stable underlying grid-mutation function (see use-ladder-grid.ts's
+ * useCallback([]) refactor) - a "stale" closure from a skipped render is
+ * therefore behaviorally identical to a fresh one, so excluding them from
+ * the comparison is safe, not just convenient. `flow` is compared by its
+ * two primitive fields instead of object identity, since evalGridFlow/
+ * runGridScan allocates a brand-new GridCellFlow[][] every scan regardless
+ * of whether this cell's own power state actually changed.
+ */
+function cellPropsEqual(
+  prev: Parameters<typeof GridCellView>[0],
+  next: Parameters<typeof GridCellView>[0]
+): boolean {
+  return (
+    prev.cell === next.cell &&
+    prev.isCoilColumn === next.isCoilColumn &&
+    prev.activeTool === next.activeTool &&
+    prev.addressOptions === next.addressOptions &&
+    prev.numericOptions === next.numericOptions &&
+    prev.customVariables === next.customVariables &&
+    prev.isSelected === next.isSelected &&
+    !!prev.flow?.powered === !!next.flow?.powered &&
+    !!prev.flow?.conducts === !!next.flow?.conducts &&
+    (prev.pendingTapPort?.row ?? -1) === (next.pendingTapPort?.row ?? -1) &&
+    (prev.pendingTapPort?.col ?? -1) === (next.pendingTapPort?.col ?? -1)
+  );
+}
+
+export default memo(GridCellView, cellPropsEqual);

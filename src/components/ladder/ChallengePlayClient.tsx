@@ -109,6 +109,7 @@ export default function ChallengePlayClient({
     inputs: engine.inputs,
     analogInputs: engine.analogInputs,
     memory: engine.memory,
+    flows: engine.flows,
     running: engine.playing,
     toggleRunning: () => (engine.playing ? engine.pause() : engine.play()),
     step: engine.stepOnce,
