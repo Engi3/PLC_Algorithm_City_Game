@@ -1,5 +1,5 @@
 export const MAX_ENERGY = 100;
-export const ENERGY_REGEN_MS = 60_000; // +1 energy per minute
+export const ENERGY_REGEN_MS = 600_000; // +1 energy per 10 minutes
 
 /** Read-only: what the student's energy would be right now, without persisting anything. */
 export function computeLiveEnergy(

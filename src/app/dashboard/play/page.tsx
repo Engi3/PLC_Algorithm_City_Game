@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { SKILL_BADGE_CLASSES, SKILL_LABELS, isLevelSpec } from "@/lib/ladder/level-spec";
+import { bypassesLevelLock, computeUnlockedLevelNumber } from "@/lib/ladder/level-unlock";
 
 type LevelRow = {
   id: string;
@@ -16,6 +17,7 @@ export default async function LevelListPage() {
 
   let levels: LevelRow[] = [];
   let bestScoreByLevel = new Map<string, number>();
+  let unlockedLevelNumber = Infinity;
 
   try {
     const supabase = await createClient();
@@ -45,6 +47,8 @@ export default async function LevelListPage() {
           bestScoreByLevel.set(log.level_id, Math.max(prev, log.score ?? 0));
         }
       }
+
+      unlockedLevelNumber = bypassesLevelLock(profile.role) ? Infinity : await computeUnlockedLevelNumber(profile.id);
     }
   } catch (err) {
     console.error("LevelListPage crashed:", err);
@@ -71,17 +75,19 @@ export default async function LevelListPage() {
         {levels.map((level) => {
           const spec = isLevelSpec(level.map_layout_json) ? level.map_layout_json : null;
           const best = bestScoreByLevel.get(level.id);
-          return (
-            <Link
-              key={level.id}
-              href={`/dashboard/play/${level.id}`}
-              className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-4 transition-colors hover:border-blue-400 dark:border-zinc-800 dark:bg-zinc-950"
-            >
+          const locked = level.level_number > unlockedLevelNumber;
+
+          const cardBody = (
+            <>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-zinc-400">
-                  Level {level.level_number}
+                  Level {level.level_number} / {levels.length}
                 </span>
-                {best !== undefined ? (
+                {locked ? (
+                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-400 dark:bg-zinc-900 dark:text-zinc-600">
+                    🔒 ล็อกอยู่
+                  </span>
+                ) : best !== undefined ? (
                   <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-950 dark:text-green-400">
                     Best: {best}
                   </span>
@@ -91,10 +97,10 @@ export default async function LevelListPage() {
                   </span>
                 )}
               </div>
-              <h2 className="font-medium text-zinc-900 dark:text-zinc-50">
+              <h2 className={`font-medium ${locked ? "text-zinc-400 dark:text-zinc-600" : "text-zinc-900 dark:text-zinc-50"}`}>
                 {level.title ?? `Level ${level.level_number}`}
               </h2>
-              {spec && (
+              {spec && !locked && (
                 <>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">{spec.description}</p>
                   <span
@@ -104,6 +110,32 @@ export default async function LevelListPage() {
                   </span>
                 </>
               )}
+              {locked && (
+                <p className="text-sm text-zinc-400 dark:text-zinc-600">ผ่านด่านก่อนหน้าก่อน จึงจะเล่นด่านนี้ได้</p>
+              )}
+            </>
+          );
+
+          if (locked) {
+            return (
+              <div
+                key={level.id}
+                aria-disabled="true"
+                title="ผ่านด่านก่อนหน้าให้ครบก่อน จึงจะเล่นด่านนี้ได้"
+                className="flex cursor-not-allowed flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-4 opacity-60 dark:border-zinc-800 dark:bg-zinc-900"
+              >
+                {cardBody}
+              </div>
+            );
+          }
+
+          return (
+            <Link
+              key={level.id}
+              href={`/dashboard/play/${level.id}`}
+              className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-4 transition-colors hover:border-blue-400 dark:border-zinc-800 dark:bg-zinc-950"
+            >
+              {cardBody}
             </Link>
           );
         })}

@@ -7,6 +7,7 @@ import { evaluateGridLevel, countGridBlocks, computeScore, MIN_SCORE } from "@/l
 import { isLevelSpec } from "@/lib/ladder/level-spec";
 import type { GridProgram } from "@/lib/ladder/grid-types";
 import { applyEnergyRegen, computeCoinsForScore } from "@/lib/economy/energy";
+import { bypassesLevelLock, computeUnlockedLevelNumber } from "@/lib/ladder/level-unlock";
 
 export type SubmitLevelResult =
   | {
@@ -57,7 +58,7 @@ export async function submitLevelAction(
 
     const { data: level, error: levelError } = await supabase
       .from("levels")
-      .select("id, optimal_blocks_count, map_layout_json")
+      .select("id, level_number, optimal_blocks_count, map_layout_json")
       .eq("id", levelId)
       .single();
 
@@ -68,6 +69,15 @@ export async function submitLevelAction(
     if (!isLevelSpec(level.map_layout_json)) {
       console.error("submitLevelAction: malformed level spec", levelId);
       return { error: "This level is misconfigured." };
+    }
+
+    // Defense-in-depth: the play page already redirects away from a locked
+    // level, but the server action is the actual enforcement boundary.
+    if (!bypassesLevelLock(profile.role)) {
+      const unlockedLevelNumber = await computeUnlockedLevelNumber(profile.id);
+      if (level.level_number > unlockedLevelNumber) {
+        return { error: "ด่านนี้ยังไม่ปลดล็อก กรุณาผ่านด่านก่อนหน้าก่อน" };
+      }
     }
 
     const evalResult = evaluateGridLevel(program, level.map_layout_json);
@@ -183,6 +193,22 @@ export async function skipLevelAction(levelId: string): Promise<SkipLevelResult>
     }
 
     const supabase = await createClient();
+
+    if (!bypassesLevelLock(profile.role)) {
+      const { data: level, error: levelError } = await supabase
+        .from("levels")
+        .select("level_number")
+        .eq("id", levelId)
+        .single();
+      if (levelError || !level) {
+        console.error("skipLevelAction: level not found", levelError);
+        return { error: "Level not found." };
+      }
+      const unlockedLevelNumber = await computeUnlockedLevelNumber(profile.id);
+      if (level.level_number > unlockedLevelNumber) {
+        return { error: "ด่านนี้ยังไม่ปลดล็อก กรุณาผ่านด่านก่อนหน้าก่อน" };
+      }
+    }
     const { data: priorAttempts, error: attemptsError } = await supabase
       .from("play_logs")
       .select("id, score, is_success")

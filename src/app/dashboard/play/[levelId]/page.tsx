@@ -1,9 +1,10 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isLevelSpec, type SkillCategory } from "@/lib/ladder/level-spec";
 import GridLadderPlayground from "@/components/ladder/GridLadderPlayground";
 import PrevNextNav, { type NavTarget } from "@/components/ladder/PrevNextNav";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
+import { bypassesLevelLock, computeUnlockedLevelNumber } from "@/lib/ladder/level-unlock";
 
 export default async function LevelPlayPage({
   params,
@@ -21,6 +22,9 @@ export default async function LevelPlayPage({
   let prevLevelId: string | null = null;
   let nextLevelId: string | null = null;
   let bestScore: number | null = null;
+  let totalLevels: number | null = null;
+  let levelNumber = 0;
+  let shouldRedirectToLevelList = false;
 
   try {
     const supabase = await createClient();
@@ -36,6 +40,7 @@ export default async function LevelPlayPage({
     }
 
     title = level.title ?? `Level ${level.level_number}`;
+    levelNumber = level.level_number;
     if (isLevelSpec(level.map_layout_json)) {
       description = level.map_layout_json.description;
       skill = level.map_layout_json.skill;
@@ -55,6 +60,12 @@ export default async function LevelPlayPage({
       nextLevelId = neighbors?.find((n) => n.level_number === level.level_number + 1)?.id ?? null;
     }
 
+    const { count: totalCount, error: totalCountError } = await supabase
+      .from("levels")
+      .select("id", { count: "exact", head: true });
+    if (totalCountError) console.error("LevelPlayPage: failed to count levels", totalCountError);
+    else totalLevels = totalCount;
+
     if (profile) {
       const { data: passedLogs, error: logsError } = await supabase
         .from("play_logs")
@@ -67,11 +78,21 @@ export default async function LevelPlayPage({
       } else if (passedLogs && passedLogs.length > 0) {
         bestScore = Math.max(0, ...passedLogs.map((l) => l.score ?? 0));
       }
+
+      if (!bypassesLevelLock(profile.role)) {
+        const unlockedLevelNumber = await computeUnlockedLevelNumber(profile.id);
+        if (levelNumber > unlockedLevelNumber) shouldRedirectToLevelList = true;
+      }
     }
   } catch (err) {
     console.error("LevelPlayPage crashed:", err);
     notFound();
   }
+
+  // redirect() throws internally (by design) - it must happen outside the
+  // try/catch above, otherwise the generic catch there would swallow it
+  // and turn it into a 404 instead of an actual redirect.
+  if (shouldRedirectToLevelList) redirect("/dashboard/play");
 
   const prevNav: NavTarget = prevLevelId ? { kind: "link", href: `/dashboard/play/${prevLevelId}` } : { kind: "none" };
   const nextNav: NavTarget = nextLevelId ? { kind: "link", href: `/dashboard/play/${nextLevelId}` } : { kind: "none" };
@@ -81,6 +102,11 @@ export default async function LevelPlayPage({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{title}</h1>
+          {totalLevels !== null && (
+            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-950 dark:text-blue-400">
+              Level {levelNumber} / {totalLevels}
+            </span>
+          )}
           {isTeacher && (
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-400">
               โหมดทดสอบอาจารย์ - คะแนนจะไม่ถูกบันทึกในระบบจัดอันดับนักเรียน
